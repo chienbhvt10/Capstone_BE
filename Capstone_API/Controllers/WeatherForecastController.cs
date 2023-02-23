@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-
+using System.Text.Json
 namespace Capstone_API.Controllers
 {
     [ApiController]
@@ -21,6 +21,7 @@ namespace Capstone_API.Controllers
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
+
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
