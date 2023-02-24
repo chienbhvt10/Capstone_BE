@@ -1,6 +1,6 @@
 ﻿namespace Capstone_API.Data.Entities
 {
-    public class Task
+    public class TaskAssign
     {
         public int Id { get; set; }
         public int ClassId { get; set; }
@@ -9,13 +9,13 @@
         public int TimeSlotId { get; set; }
         public string? Slot1 { get; set; }
         public string? Slot2 { get; set; }
-        public string? Room { get; set; }
+        public string? Room1 { get; set; }
         public string? Room2 { get; set; }
-        public int BuildingID { get; set; }
-        public int SemesterID { get; set; }
-        public string? Status { get; set; }
+        public int BuildingId { get; set; }
+        public int SemesterId { get; set; }
+        public bool Status { get; set; }
 
-        public Task(int id, int classId, int subjectId, string? department, int timeSlotId, string? slot1, string? slot2, string? room, string? room2, int buildingID, int semesterID, string? status)
+        public TaskAssign(int id, int classId, int subjectId, string? department, int timeSlotId, string? slot1, string? slot2, string? room, string? room2, int buildingID, int semesterID, bool status)
         {
             Id = id;
             ClassId = classId;
@@ -24,13 +24,13 @@
             TimeSlotId = timeSlotId;
             Slot1 = slot1;
             Slot2 = slot2;
-            Room = room;
+            Room1 = room;
             Room2 = room2;
-            BuildingID = buildingID;
-            SemesterID = semesterID;
+            BuildingId = buildingID;
+            SemesterId = semesterID;
             Status = status;
         }
 
-        public Task() { }
+        public TaskAssign() { }
     }
 }

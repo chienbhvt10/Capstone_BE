@@ -20,6 +20,7 @@ namespace Exercise.Data.Config
                     .HasColumnName("Name")
                     .HasColumnType("nvarchar")
                     .HasMaxLength(50)
+                    .HasDefaultValue(null)
                     .IsRequired(false);
         }
     }

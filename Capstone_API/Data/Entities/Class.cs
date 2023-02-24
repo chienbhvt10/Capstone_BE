@@ -1,6 +1,6 @@
-namespace Exercise.Data.Entities
+﻿namespace Exercise.Data.Entities
 {
-    public class Class
+    public class Class // Đặt tên như này có ngày nó lỗi đéo biết tại sao :v
     {
 
         public int Id { get; set; }

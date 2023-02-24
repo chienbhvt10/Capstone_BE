@@ -1,4 +1,5 @@
-﻿using Capstone_API.Data.Entities;
+﻿using Capstone_API.Data.Config;
+using Capstone_API.Data.Entities;
 using Exercise.Data.Config;
 using Exercise.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -40,18 +41,34 @@ namespace Exercise.Data.EF_DBContext
         // Cấu hình liên quan đến cơ sở dữ liệu
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseLoggerFactory(s_loggerFactory);
-            optionsBuilder.UseSqlServer(
-                "Data Source=DESKTOP-023CA5I;" +
-                "Initial Catalog=EF_DB_Learn;" +
-                "Integrated Security=True");
+            var builder = new ConfigurationBuilder()
+                             .SetBasePath(Directory.GetCurrentDirectory())
+                             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            IConfigurationRoot configuration = builder.Build();
+            optionsBuilder.UseSqlServer(configuration.GetConnectionString("CapstoneData"));
+            //optionsBuilder.UseSqlServer("Data Source=DESKTOP-J3B9EFD;Initial Catalog=CapstoneData;Integrated Security=True");
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new BuildingConfiguration());
             modelBuilder.ApplyConfiguration(new ClassConfiguration());
+            modelBuilder.ApplyConfiguration(new DistanceConfiguration());
+            modelBuilder.ApplyConfiguration(new LecturerConfiguration());
+            modelBuilder.ApplyConfiguration(new LecturerRegisterConfiguration());
+            modelBuilder.ApplyConfiguration(new ModelConfiguration());
+            modelBuilder.ApplyConfiguration(new SemesterConfiguration());
+            modelBuilder.ApplyConfiguration(new SlotDayConfiguration());
+            modelBuilder.ApplyConfiguration(new SlotPreferenceLevelConfiguration());
+            modelBuilder.ApplyConfiguration(new SubjectConfiguration());
+            modelBuilder.ApplyConfiguration(new SubjectPreferenceLevelConfiguration());
+            modelBuilder.ApplyConfiguration(new TaskAssignConfiguration());
+            modelBuilder.ApplyConfiguration(new TimeSlotCompatibilityConfiguration());
+            modelBuilder.ApplyConfiguration(new TimeSLotConfiguration());
+            modelBuilder.ApplyConfiguration(new TimeSlotConflictConfiguration());
         }
 
         public static void CreateDataBase()

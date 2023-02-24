@@ -3,16 +3,16 @@
     public class TimeSLotConflict
     {
         public int Id { get; set; }
-        public int Slot_id { get; set; }
-        public int Conflict_slot_id { get; set; }
-        public int Conflict { get; set; }
+        public int SlotId { get; set; }
+        public int ConflictSlotId { get; set; }
+        public bool Conflict { get; set; }
         public int SemesterId { get; set; }
 
-        public TimeSLotConflict(int id, int slot_id, int conflict_slot_id, int conflict, int semesterId)
+        public TimeSLotConflict(int id, int slot_id, int conflict_slot_id, bool conflict, int semesterId)
         {
             Id = id;
-            Slot_id = slot_id;
-            Conflict_slot_id = conflict_slot_id;
+            SlotId = slot_id;
+            ConflictSlotId = conflict_slot_id;
             Conflict = conflict;
             SemesterId = semesterId;
         }
