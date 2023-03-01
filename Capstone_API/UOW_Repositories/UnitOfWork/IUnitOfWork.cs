@@ -1,4 +1,5 @@
 ﻿using Capstone_API.Models;
+using Capstone_API.UOW_Repositories.IRepositories;
 using Capstone_API.UOW_Repositories.Repositories;
 
 namespace Capstone_API.UOW_Repositories.UnitOfWork
@@ -7,6 +8,9 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
     {
         CapstoneDataContext Context { get; }
         ITaskRepository TaskRepository { get; }
+        ISubjectRepository SubjectRepository { get; }
+        ILecturerRepository LecturerRepository { get; }
+
         void Complete();
         Task<int> CompleteAsync();
     }

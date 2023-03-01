@@ -15,7 +15,7 @@ namespace Capstone_API.Models
 
         public int Id { get; set; }
         public string? Name { get; set; }
-        public int Year { get; set; }
+        public int? Year { get; set; }
 
         public virtual ICollection<SlotPreferenceLevel> SlotPreferenceLevels { get; set; }
         public virtual ICollection<SubjectPreferenceLevel> SubjectPreferenceLevels { get; set; }

@@ -2,22 +2,26 @@
 {
     public class GenericResult<T>
     {
-        public GenericResult(bool success, string message)
+        public bool IsSuccess { get; set; }
+        public T? Data { get; set; }
+        public string? Message { get; set; }
+
+        public GenericResult()
         {
-            Success = success;
-            Message = message;
+            IsSuccess = true;
         }
 
-        public bool Success { get; set; }
-        public string Message { get; set; } = string.Empty;
-        public T? Data { get; set; }
-    }
-
-    public class GenericResult : GenericResult<object>
-    {
-        public GenericResult(bool success, string message) : base(success, message)
+        public GenericResult(T data)
         {
+            IsSuccess = true;
+            Data = data;
+        }
 
+        public GenericResult(string message)
+        {
+            IsSuccess = false;
+            Message = message;
         }
     }
 }
+

@@ -1,43 +1,38 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Capstone_API.DTO.Task;
+using Capstone_API.Service.Interface;
+using Microsoft.AspNetCore.Mvc;
+using UTA.T2.MusicLibrary.Service.Results;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Capstone_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/arrange")]
     [ApiController]
     public class ArrangeManagerController : ControllerBase
     {
-        // GET: api/<AgainController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+
+        private readonly ITaskService _taskService;
+        public ArrangeManagerController(ITaskService taskService)
         {
-            return new string[] { "value1", "value2" };
+            _taskService = taskService;
         }
 
-        // GET api/<AgainController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpPut("swap-lecturer")]
+        public ResponseResult SwapLectuter([FromBody] SwapLecturerOfTaskDTO value)
         {
-            return "value";
+            return _taskService.SwapLecturer(value);
         }
 
-        // POST api/<AgainController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPut("swap-room")]
+        public ResponseResult SwapRoom([FromBody] SwapRoomOfTaskDTO value)
         {
+            return _taskService.SwapRoom(value);
         }
-
-        // PUT api/<AgainController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("timetable-modify")]
+        public ResponseResult TimeTableModify([FromBody] TaskModifyDTO value)
         {
-        }
-
-        // DELETE api/<AgainController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return _taskService.TimeTableModify(value);
         }
     }
 }

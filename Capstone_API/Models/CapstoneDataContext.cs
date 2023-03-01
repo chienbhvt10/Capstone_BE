@@ -67,22 +67,24 @@ namespace Capstone_API.Models
 
                 entity.HasOne(d => d.Building1)
                     .WithMany(p => p.DistanceBuilding1s)
-                    .HasForeignKey(d => d.Building1Id)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .HasForeignKey(d => d.Building1Id);
 
                 entity.HasOne(d => d.Building2)
                     .WithMany(p => p.DistanceBuilding2s)
-                    .HasForeignKey(d => d.Building2Id)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .HasForeignKey(d => d.Building2Id);
             });
 
             modelBuilder.Entity<Lecturer>(entity =>
             {
                 entity.ToTable("Lecturer");
 
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
                 entity.Property(e => e.Name).HasMaxLength(50);
 
                 entity.Property(e => e.ShortName).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<LecturerRegister>(entity =>
@@ -99,11 +101,13 @@ namespace Capstone_API.Models
 
                 entity.HasOne(d => d.Lecturer)
                     .WithMany(p => p.LecturerRegisters)
-                    .HasForeignKey(d => d.LecturerId);
+                    .HasForeignKey(d => d.LecturerId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.Subject)
                     .WithMany(p => p.LecturerRegisters)
-                    .HasForeignKey(d => d.SubjectId);
+                    .HasForeignKey(d => d.SubjectId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.TimeSlot)
                     .WithMany(p => p.LecturerRegisters)
@@ -145,11 +149,13 @@ namespace Capstone_API.Models
 
                 entity.HasOne(d => d.Lecturer)
                     .WithMany(p => p.SlotPreferenceLevels)
-                    .HasForeignKey(d => d.LecturerId);
+                    .HasForeignKey(d => d.LecturerId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.Semester)
                     .WithMany(p => p.SlotPreferenceLevels)
-                    .HasForeignKey(d => d.SemesterId);
+                    .HasForeignKey(d => d.SemesterId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.TimeSlotInstance)
                     .WithMany(p => p.SlotPreferenceLevels)
@@ -167,7 +173,6 @@ namespace Capstone_API.Models
                 entity.HasOne(d => d.Semester)
                     .WithMany(p => p.Subjects)
                     .HasForeignKey(d => d.SemesterId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Subjects_Semester");
             });
 
@@ -183,20 +188,25 @@ namespace Capstone_API.Models
 
                 entity.HasOne(d => d.Lecturer)
                     .WithMany(p => p.SubjectPreferenceLevels)
-                    .HasForeignKey(d => d.LecturerId);
+                    .HasForeignKey(d => d.LecturerId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.Semester)
                     .WithMany(p => p.SubjectPreferenceLevels)
-                    .HasForeignKey(d => d.SemesterId);
+                    .HasForeignKey(d => d.SemesterId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.Subject)
                     .WithMany(p => p.SubjectPreferenceLevels)
-                    .HasForeignKey(d => d.SubjectId);
+                    .HasForeignKey(d => d.SubjectId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<TaskAssign>(entity =>
             {
                 entity.ToTable("TaskAssign");
+
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
 
                 entity.Property(e => e.Department).HasMaxLength(50);
 
@@ -204,28 +214,26 @@ namespace Capstone_API.Models
 
                 entity.Property(e => e.Slot2).HasMaxLength(50);
 
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
+
                 entity.HasOne(d => d.Class)
                     .WithMany(p => p.TaskAssigns)
                     .HasForeignKey(d => d.ClassId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_TaskAssign_Classes");
 
                 entity.HasOne(d => d.Semester)
                     .WithMany(p => p.TaskAssigns)
                     .HasForeignKey(d => d.SemesterId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_TaskAssign_Semester");
 
                 entity.HasOne(d => d.Subject)
                     .WithMany(p => p.TaskAssigns)
                     .HasForeignKey(d => d.SubjectId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_TaskAssign_Subjects");
 
                 entity.HasOne(d => d.TimeSlot)
                     .WithMany(p => p.TaskAssigns)
                     .HasForeignKey(d => d.TimeSlotId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_TaskAssign_TimeSlot");
             });
 
