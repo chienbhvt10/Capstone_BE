@@ -3,7 +3,7 @@
 namespace Capstone_API.UOW_Repositories.Infrastructures
 {
     public interface IGenericRepository<TEntity>
-    where TEntity : class, IBaseEntity
+    where TEntity : class
     {
         IEnumerable<TEntity> GetAll();
         Task<IEnumerable<TEntity>> GetAllAsync();
@@ -58,75 +58,8 @@ namespace Capstone_API.UOW_Repositories.Infrastructures
         /// <returns></returns>
         Task AddRangeAsync(IEnumerable<TEntity> entities);
 
-        /// <summary>
-        /// This method use to count entity
-        /// </summary>
-        /// <param name="isHardDeleted"></param>
-        /// <returns></returns>
-        int Count(bool isHardDeleted = false);
-
-        /// <summary>
-        /// This method use to count entity with async
-        /// </summary>
-        /// <param name="isHardDeleted"></param>
-        /// <returns></returns>
-        Task<int> CountAsync(bool isHardDeleted = false);
-
-        /// <summary>
-        /// This method use to add modified track to an entity
-        /// </summary>
-        /// <param name="entity"></param>
         void Update(TEntity entity);
 
-        /// <summary>
-        /// This method use to delete and entity by id
-        /// </summary>
-        /// <param name="entityId"></param>
-        /// <param name="isHardDeleted"></param>
-        void Delete(int entityId, bool isHardDeleted = false);
 
-        /// <summary>
-        /// This method use to delete an entity
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="isHardDeleted"></param>
-        void Delete(TEntity entity, bool isHardDeleted = false);
-
-        /// <summary>
-        /// This method use to delete an array entities
-        /// </summary>
-        /// <param name="isHardDeleted"></param>
-        /// <param name="keyValues"></param>
-        void Delete(bool isHardDeleted = false, params object[] keyValues);
-
-        /// <summary>
-        /// This method use to delete an array by entity id
-        /// </summary>
-        /// <param name="isHardDeleted"></param>
-        /// <param name="entity"></param>
-        Task DeleteAsync(TEntity entity, bool isHardDeleted = false);
-
-        /// <summary>
-        /// This method use to delete a params objects key value
-        /// </summary>
-        /// <param name="isHardDeleted"></param>
-        /// <param name="keyValues"></param>
-        /// <returns></returns>
-        Task DeleteAsync(bool isHardDeleted = false, params object[] keyValues);
-
-        /// <summary>
-        /// This method use to delete entity by some condition
-        /// </summary>
-        /// <param name="condition"></param>
-        /// <param name="isHardDeleted"></param>
-        void DeleteByCondition(Func<TEntity, bool> condition, bool isHardDeleted = false);
-
-        /// <summary>
-        /// This method use to delete entity by some condition by async
-        /// </summary>
-        /// <param name="condition"></param>
-        /// <param name="isHardDeleted"></param>
-        /// <returns></returns>
-        Task DeleteByConditionAsync(Func<TEntity, bool> condition, bool isHardDeleted = false);
     }
 }

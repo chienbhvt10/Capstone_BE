@@ -22,7 +22,6 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         public ILecturerRepository LecturerRepository => _lecturerRepository ??= new LecturerRepository(Context);
         public ISubjectRepository SubjectRepository => _subjectRepository ??= new SubjectRepository(Context);
 
-
         public void Dispose()
         {
             Context.Dispose();

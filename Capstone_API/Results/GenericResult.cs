@@ -11,9 +11,9 @@
             IsSuccess = true;
         }
 
-        public GenericResult(T data)
+        public GenericResult(T data, bool isSuccess)
         {
-            IsSuccess = true;
+            IsSuccess = isSuccess;
             Data = data;
         }
 

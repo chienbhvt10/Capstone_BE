@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Capstone_API.DTO.Lecturer;
-using Capstone_API.DTO.Task;
+using Capstone_API.DTO.Lecturer.Response;
+using Capstone_API.DTO.Task.Request;
 using Capstone_API.Models;
 
 namespace Capstone_API.Config.AutoMapper
@@ -10,12 +10,12 @@ namespace Capstone_API.Config.AutoMapper
         public AutoMapperConfig()
         {
             // TaskMapper
-            CreateMap<TaskAssign, SwapLecturerOfTaskDTO>().ReverseMap();
-            CreateMap<TaskAssign, SwapRoomOfTaskDTO>().ReverseMap();
-            CreateMap<TaskAssign, TaskModifyDTO>().ReverseMap();
+            CreateMap<TaskAssign, SwapLecturerRequest>().ReverseMap();
+            CreateMap<TaskAssign, SwapRoomRequest>().ReverseMap();
+            CreateMap<TaskAssign, TaskModifyRequest>().ReverseMap();
 
             // Lecturer Mapper
-            CreateMap<Lecturer, LecturerDTO>().ReverseMap();
+            CreateMap<Lecturer, LecturerResponse>().ReverseMap();
 
             // Subject Mapper
 

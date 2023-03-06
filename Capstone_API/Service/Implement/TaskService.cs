@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
-using Capstone_API.DTO.Task;
+using Capstone_API.DTO.Task.Request;
+using Capstone_API.DTO.Task.Response;
 using Capstone_API.Models;
+using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Capstone_API.UOW_Repositories.UnitOfWork;
-using UTA.T2.MusicLibrary.Service.Results;
 
 namespace Capstone_API.Service.Implement
 {
@@ -19,6 +20,18 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
         }
 
+        public GenericResult<IEnumerable<GetAllTaskAssignResponse>> GetAll(GetAllTaskAssignRequest request)
+        {
+            try
+            {
+                return new GenericResult<IEnumerable<GetAllTaskAssignResponse>>();
+            }
+            catch (Exception ex)
+            {
+                return new GenericResult<IEnumerable<GetAllTaskAssignResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
         public ResponseResult RequestLecturerConfirm()
         {
             try
@@ -31,7 +44,7 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public ResponseResult SwapLecturer(SwapLecturerOfTaskDTO request)
+        public ResponseResult SwapLecturer(SwapLecturerRequest request)
         {
             try
             {
@@ -46,7 +59,7 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public ResponseResult SwapRoom(SwapRoomOfTaskDTO request)
+        public ResponseResult SwapRoom(SwapRoomRequest request)
         {
             try
             {
@@ -63,7 +76,7 @@ namespace Capstone_API.Service.Implement
         }
 
 
-        public ResponseResult TimeTableModify(TaskModifyDTO request)
+        public ResponseResult TimeTableModify(TaskModifyRequest request)
         {
             try
             {
@@ -77,5 +90,7 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+
+
     }
 }

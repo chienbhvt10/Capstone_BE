@@ -1,4 +1,4 @@
-﻿namespace UTA.T2.MusicLibrary.Service.Results
+﻿namespace Capstone_API.Results
 {
     public class ResponseResult
     {

@@ -1,12 +1,11 @@
-﻿using Capstone_API.Enum;
-using Capstone_API.Models;
+﻿using Capstone_API.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Capstone_API.UOW_Repositories.Infrastructures
 {
     public abstract class GenericRepository<TEntity> : IGenericRepository<TEntity>
-       where TEntity : class, IBaseEntity
+       where TEntity : class
     {
 
         protected readonly CapstoneDataContext Context;
@@ -129,33 +128,6 @@ namespace Capstone_API.UOW_Repositories.Infrastructures
 
         #endregion
 
-        #region Counts
-
-        /// <summary>
-        /// This method use to count entity
-        /// </summary>
-        /// <param name="isHardDeleted"></param>
-        /// <returns></returns>
-        public virtual int Count(bool isHardDeleted = false)
-        {
-            return isHardDeleted == false ? _dbSet.Count(x => x.ExistStatus != Status.Deleted) : _dbSet.Count();
-        }
-
-        /// <summary>
-        /// This method use to count entity with async
-        /// </summary>
-        /// <param name="isHardDeleted"></param>
-        /// <returns></returns>
-        public virtual async Task<int> CountAsync(bool isHardDeleted = false)
-        {
-            if (isHardDeleted == false)
-                return await _dbSet.CountAsync(x => x.ExistStatus != Status.Deleted);
-
-            return await _dbSet.CountAsync();
-        }
-
-        #endregion
-
         #region Updates
 
         //// Update Options
@@ -171,151 +143,7 @@ namespace Capstone_API.UOW_Repositories.Infrastructures
 
         #endregion
 
-        #region Deletes
 
-        //// Delete Options
-
-        /// <summary>
-        /// This method use to delete and entity by id
-        /// </summary>
-        /// <param name="entityId"></param>
-        /// <param name="isHardDeleted"></param>
-        public virtual void Delete(int entityId, bool isHardDeleted = false)
-        {
-            var entity = _dbSet.FirstOrDefault(x => x.Id.Equals(entityId));
-
-            if (entity == null)
-                throw new ArgumentNullException($"{entityId} was not found in the {typeof(TEntity)}");
-
-            if (isHardDeleted == false)
-            {
-                entity.ExistStatus = Status.Deleted;
-                Context.Entry(entity).State = EntityState.Modified;
-                return;
-            }
-
-            _dbSet.Remove(entity);
-        }
-
-        /// <summary>
-        /// This method use to delete an entity
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="isHardDeleted"></param>
-        public virtual void Delete(TEntity entity, bool isHardDeleted = false)
-        {
-            var entityExist = _dbSet.FirstOrDefault(x => x.Id.Equals(entity.Id));
-
-            if (entityExist == null)
-                throw new ArgumentNullException($"{entity.Id} was not found in the {typeof(TEntity)}");
-
-            if (isHardDeleted == false)
-            {
-                entity.ExistStatus = Status.Deleted;
-                Context.Entry(entity).State = EntityState.Modified;
-                return;
-            }
-
-            _dbSet.Remove(entity);
-        }
-
-        /// <summary>
-        /// This method use to delete an array entities
-        /// </summary>
-        /// <param name="isHardDeleted"></param>
-        /// <param name="keyValues"></param>
-        public virtual void Delete(bool isHardDeleted = false, params object[] keyValues)
-        {
-            var entitiesExist = _dbSet.Find(keyValues);
-
-            if (entitiesExist == null)
-                throw new ArgumentNullException($"{string.Join(";", keyValues)} was not found in the {typeof(TEntity)}");
-
-            if (isHardDeleted == false)
-            {
-
-                entitiesExist.ExistStatus = Status.Deleted;
-                Context.Entry(entitiesExist).State = EntityState.Modified;
-                return;
-            }
-
-            _dbSet.Remove(entitiesExist);
-        }
-
-        /// <summary>
-        /// This method use to delete an array by entity id
-        /// </summary>
-        /// <param name="isHardDeleted"></param>
-        /// <param name="entity"></param>
-        public virtual async Task DeleteAsync(TEntity entity, bool isHardDeleted = false)
-        {
-            var entitiesExist = await _dbSet.FirstOrDefaultAsync(x => x.Id.Equals(entity.Id));
-
-            if (entitiesExist == null)
-                throw new ArgumentNullException($"{entity.Id} was not found in the {typeof(TEntity)}");
-
-            if (isHardDeleted == false)
-            {
-                entitiesExist.ExistStatus = Status.Deleted;
-                Context.Entry(entitiesExist).State = EntityState.Modified;
-                return;
-            }
-            _dbSet.Remove(entitiesExist);
-        }
-
-        /// <summary>
-        /// This method use to delete a params objects key value
-        /// </summary>
-        /// <param name="isHardDeleted"></param>
-        /// <param name="keyValues"></param>
-        /// <returns></returns>
-        public virtual async Task DeleteAsync(bool isHardDeleted = false, params object[] keyValues)
-        {
-            var entitiesExist = await _dbSet.FindAsync(keyValues);
-
-            if (entitiesExist == null)
-                throw new ArgumentNullException(
-                    $"{string.Join(";", keyValues)} was not found in the {typeof(TEntity)}");
-
-            if (isHardDeleted == false)
-            {
-                entitiesExist.ExistStatus = Status.Deleted;
-                Context.Entry(entitiesExist).State = EntityState.Modified;
-                return;
-            }
-            _dbSet.Remove(entitiesExist);
-        }
-
-        /// <summary>
-        /// This method use to delete entity by some condition
-        /// </summary>
-        /// <param name="condition"></param>
-        /// <param name="isHardDeleted"></param>
-        public virtual void DeleteByCondition(Func<TEntity, bool> condition, bool isHardDeleted = false)
-        {
-            var query = _dbSet.Where(condition);
-            foreach (var entity in query)
-            {
-                Delete(entity, isHardDeleted);
-            }
-        }
-
-        /// <summary>
-        /// This method use to delete entity by some condition by async
-        /// </summary>
-        /// <param name="condition"></param>
-        /// <param name="isHardDeleted"></param>
-        /// <returns></returns>
-        public virtual async Task DeleteByConditionAsync(Func<TEntity, bool> condition, bool isHardDeleted = false)
-        {
-            var query = _dbSet.Where(condition);
-            foreach (var entity in query)
-            {
-                await DeleteAsync(entity, isHardDeleted);
-            }
-        }
-
-        #endregion
 
     }
 }

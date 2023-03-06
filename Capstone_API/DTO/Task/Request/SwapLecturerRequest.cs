@@ -1,16 +1,16 @@
-﻿namespace Capstone_API.DTO.Task
+﻿namespace Capstone_API.DTO.Task.Request
 {
-    public class SwapLecturerOfTaskDTO
+    public class SwapLecturerRequest
     {
         public int Id { get; set; }
         public int LecturerId { get; set; }
 
-        public SwapLecturerOfTaskDTO()
+        public SwapLecturerRequest()
         {
 
         }
 
-        public SwapLecturerOfTaskDTO(int id, int lecturerId)
+        public SwapLecturerRequest(int id, int lecturerId)
         {
             Id = id;
             LecturerId = lecturerId;

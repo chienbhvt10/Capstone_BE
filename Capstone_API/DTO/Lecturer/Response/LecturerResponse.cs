@@ -1,6 +1,6 @@
-﻿namespace Capstone_API.DTO.Lecturer
+﻿namespace Capstone_API.DTO.Lecturer.Response
 {
-    public class LecturerDTO
+    public class LecturerResponse
     {
         public int Id { get; set; }
         public string? Name { get; set; }

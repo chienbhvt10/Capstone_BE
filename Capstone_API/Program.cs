@@ -5,6 +5,7 @@ using Capstone_API.Service.Interface;
 using Capstone_API.UOW_Repositories.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 //Add automapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -19,7 +20,19 @@ builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ILecturerService, LecturerService>();
 builder.Services.AddScoped<IExcelService, ExcelService>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+//add hostingEnvironment service
+var hostingEnvironment = builder.Services.BuildServiceProvider()?.GetService<IWebHostEnvironment>();
+builder.Services.AddSingleton(hostingEnvironment);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:3000");
+                      });
+});
 
 var app = builder.Build();
 
@@ -30,6 +43,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(MyAllowSpecificOrigins);
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

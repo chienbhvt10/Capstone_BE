@@ -1,8 +1,7 @@
-﻿using Capstone_API.DTO.Lecturer;
+﻿using Capstone_API.DTO.Lecturer.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
-using UTA.T2.MusicLibrary.Service.Results;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,25 +18,25 @@ namespace Capstone_API.Controllers
         }
 
         [HttpGet]
-        public GenericResult<IEnumerable<LecturerDTO>> Get()
+        public GenericResult<IEnumerable<LecturerResponse>> Get()
         {
             return _lecturerService.GetAll();
         }
 
         [HttpGet("{id}")]
-        public GenericResult<LecturerDTO> Get(int id)
+        public GenericResult<LecturerResponse> Get(int id)
         {
             return _lecturerService.GetOneLecturer(id);
         }
 
         [HttpPost]
-        public ResponseResult Post([FromBody] LecturerDTO request)
+        public ResponseResult Post([FromBody] LecturerResponse request)
         {
             return _lecturerService.CreateLecturer(request);
         }
 
         [HttpPut]
-        public ResponseResult Put([FromBody] LecturerDTO request)
+        public ResponseResult Put([FromBody] LecturerResponse request)
         {
             return _lecturerService.UpdateLecturer(request);
 

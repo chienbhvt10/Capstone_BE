@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Capstone_API.Models
 {
@@ -15,6 +12,7 @@ namespace Capstone_API.Models
             : base(options)
         {
         }
+
 
         public virtual DbSet<Building> Buildings { get; set; } = null!;
         public virtual DbSet<Class> Classes { get; set; } = null!;
