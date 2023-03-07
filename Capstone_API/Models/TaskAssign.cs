@@ -1,8 +1,9 @@
-﻿using Capstone_API.UOW_Repositories.Infrastructures;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Capstone_API.Models
 {
-    public partial class TaskAssign : BaseEntity
+    public partial class TaskAssign
     {
         public int Id { get; set; }
         public int? ClassId { get; set; }
@@ -16,7 +17,7 @@ namespace Capstone_API.Models
         public int? LecturerId { get; set; }
         public int? Room1Id { get; set; }
         public int? Room2Id { get; set; }
-        public bool? ExistStatus { get; set; }
+        public string? ExistStatus { get; set; }
         public DateTime? CreateOn { get; set; }
         public DateTime? UpdateOn { get; set; }
 

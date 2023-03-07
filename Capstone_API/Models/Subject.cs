@@ -1,8 +1,9 @@
-﻿using Capstone_API.UOW_Repositories.Infrastructures;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Capstone_API.Models
 {
-    public partial class Subject : BaseEntity
+    public partial class Subject
     {
         public Subject()
         {
@@ -17,6 +18,9 @@ namespace Capstone_API.Models
         public int? SemesterId { get; set; }
         public int? OrderNumber { get; set; }
         public string? Department { get; set; }
+        public DateTime? CreateOn { get; set; }
+        public DateTime? UpdateOn { get; set; }
+        public string? ExistStatus { get; set; }
 
         public virtual Semester? Semester { get; set; }
         public virtual ICollection<LecturerRegister> LecturerRegisters { get; set; }

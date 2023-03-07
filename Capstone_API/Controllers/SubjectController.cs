@@ -1,4 +1,5 @@
-﻿using Capstone_API.Models;
+﻿using Capstone_API.DTO.Subject.Response;
+using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,36 +16,37 @@ namespace Capstone_API.Controllers
         {
             _subjectService = subjectService;
         }
-        // GET: api/<SubjectController>
+
         [HttpGet]
-        public IEnumerable<Subject> Get()
+        public GenericResult<IEnumerable<SubjectResponse>> Get()
         {
-            return _subjectService.TestFuntion();
+            return _subjectService.GetAll();
         }
 
-        // GET api/<SubjectController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public GenericResult<SubjectResponse> Get(int id)
         {
-            return "value";
+            return _subjectService.GetOneSubject(id);
         }
 
-        // POST api/<SubjectController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ResponseResult Post([FromBody] SubjectResponse request)
         {
+            return _subjectService.CreateSubject(request);
         }
 
-        // PUT api/<SubjectController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut]
+        public ResponseResult Put([FromBody] SubjectResponse request)
         {
+            return _subjectService.UpdateSubject(request);
+
         }
 
-        // DELETE api/<SubjectController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ResponseResult Delete(int id)
         {
+            return _subjectService.DeleteSubject(id);
+
         }
     }
 }

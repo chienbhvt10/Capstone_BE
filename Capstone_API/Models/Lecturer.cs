@@ -1,8 +1,9 @@
-﻿using Capstone_API.UOW_Repositories.Infrastructures;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Capstone_API.Models
 {
-    public partial class Lecturer : BaseEntity
+    public partial class Lecturer
     {
         public Lecturer()
         {

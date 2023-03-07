@@ -12,6 +12,9 @@ namespace Capstone_API.Models
 
         public int Id { get; set; }
         public string? Name { get; set; }
+        public DateTime? CreateOn { get; set; }
+        public DateTime? UpdateOn { get; set; }
+        public string? ExistStatus { get; set; }
 
         public virtual ICollection<TaskAssign> TaskAssigns { get; set; }
     }

@@ -83,6 +83,16 @@ namespace Capstone_API.UOW_Repositories.Infrastructures
         }
 
         /// <summary>
+        /// This method use to get an entity by params entity id input
+        /// </summary>
+        /// <param name="entityIds"></param>
+        /// <returns></returns>
+        public virtual async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> expression)
+        {
+            return await _dbSet.FirstOrDefaultAsync(expression);
+        }
+
+        /// <summary>
         /// This method use to find a list entity by using expression with special condition
         /// </summary>
         /// <param name="expression"></param>

@@ -76,16 +76,11 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        // Đang lỗi
         public ResponseResult DeleteLecturer(int id)
         {
             try
             {
-                var lecturer = _unitOfWork.LecturerRepository.Find(id);
-
-                if (lecturer == null)
-                    throw new ArgumentException("Lecturer does not exist");
-
+                var lecturer = _unitOfWork.LecturerRepository.Find(id) ?? throw new ArgumentException("Lecturer does not exist");
                 _unitOfWork.LecturerRepository.Delete(lecturer, isHardDeleted: true);
                 _unitOfWork.Complete();
                 return new ResponseResult("Delete successfully");

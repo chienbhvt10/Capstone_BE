@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Capstone_API.Models
 {
@@ -12,7 +15,6 @@ namespace Capstone_API.Models
             : base(options)
         {
         }
-
 
         public virtual DbSet<Building> Buildings { get; set; } = null!;
         public virtual DbSet<Class> Classes { get; set; } = null!;
@@ -45,14 +47,26 @@ namespace Capstone_API.Models
             {
                 entity.ToTable("Building");
 
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
                 entity.Property(e => e.Name).HasMaxLength(50);
 
                 entity.Property(e => e.ShortName).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<Class>(entity =>
             {
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
                 entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<Distance>(entity =>
@@ -62,6 +76,12 @@ namespace Capstone_API.Models
                 entity.HasIndex(e => e.Building1Id, "IX_Distance_Building1Id");
 
                 entity.HasIndex(e => e.Building2Id, "IX_Distance_Building2Id");
+
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Building1)
                     .WithMany(p => p.DistanceBuilding1s)
@@ -77,6 +97,8 @@ namespace Capstone_API.Models
                 entity.ToTable("Lecturer");
 
                 entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
 
                 entity.Property(e => e.Name).HasMaxLength(50);
 
@@ -95,7 +117,13 @@ namespace Capstone_API.Models
 
                 entity.HasIndex(e => e.TimeSlotId, "IX_LecturerRegister_TimeSlotId");
 
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
                 entity.Property(e => e.Note).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Lecturer)
                     .WithMany(p => p.LecturerRegisters)
@@ -116,23 +144,41 @@ namespace Capstone_API.Models
             {
                 entity.ToTable("Model");
 
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
                 entity.Property(e => e.InputType).HasMaxLength(50);
 
                 entity.Property(e => e.Solver).HasMaxLength(50);
 
                 entity.Property(e => e.Strategy).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<Semester>(entity =>
             {
                 entity.ToTable("Semester");
 
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
                 entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<SlotDay>(entity =>
             {
                 entity.ToTable("SlotDay");
+
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<SlotPreferenceLevel>(entity =>
@@ -144,6 +190,12 @@ namespace Capstone_API.Models
                 entity.HasIndex(e => e.SemesterId, "IX_SlotPreferenceLevel_SemesterId");
 
                 entity.HasIndex(e => e.TimeSlotInstanceId, "IX_SlotPreferenceLevel_TimeSlotInstanceId");
+
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Lecturer)
                     .WithMany(p => p.SlotPreferenceLevels)
@@ -164,9 +216,15 @@ namespace Capstone_API.Models
             {
                 entity.Property(e => e.Code).HasMaxLength(50);
 
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
                 entity.Property(e => e.Department).HasMaxLength(50);
 
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
                 entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Semester)
                     .WithMany(p => p.Subjects)
@@ -183,6 +241,12 @@ namespace Capstone_API.Models
                 entity.HasIndex(e => e.SemesterId, "IX_SubjectPreferenceLevel_SemesterId");
 
                 entity.HasIndex(e => e.SubjectId, "IX_SubjectPreferenceLevel_SubjectId");
+
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Lecturer)
                     .WithMany(p => p.SubjectPreferenceLevels)
@@ -207,6 +271,8 @@ namespace Capstone_API.Models
                 entity.Property(e => e.CreateOn).HasColumnType("datetime");
 
                 entity.Property(e => e.Department).HasMaxLength(50);
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
 
                 entity.Property(e => e.Slot1).HasMaxLength(50);
 
@@ -239,9 +305,15 @@ namespace Capstone_API.Models
             {
                 entity.ToTable("TimeSlot");
 
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
                 entity.Property(e => e.Description).HasMaxLength(50);
 
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
                 entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<TimeSlotCompatibility>(entity =>
@@ -249,6 +321,12 @@ namespace Capstone_API.Models
                 entity.ToTable("TimeSlotCompatibility");
 
                 entity.HasIndex(e => e.TimeSlotId, "IX_TimeSlotCompatibility_TimeSlotId");
+
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
 
                 entity.HasOne(d => d.TimeSlot)
                     .WithMany(p => p.TimeSlotCompatibilities)
@@ -260,6 +338,12 @@ namespace Capstone_API.Models
                 entity.ToTable("TimeSLotConflict");
 
                 entity.HasIndex(e => e.TimeSlotId, "IX_TimeSLotConflict_TimeSlotId");
+
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
 
                 entity.HasOne(d => d.TimeSlot)
                     .WithMany(p => p.TimeSlotConflicts)
