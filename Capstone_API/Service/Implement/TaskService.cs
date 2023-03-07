@@ -20,15 +20,23 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
         }
 
-        public GenericResult<IEnumerable<GetAllTaskAssignResponse>> GetAll(GetAllTaskAssignRequest request)
+        public GenericResult<List<GetAllTaskAssignResponse>> GetAll(GetAllTaskAssignRequest request)
         {
             try
             {
-                return new GenericResult<IEnumerable<GetAllTaskAssignResponse>>();
+                var data = _unitOfWork.TaskRepository.GetAll().Where(item =>
+                    request.LecturerIds != null && item.LecturerId != null && request.LecturerIds.Contains((int)item.LecturerId)
+                    && request.ClassIds != null && item.ClassId != null && request.ClassIds.Contains((int)item.ClassId)
+                    && request.SubjectIds != null && item.SubjectId != null && request.SubjectIds.Contains((int)item.SubjectId)
+                    && request.RoomId != null && item.Room1Id != null && item.Room2Id != null && (request.RoomId.Contains((int)item.Room1Id) || request.RoomId.Contains((int)item.Room2Id)));
+
+                List<GetAllTaskAssignResponse> taskAssigns = _mapper.Map<List<GetAllTaskAssignResponse>>(data);
+                return new GenericResult<List<GetAllTaskAssignResponse>>(taskAssigns, true);
             }
+
             catch (Exception ex)
             {
-                return new GenericResult<IEnumerable<GetAllTaskAssignResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<List<GetAllTaskAssignResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 

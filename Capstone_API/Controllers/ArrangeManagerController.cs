@@ -25,8 +25,8 @@ namespace Capstone_API.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        [HttpGet("get-tasks")]
-        public GenericResult<IEnumerable<GetAllTaskAssignResponse>> GetTaskAssign(GetAllTaskAssignRequest request)
+        [HttpPost("get-tasks")]
+        public GenericResult<List<GetAllTaskAssignResponse>> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
         {
             return _taskService.GetAll(request);
         }

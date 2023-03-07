@@ -2,7 +2,7 @@
 {
     public class GetAllTaskAssignRequest
     {
-        public GetAllTaskAssignRequest(int semesterId, IEnumerable<int>? classIds, IEnumerable<int>? lecturerIds, IEnumerable<int>? subjectIds, IEnumerable<int>? roomId)
+        public GetAllTaskAssignRequest(int semesterId, List<int> classIds, List<int> lecturerIds, List<int> subjectIds, List<int> roomId)
         {
             SemesterId = semesterId;
             ClassIds = classIds;
@@ -12,10 +12,10 @@
         }
 
         public int SemesterId { get; set; }
-        public IEnumerable<int>? ClassIds { get; set; }
-        public IEnumerable<int>? LecturerIds { get; set; }
-        public IEnumerable<int>? SubjectIds { get; set; }
-        public IEnumerable<int>? RoomId { get; set; }
+        public List<int> ClassIds { get; set; }
+        public List<int> LecturerIds { get; set; }
+        public List<int> SubjectIds { get; set; }
+        public List<int> RoomId { get; set; }
 
         public GetAllTaskAssignRequest()
         {
