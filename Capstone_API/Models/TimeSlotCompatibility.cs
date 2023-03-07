@@ -15,6 +15,7 @@ namespace Capstone_API.Models
         public DateTime? UpdateOn { get; set; }
         public string? ExistStatus { get; set; }
 
+        public virtual TimeSlot? CompatibilitySlot { get; set; }
         public virtual TimeSlot? TimeSlot { get; set; }
     }
 }

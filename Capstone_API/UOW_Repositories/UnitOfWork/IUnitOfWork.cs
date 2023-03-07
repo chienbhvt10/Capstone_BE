@@ -1,6 +1,5 @@
 ﻿using Capstone_API.Models;
 using Capstone_API.UOW_Repositories.IRepositories;
-using Capstone_API.UOW_Repositories.Repositories;
 
 namespace Capstone_API.UOW_Repositories.UnitOfWork
 {
@@ -10,6 +9,15 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         ITaskRepository TaskRepository { get; }
         ISubjectRepository SubjectRepository { get; }
         ILecturerRepository LecturerRepository { get; }
+        IAreaSlotWeightRepository AreaSlotWeightRepository { get; }
+        IBuildingRepository BuildingRepository { get; }
+        IDistanceRepository DistanceRepository { get; }
+        ISettingModelRepository SettingModelRepository { get; }
+        ISlotPreferenceLevelRepository SlotPreferenceLevelRepository { get; }
+        ISubjectPreferenceLevelRepository SubjectPreferenceLevelRepository { get; }
+        ITimeSlotCompatibilityRepository TimeSlotCompatibilityRepository { get; }
+        ITimeSlotConflictRepository TimeSlotConflictRepository { get; }
+        ITimeSlotRepository TimeSlotRepository { get; }
 
         void Complete();
         Task<int> CompleteAsync();

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Capstone_API.Models
 {
-    public partial class Model
+    public partial class SettingModel
     {
         public int Id { get; set; }
         public string? Solver { get; set; }
@@ -13,6 +13,7 @@ namespace Capstone_API.Models
         public int? MinimizeCostOfTimeSettingLevel { get; set; }
         public int? MinimizeNumberOfSubjectsSettingLevel { get; set; }
         public int? QuotaOfClassSettingLevel { get; set; }
+        public int? PreferenceLevelOfSubjectSettingLevel { get; set; }
         public int? PreferenceLevelOfSlotSettingLevel { get; set; }
         public DateTime? CreateOn { get; set; }
         public DateTime? UpdateOn { get; set; }

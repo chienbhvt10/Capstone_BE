@@ -16,10 +16,20 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<CapstoneDataContext>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IExcelService, ExcelService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ILecturerService, LecturerService>();
-builder.Services.AddScoped<IExcelService, ExcelService>();
+builder.Services.AddScoped<IAreaSlotWeightService, AreaSlotWeightService>();
+builder.Services.AddScoped<IBuildingService, BuildingService>();
+builder.Services.AddScoped<IDistanceService, DistanceService>();
+builder.Services.AddScoped<ISettingModelService, SettingModelService>();
+builder.Services.AddScoped<ISlotPreferenceService, ISlotPreferenceService>();
+builder.Services.AddScoped<ISubjectPreferenceLevelService, ISubjectPreferenceLevelService>();
+builder.Services.AddScoped<ITimeSlotCompatibilityService, TimeSlotCompatibilityService>();
+builder.Services.AddScoped<ITimeSlotConflictService, TimeSlotConflictService>();
+builder.Services.AddScoped<ITimeSlotService, TimeSlotService>();
+
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 //add hostingEnvironment service
 var hostingEnvironment = builder.Services.BuildServiceProvider()?.GetService<IWebHostEnvironment>();

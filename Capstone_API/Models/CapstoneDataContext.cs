@@ -16,13 +16,14 @@ namespace Capstone_API.Models
         {
         }
 
+        public virtual DbSet<AreaSlotWeight> AreaSlotWeights { get; set; } = null!;
         public virtual DbSet<Building> Buildings { get; set; } = null!;
         public virtual DbSet<Class> Classes { get; set; } = null!;
         public virtual DbSet<Distance> Distances { get; set; } = null!;
         public virtual DbSet<Lecturer> Lecturers { get; set; } = null!;
         public virtual DbSet<LecturerRegister> LecturerRegisters { get; set; } = null!;
-        public virtual DbSet<Model> Models { get; set; } = null!;
         public virtual DbSet<Semester> Semesters { get; set; } = null!;
+        public virtual DbSet<SettingModel> SettingModels { get; set; } = null!;
         public virtual DbSet<SlotDay> SlotDays { get; set; } = null!;
         public virtual DbSet<SlotPreferenceLevel> SlotPreferenceLevels { get; set; } = null!;
         public virtual DbSet<Subject> Subjects { get; set; } = null!;
@@ -43,6 +44,31 @@ namespace Capstone_API.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<AreaSlotWeight>(entity =>
+            {
+                entity.ToTable("AreaSlotWeight");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.AreaSlotWeight1).HasColumnName("AreaSlotWeight");
+
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
+
+                entity.HasOne(d => d.AreaSlot)
+                    .WithMany(p => p.AreaSlotWeightAreaSlots)
+                    .HasForeignKey(d => d.AreaSlotId)
+                    .HasConstraintName("FK_AreaSlotWeight_TimeSlot1");
+
+                entity.HasOne(d => d.Slot)
+                    .WithMany(p => p.AreaSlotWeightSlots)
+                    .HasForeignKey(d => d.SlotId)
+                    .HasConstraintName("FK_AreaSlotWeight_TimeSlot");
+            });
+
             modelBuilder.Entity<Building>(entity =>
             {
                 entity.ToTable("Building");
@@ -140,9 +166,22 @@ namespace Capstone_API.Models
                     .HasForeignKey(d => d.TimeSlotId);
             });
 
-            modelBuilder.Entity<Model>(entity =>
+            modelBuilder.Entity<Semester>(entity =>
             {
-                entity.ToTable("Model");
+                entity.ToTable("Semester");
+
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
+                entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<SettingModel>(entity =>
+            {
+                entity.ToTable("SettingModel");
 
                 entity.Property(e => e.CreateOn).HasColumnType("datetime");
 
@@ -153,19 +192,6 @@ namespace Capstone_API.Models
                 entity.Property(e => e.Solver).HasMaxLength(50);
 
                 entity.Property(e => e.Strategy).HasMaxLength(50);
-
-                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
-            });
-
-            modelBuilder.Entity<Semester>(entity =>
-            {
-                entity.ToTable("Semester");
-
-                entity.Property(e => e.CreateOn).HasColumnType("datetime");
-
-                entity.Property(e => e.ExistStatus).HasMaxLength(50);
-
-                entity.Property(e => e.Name).HasMaxLength(50);
 
                 entity.Property(e => e.UpdateOn).HasColumnType("datetime");
             });
@@ -328,8 +354,13 @@ namespace Capstone_API.Models
 
                 entity.Property(e => e.UpdateOn).HasColumnType("datetime");
 
+                entity.HasOne(d => d.CompatibilitySlot)
+                    .WithMany(p => p.TimeSlotCompatibilityCompatibilitySlots)
+                    .HasForeignKey(d => d.CompatibilitySlotId)
+                    .HasConstraintName("FK_TimeSlotCompatibility_TimeSlot");
+
                 entity.HasOne(d => d.TimeSlot)
-                    .WithMany(p => p.TimeSlotCompatibilities)
+                    .WithMany(p => p.TimeSlotCompatibilityTimeSlots)
                     .HasForeignKey(d => d.TimeSlotId);
             });
 
@@ -345,8 +376,13 @@ namespace Capstone_API.Models
 
                 entity.Property(e => e.UpdateOn).HasColumnType("datetime");
 
+                entity.HasOne(d => d.ConflictSlot)
+                    .WithMany(p => p.TimeSlotConflictConflictSlots)
+                    .HasForeignKey(d => d.ConflictSlotId)
+                    .HasConstraintName("FK_TimeSLotConflict_TimeSlot");
+
                 entity.HasOne(d => d.TimeSlot)
-                    .WithMany(p => p.TimeSlotConflicts)
+                    .WithMany(p => p.TimeSlotConflictTimeSlots)
                     .HasForeignKey(d => d.TimeSlotId);
             });
 
