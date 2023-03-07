@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.Task.Fetch;
 using Capstone_API.DTO.Task.Request;
 using Capstone_API.DTO.Task.Response;
 using Capstone_API.Models;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Capstone_API.UOW_Repositories.UnitOfWork;
+using System.Text.Json;
 
 namespace Capstone_API.Service.Implement
 {
@@ -13,11 +15,13 @@ namespace Capstone_API.Service.Implement
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly HttpClient _httpClient;
 
-        public TaskService(IUnitOfWork unitOfWork, IMapper mapper)
+        public TaskService(IUnitOfWork unitOfWork, IMapper mapper, HttpClient httpClient)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _httpClient = httpClient;
         }
 
         public GenericResult<List<GetAllTaskAssignResponse>> GetAll(GetAllTaskAssignRequest request)
@@ -99,6 +103,47 @@ namespace Capstone_API.Service.Implement
             }
         }
 
+        public async Task<GenericResult<List<GetAllTaskAssignResponse>>> GetSchedule(int executeId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"http://localhost:3000/{executeId}");
+                var json = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new GenericResult<List<GetAllTaskAssignResponse>>("Fetch fail");
+                }
+                var result = JsonSerializer.Deserialize<FetchDataByExcecuteIdResponse>(json);
 
+                var dataFetch = result?.data;
+                ExecuteData[]? executeData = dataFetch?.data;
+
+                // save executeId and time of semester by executeSemesterId
+                // and get executeSemesterId in database
+                // this code must be get executeSemesterId in database
+                var executeSemesterId = 0;
+
+                if (executeData != null)
+                {
+                    foreach (var data in executeData)
+                    {
+                        var taskAssign = await _unitOfWork.TaskRepository.FindAsync((item) => item.Id == data.taskID && item.SemesterId == executeSemesterId);
+                        if (taskAssign != null)
+                        {
+                            taskAssign.LecturerId = data.instructorID;
+                            _unitOfWork.TaskRepository.Update(taskAssign);
+                            await _unitOfWork.CompleteAsync();
+                        }
+                    }
+                }
+                List<GetAllTaskAssignResponse> newTasks = _mapper.Map<List<GetAllTaskAssignResponse>>(_unitOfWork.TaskRepository.GetAll().ToList());
+
+                return new GenericResult<List<GetAllTaskAssignResponse>>(newTasks, true);
+            }
+            catch (Exception ex)
+            {
+                return new GenericResult<List<GetAllTaskAssignResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
     }
 }

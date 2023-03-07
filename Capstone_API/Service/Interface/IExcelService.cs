@@ -9,6 +9,5 @@ namespace Capstone_API.Service.Interface
         Task<GenericResult<IEnumerable<TaskAssignImportDTO>>> ImportTimetable(IFormFile file, CancellationToken cancellationToken);
         GenericResult<string> ExportInImportFormat(IHttpContextAccessor _httpContextAccessor, IEnumerable<ExportInImportFormatDTO> exportItems);
 
-
     }
 }

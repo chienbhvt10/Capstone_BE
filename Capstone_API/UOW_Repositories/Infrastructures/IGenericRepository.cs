@@ -17,6 +17,7 @@ namespace Capstone_API.UOW_Repositories.Infrastructures
         /// <param name="entityId"></param>
         /// <returns>return an Entity exist</returns>
         TEntity Find(object entityId);
+        TEntity Find(Expression<Func<TEntity, bool>> expression);
 
         /// <summary>
         /// This method use to get an entity by params entity id input
@@ -24,6 +25,7 @@ namespace Capstone_API.UOW_Repositories.Infrastructures
         /// <param name="entityIds"></param>
         /// <returns></returns>
         Task<TEntity> FindAsync(params object[] entityIds);
+        Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> expression);
 
         /// <summary>
         /// This method use to find a list entity by using expression with special condition
@@ -59,7 +61,6 @@ namespace Capstone_API.UOW_Repositories.Infrastructures
         Task AddRangeAsync(IEnumerable<TEntity> entities);
 
         void Update(TEntity entity);
-
-
+        void UpdateRange(IEnumerable<TEntity> entities);
     }
 }

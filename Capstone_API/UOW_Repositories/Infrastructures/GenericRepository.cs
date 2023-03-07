@@ -63,6 +63,16 @@ namespace Capstone_API.UOW_Repositories.Infrastructures
         }
 
         /// <summary>
+        /// This method use to find by condition
+        /// </summary>
+        /// <param name="entityId"></param>
+        /// <returns>return an Entity exist</returns>
+        public virtual TEntity Find(Expression<Func<TEntity, bool>> expression)
+        {
+            return _dbSet.FirstOrDefault(expression);
+        }
+
+        /// <summary>
         /// This method use to get an entity by params entity id input
         /// </summary>
         /// <param name="entityIds"></param>
@@ -141,6 +151,17 @@ namespace Capstone_API.UOW_Repositories.Infrastructures
             Context.Entry(entity).State = EntityState.Modified;
         }
 
+        /// <summary>
+        /// This method use to add modified track to multiple entity
+        /// </summary>
+        /// <param name="entity"></param>
+        public virtual void UpdateRange(IEnumerable<TEntity> entities)
+        {
+            foreach (var entity in entities)
+            {
+                Context.Entry(entity).State = EntityState.Modified;
+            }
+        }
         #endregion
 
 

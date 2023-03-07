@@ -62,5 +62,11 @@ namespace Capstone_API.Controllers
             return await _excelService.ImportTimetable(file, cancellationToken);
         }
 
+        [HttpGet("get-schedule/{executeId}")]
+        public async Task<GenericResult<List<GetAllTaskAssignResponse>>> GetSchedule(int executeId)
+        {
+            return await _taskService.GetSchedule(executeId);
+        }
+
     }
 }
