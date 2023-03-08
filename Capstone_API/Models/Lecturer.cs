@@ -10,6 +10,7 @@ namespace Capstone_API.Models
             LecturerRegisters = new HashSet<LecturerRegister>();
             SlotPreferenceLevels = new HashSet<SlotPreferenceLevel>();
             SubjectPreferenceLevels = new HashSet<SubjectPreferenceLevel>();
+            TaskAssigns = new HashSet<TaskAssign>();
         }
 
         public int Id { get; set; }
@@ -24,5 +25,6 @@ namespace Capstone_API.Models
         public virtual ICollection<LecturerRegister> LecturerRegisters { get; set; }
         public virtual ICollection<SlotPreferenceLevel> SlotPreferenceLevels { get; set; }
         public virtual ICollection<SubjectPreferenceLevel> SubjectPreferenceLevels { get; set; }
+        public virtual ICollection<TaskAssign> TaskAssigns { get; set; }
     }
 }

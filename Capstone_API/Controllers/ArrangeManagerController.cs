@@ -63,7 +63,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpGet("get-schedule/{executeId}")]
-        public async Task<GenericResult<List<GetAllTaskAssignResponse>>> GetSchedule(int executeId)
+        public async Task<GenericResult<List<ExecuteResponse>>> GetSchedule(int executeId)
         {
             return await _taskService.GetSchedule(executeId);
         }

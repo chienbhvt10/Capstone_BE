@@ -103,7 +103,7 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public async Task<GenericResult<List<GetAllTaskAssignResponse>>> GetSchedule(int executeId)
+        public async Task<GenericResult<List<ExecuteResponse>>> GetSchedule(int executeId)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace Capstone_API.Service.Implement
                 var json = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
                 {
-                    return new GenericResult<List<GetAllTaskAssignResponse>>("Fetch fail");
+                    return new GenericResult<List<ExecuteResponse>>("Fetch fail");
                 }
                 var result = JsonSerializer.Deserialize<FetchDataByExcecuteIdResponse>(json);
 
@@ -136,14 +136,35 @@ namespace Capstone_API.Service.Implement
                         }
                     }
                 }
-                List<GetAllTaskAssignResponse> newTasks = _mapper.Map<List<GetAllTaskAssignResponse>>(_unitOfWork.TaskRepository.GetAll().ToList());
+                var mappingData = _unitOfWork.TaskRepository.MappingTaskData().Select(item => new ExecuteResponse()
+                {
+                    LecturerId = item.Lecturer != null ? item.Lecturer.Id : 0,
+                    LecturerName = item.Lecturer != null ? item.Lecturer.ShortName : "",
+                    Tasks = item.Lecturer != null ? item.Lecturer.TaskAssigns.Select(taskAssign => new TaskOfLecturer()
+                    {
+                        TaskId = taskAssign.Id,
+                        TimeSlotOfTask = new TimeSlotOfTask()
+                        {
+                            TimeSlotCode = taskAssign.TimeSlot != null ? taskAssign.TimeSlot.Name : "",
+                            TimeSlotId = taskAssign.TimeSlot != null ? taskAssign.TimeSlot.Id : 0,
+                            TimeSlotOrder = (taskAssign.TimeSlot != null ? (int)taskAssign.TimeSlot.OrderNumber : 0)
+                        },
+                        RoomOfTask = null,
+                        Subject = new SubjectOfTask()
+                        {
+                            SubjectId = taskAssign.Subject != null ? taskAssign.Subject.Id : 0,
+                            SubjectName = taskAssign.Subject != null ? taskAssign.Subject.Name : null
+                        },
+                    }).ToList() : null
+                }).ToList();
 
-                return new GenericResult<List<GetAllTaskAssignResponse>>(newTasks, true);
+                return new GenericResult<List<ExecuteResponse>>(mappingData, true);
             }
             catch (Exception ex)
             {
-                return new GenericResult<List<GetAllTaskAssignResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<List<ExecuteResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+
     }
 }

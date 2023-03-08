@@ -311,6 +311,11 @@ namespace Capstone_API.Models
                     .HasForeignKey(d => d.ClassId)
                     .HasConstraintName("FK_TaskAssign_Classes");
 
+                entity.HasOne(d => d.Lecturer)
+                    .WithMany(p => p.TaskAssigns)
+                    .HasForeignKey(d => d.LecturerId)
+                    .HasConstraintName("FK_TaskAssign_Lecturer");
+
                 entity.HasOne(d => d.Semester)
                     .WithMany(p => p.TaskAssigns)
                     .HasForeignKey(d => d.SemesterId)

@@ -2,7 +2,7 @@
 
 namespace Capstone_API.Service.Implement
 {
-    public interface BuildingService : IBuildingService
+    public class BuildingService : IBuildingService
     {
     }
 }
