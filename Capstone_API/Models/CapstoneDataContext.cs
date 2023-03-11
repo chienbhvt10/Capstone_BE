@@ -22,6 +22,7 @@ namespace Capstone_API.Models
         public virtual DbSet<Distance> Distances { get; set; } = null!;
         public virtual DbSet<Lecturer> Lecturers { get; set; } = null!;
         public virtual DbSet<LecturerRegister> LecturerRegisters { get; set; } = null!;
+        public virtual DbSet<Room> Rooms { get; set; } = null!;
         public virtual DbSet<Semester> Semesters { get; set; } = null!;
         public virtual DbSet<SettingModel> SettingModels { get; set; } = null!;
         public virtual DbSet<SlotDay> SlotDays { get; set; } = null!;
@@ -164,6 +165,19 @@ namespace Capstone_API.Models
                 entity.HasOne(d => d.TimeSlot)
                     .WithMany(p => p.LecturerRegisters)
                     .HasForeignKey(d => d.TimeSlotId);
+            });
+
+            modelBuilder.Entity<Room>(entity =>
+            {
+                entity.ToTable("Room");
+
+                entity.Property(e => e.CreateOn).HasColumnType("datetime");
+
+                entity.Property(e => e.ExistStatus).HasMaxLength(50);
+
+                entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.UpdateOn).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<Semester>(entity =>
@@ -316,6 +330,16 @@ namespace Capstone_API.Models
                     .HasForeignKey(d => d.LecturerId)
                     .HasConstraintName("FK_TaskAssign_Lecturer");
 
+                entity.HasOne(d => d.Room1)
+                    .WithMany(p => p.TaskAssignRoom1s)
+                    .HasForeignKey(d => d.Room1Id)
+                    .HasConstraintName("FK_TaskAssign_Room");
+
+                entity.HasOne(d => d.Room2)
+                    .WithMany(p => p.TaskAssignRoom2s)
+                    .HasForeignKey(d => d.Room2Id)
+                    .HasConstraintName("FK_TaskAssign_Room1");
+
                 entity.HasOne(d => d.Semester)
                     .WithMany(p => p.TaskAssigns)
                     .HasForeignKey(d => d.SemesterId)
@@ -343,6 +367,10 @@ namespace Capstone_API.Models
                 entity.Property(e => e.ExistStatus).HasMaxLength(50);
 
                 entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.Slot1).HasMaxLength(50);
+
+                entity.Property(e => e.Slot2).HasMaxLength(50);
 
                 entity.Property(e => e.UpdateOn).HasColumnType("datetime");
             });

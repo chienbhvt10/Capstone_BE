@@ -12,6 +12,7 @@
         public SubjectOfTask? Subject { get; set; }
         public TimeSlotOfTask? TimeSlotOfTask { get; set; }
         public RoomOfTask? RoomOfTask { get; set; }
+        public ClassOfTask? ClassOfTask { get; set; }
 
     }
     public class SubjectOfTask
@@ -29,5 +30,11 @@
     {
         public int RoomId { get; set; }
         public string? RoomName { get; set; }
+    }
+    public class ClassOfTask
+    {
+        public int ClassId { get; set; }
+        public string? ClassName { get; set; }
+
     }
 }

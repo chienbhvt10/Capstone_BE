@@ -18,6 +18,8 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         ITimeSlotCompatibilityRepository _timeSlotCompatibilityRepository;
         ITimeSlotConflictRepository _timeSlotConflictRepository;
         ITimeSlotRepository _timeSlotRepository;
+        IRoomRepository _roomRepository;
+        IClassRepository _classRepository;
 
         public UnitOfWork(CapstoneDataContext context)
         {
@@ -39,6 +41,10 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         public ITimeSlotCompatibilityRepository TimeSlotCompatibilityRepository => _timeSlotCompatibilityRepository ??= new TimeSlotCompatibilityRepository(Context);
         public ITimeSlotConflictRepository TimeSlotConflictRepository => _timeSlotConflictRepository ??= new TimeSlotConflictRepository(Context);
         public ITimeSlotRepository TimeSlotRepository => _timeSlotRepository ??= new TimeSlotRepository(Context);
+        public IRoomRepository RoomRepository => _roomRepository ??= new RoomRepository(Context);
+        public IClassRepository ClassRepository => _classRepository ??= new ClassRepository(Context);
+
+
 
         public void Dispose()
         {

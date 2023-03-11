@@ -24,23 +24,23 @@ namespace Capstone_API.Service.Implement
             _httpClient = httpClient;
         }
 
-        public GenericResult<List<GetAllTaskAssignResponse>> GetAll(GetAllTaskAssignRequest request)
+        public GenericResult<List<ExecuteResponse>> GetAll(GetAllTaskAssignRequest request)
         {
             try
             {
-                var data = _unitOfWork.TaskRepository.GetAll().Where(item =>
+                var querySearchData = _unitOfWork.TaskRepository.MappingTaskData().Where(item =>
                     request.LecturerIds != null && item.LecturerId != null && request.LecturerIds.Contains((int)item.LecturerId)
                     && request.ClassIds != null && item.ClassId != null && request.ClassIds.Contains((int)item.ClassId)
                     && request.SubjectIds != null && item.SubjectId != null && request.SubjectIds.Contains((int)item.SubjectId)
                     && request.RoomId != null && item.Room1Id != null && item.Room2Id != null && (request.RoomId.Contains((int)item.Room1Id) || request.RoomId.Contains((int)item.Room2Id)));
+                var mappingData = MappingAllTaskToResponseData(querySearchData);
 
-                List<GetAllTaskAssignResponse> taskAssigns = _mapper.Map<List<GetAllTaskAssignResponse>>(data);
-                return new GenericResult<List<GetAllTaskAssignResponse>>(taskAssigns, true);
+                return new GenericResult<List<ExecuteResponse>>(mappingData, true);
             }
 
             catch (Exception ex)
             {
-                return new GenericResult<List<GetAllTaskAssignResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<List<ExecuteResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 
@@ -107,7 +107,7 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var response = await _httpClient.GetAsync($"http://localhost:3000/{executeId}");
+                var response = await _httpClient.GetAsync($"http://localhost:3001/{executeId}");
                 var json = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
                 {
@@ -136,27 +136,7 @@ namespace Capstone_API.Service.Implement
                         }
                     }
                 }
-                var mappingData = _unitOfWork.TaskRepository.MappingTaskData().Select(item => new ExecuteResponse()
-                {
-                    LecturerId = item.Lecturer != null ? item.Lecturer.Id : 0,
-                    LecturerName = item.Lecturer != null ? item.Lecturer.ShortName : "",
-                    Tasks = item.Lecturer != null ? item.Lecturer.TaskAssigns.Select(taskAssign => new TaskOfLecturer()
-                    {
-                        TaskId = taskAssign.Id,
-                        TimeSlotOfTask = new TimeSlotOfTask()
-                        {
-                            TimeSlotCode = taskAssign.TimeSlot != null ? taskAssign.TimeSlot.Name : "",
-                            TimeSlotId = taskAssign.TimeSlot != null ? taskAssign.TimeSlot.Id : 0,
-                            TimeSlotOrder = (taskAssign.TimeSlot != null ? (int)taskAssign.TimeSlot.OrderNumber : 0)
-                        },
-                        RoomOfTask = null,
-                        Subject = new SubjectOfTask()
-                        {
-                            SubjectId = taskAssign.Subject != null ? taskAssign.Subject.Id : 0,
-                            SubjectName = taskAssign.Subject != null ? taskAssign.Subject.Name : null
-                        },
-                    }).ToList() : null
-                }).ToList();
+                var mappingData = MappingAllTaskToResponseData(_unitOfWork.TaskRepository.MappingTaskData()).Where(item => item.LecturerId != 0).ToList();
 
                 return new GenericResult<List<ExecuteResponse>>(mappingData, true);
             }
@@ -164,6 +144,35 @@ namespace Capstone_API.Service.Implement
             {
                 return new GenericResult<List<ExecuteResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
+        }
+        public List<ExecuteResponse> MappingAllTaskToResponseData(IEnumerable<TaskAssign> taskAssigns)
+        {
+            return taskAssigns.Select(item => new ExecuteResponse()
+            {
+                LecturerId = item.Lecturer != null ? item.Lecturer.Id : 0,
+                LecturerName = item.Lecturer != null ? item.Lecturer.ShortName : "",
+                Tasks = item.Lecturer != null ? item.Lecturer.TaskAssigns.Select(taskAssign => new TaskOfLecturer()
+                {
+                    TaskId = taskAssign.Id,
+                    ClassOfTask = new ClassOfTask()
+                    {
+                        ClassId = taskAssign.Class != null ? taskAssign.Class.Id : 0,
+                        ClassName = taskAssign.Class != null ? taskAssign.Class.Name : ""
+                    },
+                    TimeSlotOfTask = new TimeSlotOfTask()
+                    {
+                        TimeSlotCode = taskAssign.TimeSlot != null ? taskAssign.TimeSlot.Name : "",
+                        TimeSlotId = taskAssign.TimeSlot != null ? taskAssign.TimeSlot.Id : 0,
+                        TimeSlotOrder = (taskAssign.TimeSlot != null ? (int)taskAssign.TimeSlot.OrderNumber : 0)
+                    },
+                    RoomOfTask = null,
+                    Subject = new SubjectOfTask()
+                    {
+                        SubjectId = taskAssign.Subject != null ? taskAssign.Subject.Id : 0,
+                        SubjectName = taskAssign.Subject != null ? taskAssign.Subject.Name : null
+                    },
+                }).ToList() : null
+            }).ToList();
         }
 
     }

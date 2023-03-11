@@ -134,7 +134,7 @@ namespace Capstone_API.UOW_Repositories.Repositories
         /// <param name="isHardDeleted"></param>
         public virtual void DeleteByCondition(Func<Subject, bool> condition, bool isHardDeleted = false)
         {
-            var query = _context.Subjects.Where(condition);
+            var query = _context.Subjects.Where(condition).ToList();
             foreach (var entity in query)
             {
                 Delete(entity, isHardDeleted);
@@ -149,7 +149,7 @@ namespace Capstone_API.UOW_Repositories.Repositories
         /// <returns></returns>
         public virtual async Task DeleteByConditionAsync(Func<Subject, bool> condition, bool isHardDeleted = false)
         {
-            var query = _context.Subjects.Where(condition);
+            var query = _context.Subjects.Where(condition).ToList();
             foreach (var entity in query)
             {
                 await DeleteAsync(entity, isHardDeleted);

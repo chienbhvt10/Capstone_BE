@@ -3,11 +3,12 @@ using System.Collections.Generic;
 
 namespace Capstone_API.Models
 {
-    public partial class Class
+    public partial class Room
     {
-        public Class()
+        public Room()
         {
-            TaskAssigns = new HashSet<TaskAssign>();
+            TaskAssignRoom1s = new HashSet<TaskAssign>();
+            TaskAssignRoom2s = new HashSet<TaskAssign>();
         }
 
         public int Id { get; set; }
@@ -17,6 +18,7 @@ namespace Capstone_API.Models
         public DateTime? UpdateOn { get; set; }
         public string? ExistStatus { get; set; }
 
-        public virtual ICollection<TaskAssign> TaskAssigns { get; set; }
+        public virtual ICollection<TaskAssign> TaskAssignRoom1s { get; set; }
+        public virtual ICollection<TaskAssign> TaskAssignRoom2s { get; set; }
     }
 }

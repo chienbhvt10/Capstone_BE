@@ -29,7 +29,6 @@ builder.Services.AddScoped<ISubjectPreferenceLevelService, SubjectPreferenceLeve
 builder.Services.AddScoped<ITimeSlotCompatibilityService, TimeSlotCompatibilityService>();
 builder.Services.AddScoped<ITimeSlotConflictService, TimeSlotConflictService>();
 builder.Services.AddScoped<ITimeSlotService, TimeSlotService>();
-
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 //add hostingEnvironment service
 var hostingEnvironment = builder.Services.BuildServiceProvider()?.GetService<IWebHostEnvironment>();

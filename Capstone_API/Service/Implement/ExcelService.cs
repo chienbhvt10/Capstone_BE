@@ -1,6 +1,8 @@
 ﻿using Capstone_API.DTO.Excel;
+using Capstone_API.Models;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
+using Capstone_API.UOW_Repositories.UnitOfWork;
 using OfficeOpenXml;
 
 namespace Capstone_API.Service.Implement
@@ -8,10 +10,12 @@ namespace Capstone_API.Service.Implement
     public class ExcelService : IExcelService
     {
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ExcelService(IWebHostEnvironment hostingEnvironment)
+        public ExcelService(IWebHostEnvironment hostingEnvironment, IUnitOfWork unitOfWork)
         {
             _hostingEnvironment = hostingEnvironment;
+            _unitOfWork = unitOfWork;
         }
 
         public GenericResult<string> ExportInImportFormat(IHttpContextAccessor _httpContextAccessor, IEnumerable<ExportInImportFormatDTO> exportItems)
@@ -55,11 +59,25 @@ namespace Capstone_API.Service.Implement
             {
                 return new GenericResult<IEnumerable<TaskAssignImportDTO>>("Not Support file extension");
             }
-
-            var list = new List<TaskAssignImportDTO>();
-
             try
             {
+                //save executeId and time of semester by executeSemesterId
+                // and get executeSemesterId in database
+                // this code must be get executeSemesterId in database
+
+                var semesterId = 0;
+                _unitOfWork.TaskRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+                _unitOfWork.RoomRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+                _unitOfWork.ClassRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+                _unitOfWork.SubjectRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+                _unitOfWork.TimeSlotRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+                _unitOfWork.Complete();
+
+                var classes = new List<Class>();
+                var rooms = new List<Room>();
+                var subjects = new List<Subject>();
+                var timeSlots = new List<TimeSlot>();
+
                 using (var stream = new MemoryStream())
                 {
                     await file.CopyToAsync(stream, cancellationToken);
@@ -71,23 +89,98 @@ namespace Capstone_API.Service.Implement
 
                         for (int row = 2; row <= rowCount; row++)
                         {
-                            list.Add(new TaskAssignImportDTO
+                            var className = worksheet.Cells[row, 1].Value?.ToString()?.Trim() ?? string.Empty;
+                            var subjectName = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? string.Empty;
+                            var subjectDepartment = worksheet.Cells[row, 3].Value?.ToString()?.Trim() ?? string.Empty;
+                            var timeSlotName = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? string.Empty;
+                            var timeSlotSlot1 = worksheet.Cells[row, 5].Value?.ToString()?.Trim() ?? string.Empty;
+                            var timeSlotSlot2 = worksheet.Cells[row, 6].Value?.ToString()?.Trim() ?? string.Empty;
+                            var roomName = worksheet.Cells[row, 7].Value?.ToString()?.Trim() ?? string.Empty;
+
+                            var clasTemp = new Class();
+                            var roomTemp = new Room();
+                            var subjectTemp = new Subject();
+                            var timeSlotTemp = new TimeSlot();
+
+                            var clasFind = classes.Find(clas => clas.Name.Equals(className));
+                            var roomFind = rooms.Find(room => room.Name.Equals(roomName));
+                            var subjectFind = subjects.Find(sub => sub.Name.Equals(subjectName) || sub.Department.Equals(subjectDepartment));
+                            var timeSlotFind = timeSlots.Find(ts => ts.Name.Equals(timeSlotName));
+
+                            if (classes.Count() == 0)
                             {
-                                ClassName = worksheet.Cells[row, 1].Value?.ToString()?.Trim() ?? string.Empty,
-                                SubjectName = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? string.Empty,
-                                Department = worksheet.Cells[row, 3].Value?.ToString()?.Trim() ?? string.Empty,
-                                TimeSlot = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? string.Empty,
-                                Slot1 = worksheet.Cells[row, 5].Value?.ToString()?.Trim() ?? string.Empty,
-                                Slot2 = worksheet.Cells[row, 6].Value?.ToString()?.Trim() ?? string.Empty,
-                                Room1 = worksheet.Cells[row, 7].Value?.ToString()?.Trim() ?? string.Empty,
-                                Room2 = worksheet.Cells[row, 8].Value?.ToString()?.Trim() ?? string.Empty,
-                                Status = worksheet.Cells[row, 9].Value?.ToString()?.Trim() ?? string.Empty,
-                            });
+                                clasTemp.Name = className;
+                                classes.Add(clasTemp);
+                                _unitOfWork.ClassRepository.Add(clasTemp);
+                            }
+                            else if (classes.Count() > 0 && clasFind == null)
+                            {
+                                clasTemp.Name = className;
+                                classes.Add(clasTemp);
+                                _unitOfWork.ClassRepository.Add(clasTemp);
+                            }
+
+
+                            if (rooms.Count() == 0)
+                            {
+                                roomTemp.Name = roomName;
+                                rooms.Add(roomTemp);
+                                _unitOfWork.RoomRepository.Add(roomTemp);
+                            }
+                            else if (rooms.Count() > 0 && roomFind == null)
+                            {
+                                roomTemp.Name = roomName;
+                                rooms.Add(roomTemp);
+                                _unitOfWork.RoomRepository.Add(roomTemp);
+                            };
+
+                            if (subjects.Count() == 0)
+                            {
+                                subjectTemp.Name = subjectName;
+                                subjectTemp.Department = subjectDepartment;
+                                subjects.Add(subjectTemp);
+                                _unitOfWork.SubjectRepository.Add(subjectTemp);
+                            }
+                            else if (subjects.Count() > 0 && subjectFind == null)
+                            {
+                                subjectTemp.Name = subjectName;
+                                subjectTemp.Department = subjectDepartment;
+                                subjects.Add(subjectTemp);
+                                _unitOfWork.SubjectRepository.Add(subjectTemp);
+                            };
+
+                            if (timeSlots.Count() == 0)
+                            {
+                                timeSlotTemp.Name = timeSlotName;
+                                timeSlotTemp.Slot1 = timeSlotSlot1;
+                                timeSlotTemp.Slot2 = timeSlotSlot2;
+                                timeSlots.Add(timeSlotTemp);
+                                _unitOfWork.TimeSlotRepository.Add(timeSlotTemp);
+                            }
+                            else if (timeSlots.Count() > 0 && timeSlotFind == null)
+                            {
+                                timeSlotTemp.Name = timeSlotName;
+                                timeSlotTemp.Slot1 = timeSlotSlot1;
+                                timeSlotTemp.Slot2 = timeSlotSlot2;
+                                timeSlots.Add(timeSlotTemp);
+                                _unitOfWork.TimeSlotRepository.Add(timeSlotTemp);
+                            };
+                            _unitOfWork.Complete();
+
+                            var taskAssign = new TaskAssign()
+                            {
+                                ClassId = clasFind == null ? (clasTemp.Id == 0 ? null : clasTemp.Id) : (clasFind.Id == 0 ? null : clasFind.Id),
+                                SubjectId = subjectFind == null ? (subjectTemp.Id == 0 ? null : subjectTemp.Id) : (subjectFind?.Id == 0 ? null : subjectFind?.Id),
+                                TimeSlotId = timeSlotFind == null ? (timeSlotTemp.Id == 0 ? null : timeSlotTemp.Id) : (timeSlotFind?.Id == 0 ? null : timeSlotFind?.Id),
+                                Room1Id = roomFind == null ? (roomTemp.Id == 0 ? null : roomTemp.Id) : (roomFind?.Id == 0 ? null : roomFind?.Id),
+                            };
+                            _unitOfWork.TaskRepository.Add(taskAssign);
+                            _unitOfWork.Complete();
                         }
                     }
                 }
 
-                return new GenericResult<IEnumerable<TaskAssignImportDTO>>(list, true);
+                return new GenericResult<IEnumerable<TaskAssignImportDTO>>();
             }
             catch (Exception ex)
             {

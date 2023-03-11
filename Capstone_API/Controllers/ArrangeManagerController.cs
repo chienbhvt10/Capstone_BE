@@ -26,7 +26,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("get-tasks")]
-        public GenericResult<List<GetAllTaskAssignResponse>> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
+        public GenericResult<List<ExecuteResponse>> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
         {
             return _taskService.GetAll(request);
         }

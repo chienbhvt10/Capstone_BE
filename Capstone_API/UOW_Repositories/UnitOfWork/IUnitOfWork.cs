@@ -18,6 +18,9 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         ITimeSlotCompatibilityRepository TimeSlotCompatibilityRepository { get; }
         ITimeSlotConflictRepository TimeSlotConflictRepository { get; }
         ITimeSlotRepository TimeSlotRepository { get; }
+        IRoomRepository RoomRepository { get; }
+        IClassRepository ClassRepository { get; }
+
 
         void Complete();
         Task<int> CompleteAsync();
