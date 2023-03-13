@@ -1,19 +1,31 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Capstone_API.DTO.TimeSlot.Response;
+using Capstone_API.Results;
+using Capstone_API.Service.Interface;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Capstone_API.Controllers
 {
-    [Route("api/timeslot")]
+    [Route("api/time-slot")]
     [ApiController]
     public class TimeSlotController : ControllerBase
     {
+
+
+        private readonly ITimeSlotService _timeSlotService;
+
+        public TimeSlotController(ITimeSlotService timeSlotService)
+        {
+            _timeSlotService = timeSlotService;
+        }
+
         #region TimeSlot Api
 
         [HttpGet]
-        public IEnumerable<string> GetTimeSlots()
+        public GenericResult<IEnumerable<TimeSlotResponse>> GetTimeSlots()
         {
-            return new string[] { "value1", "value2" };
+            return _timeSlotService.GetAll();
         }
 
         [HttpGet("{id}")]

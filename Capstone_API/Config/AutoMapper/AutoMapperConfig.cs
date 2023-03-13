@@ -3,6 +3,7 @@ using Capstone_API.DTO.Lecturer.Response;
 using Capstone_API.DTO.Subject.Response;
 using Capstone_API.DTO.Task.Request;
 using Capstone_API.DTO.Task.Response;
+using Capstone_API.DTO.TimeSlot.Response;
 using Capstone_API.Models;
 
 namespace Capstone_API.Config.AutoMapper
@@ -24,8 +25,10 @@ namespace Capstone_API.Config.AutoMapper
             CreateMap<Lecturer, LecturerResponse>().ReverseMap();
 
             // Subject Mapper
-            CreateMap<Lecturer, SubjectResponse>().ReverseMap();
+            CreateMap<Subject, SubjectResponse>().ReverseMap();
 
+            // Timeslot Mapper
+            CreateMap<TimeSlot, TimeSlotResponse>().ReverseMap();
 
         }
     }

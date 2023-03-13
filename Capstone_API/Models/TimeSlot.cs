@@ -25,9 +25,6 @@ namespace Capstone_API.Models
         public int? OrderNumber { get; set; }
         public string? Slot1 { get; set; }
         public string? Slot2 { get; set; }
-        public DateTime? CreateOn { get; set; }
-        public DateTime? UpdateOn { get; set; }
-        public string? ExistStatus { get; set; }
 
         public virtual ICollection<AreaSlotWeight> AreaSlotWeightAreaSlots { get; set; }
         public virtual ICollection<AreaSlotWeight> AreaSlotWeightSlots { get; set; }

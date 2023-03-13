@@ -25,10 +25,16 @@ namespace Capstone_API.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        [HttpPost("get-tasks")]
-        public GenericResult<List<ExecuteResponse>> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
+        [HttpPost("search-tasks")]
+        public GenericResult<List<QueryDataByLecturerAndTimeSlot>> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
         {
-            return _taskService.GetAll(request);
+            return _taskService.SearchTask(request);
+        }
+
+        [HttpGet("get-tasks-not-assigned")]
+        public GenericResult<List<List<TimeSlotInfo>>> GetTaskNotAssign()
+        {
+            return _taskService.GetAllTaskNotAssign();
         }
 
         [HttpPut("swap-lecturer")]
@@ -63,7 +69,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpGet("get-schedule/{executeId}")]
-        public async Task<GenericResult<List<ExecuteResponse>>> GetSchedule(int executeId)
+        public async Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId)
         {
             return await _taskService.GetSchedule(executeId);
         }

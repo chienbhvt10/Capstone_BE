@@ -15,8 +15,5 @@ namespace Capstone_API.Models
         public int? QuotaOfClassSettingLevel { get; set; }
         public int? PreferenceLevelOfSubjectSettingLevel { get; set; }
         public int? PreferenceLevelOfSlotSettingLevel { get; set; }
-        public DateTime? CreateOn { get; set; }
-        public DateTime? UpdateOn { get; set; }
-        public string? ExistStatus { get; set; }
     }
 }

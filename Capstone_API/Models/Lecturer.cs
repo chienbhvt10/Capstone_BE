@@ -18,9 +18,6 @@ namespace Capstone_API.Models
         public string? ShortName { get; set; }
         public int? SemesterId { get; set; }
         public int? OrderNumber { get; set; }
-        public DateTime? CreateOn { get; set; }
-        public DateTime? UpdateOn { get; set; }
-        public string? ExistStatus { get; set; }
 
         public virtual ICollection<LecturerRegister> LecturerRegisters { get; set; }
         public virtual ICollection<SlotPreferenceLevel> SlotPreferenceLevels { get; set; }

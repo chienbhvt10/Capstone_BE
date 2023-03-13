@@ -24,23 +24,22 @@ namespace Capstone_API.Service.Implement
             _httpClient = httpClient;
         }
 
-        public GenericResult<List<ExecuteResponse>> GetAll(GetAllTaskAssignRequest request)
+        public GenericResult<List<QueryDataByLecturerAndTimeSlot>> SearchTask(GetAllTaskAssignRequest request)
         {
             try
             {
-                var querySearchData = _unitOfWork.TaskRepository.MappingTaskData().Where(item =>
-                    request.LecturerIds != null && item.LecturerId != null && request.LecturerIds.Contains((int)item.LecturerId)
-                    && request.ClassIds != null && item.ClassId != null && request.ClassIds.Contains((int)item.ClassId)
-                    && request.SubjectIds != null && item.SubjectId != null && request.SubjectIds.Contains((int)item.SubjectId)
-                    && request.RoomId != null && item.Room1Id != null && item.Room2Id != null && (request.RoomId.Contains((int)item.Room1Id) || request.RoomId.Contains((int)item.Room2Id)));
-                var mappingData = MappingAllTaskToResponseData(querySearchData);
+                var querySearchData = GetTaskResponses().Where(item =>
+                    request.LecturerIds != null && item?.LecturerId != null && request.LecturerIds.Contains((int)item.LecturerId)
+                    && request.ClassIds != null && item?.ClassId != null && request.ClassIds.Contains((int)item.ClassId)
+                    && request.SubjectIds != null && item?.SubjectId != null && request.SubjectIds.Contains((int)item.SubjectId)
+                    && request.RoomId != null && item?.RoomId != null && (request.RoomId.Contains((int)item.RoomId))).ToList();
 
-                return new GenericResult<List<ExecuteResponse>>(mappingData, true);
+                return new GenericResult<List<QueryDataByLecturerAndTimeSlot>>(querySearchData, true);
             }
 
             catch (Exception ex)
             {
-                return new GenericResult<List<ExecuteResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<List<QueryDataByLecturerAndTimeSlot>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 
@@ -103,7 +102,7 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public async Task<GenericResult<List<ExecuteResponse>>> GetSchedule(int executeId)
+        public async Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId)
         {
             try
             {
@@ -111,7 +110,7 @@ namespace Capstone_API.Service.Implement
                 var json = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
                 {
-                    return new GenericResult<List<ExecuteResponse>>("Fetch fail");
+                    return new GenericResult<List<ResponseTaskByLecturerIsKey>>("Fetch fail");
                 }
                 var result = JsonSerializer.Deserialize<FetchDataByExcecuteIdResponse>(json);
 
@@ -127,7 +126,7 @@ namespace Capstone_API.Service.Implement
                 {
                     foreach (var data in executeData)
                     {
-                        var taskAssign = await _unitOfWork.TaskRepository.FindAsync((item) => item.Id == data.taskID && item.SemesterId == executeSemesterId);
+                        var taskAssign = await _unitOfWork.TaskRepository.FindAsync((item) => item.Id == data.taskID && item.SemesterId != executeSemesterId);
                         if (taskAssign != null)
                         {
                             taskAssign.LecturerId = data.instructorID;
@@ -136,44 +135,108 @@ namespace Capstone_API.Service.Implement
                         }
                     }
                 }
-                var mappingData = MappingAllTaskToResponseData(_unitOfWork.TaskRepository.MappingTaskData()).Where(item => item.LecturerId != 0).ToList();
-
-                return new GenericResult<List<ExecuteResponse>>(mappingData, true);
+                var mappingData = ResponseTaskByLecturerIsKey().ToList();
+                return new GenericResult<List<ResponseTaskByLecturerIsKey>>(mappingData, true);
             }
             catch (Exception ex)
             {
-                return new GenericResult<List<ExecuteResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<List<ResponseTaskByLecturerIsKey>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
-        public List<ExecuteResponse> MappingAllTaskToResponseData(IEnumerable<TaskAssign> taskAssigns)
+
+        public IEnumerable<QueryDataByLecturerAndTimeSlot> GetTaskResponses()
         {
-            return taskAssigns.Select(item => new ExecuteResponse()
-            {
-                LecturerId = item.Lecturer != null ? item.Lecturer.Id : 0,
-                LecturerName = item.Lecturer != null ? item.Lecturer.ShortName : "",
-                Tasks = item.Lecturer != null ? item.Lecturer.TaskAssigns.Select(taskAssign => new TaskOfLecturer()
-                {
-                    TaskId = taskAssign.Id,
-                    ClassOfTask = new ClassOfTask()
-                    {
-                        ClassId = taskAssign.Class != null ? taskAssign.Class.Id : 0,
-                        ClassName = taskAssign.Class != null ? taskAssign.Class.Name : ""
-                    },
-                    TimeSlotOfTask = new TimeSlotOfTask()
-                    {
-                        TimeSlotCode = taskAssign.TimeSlot != null ? taskAssign.TimeSlot.Name : "",
-                        TimeSlotId = taskAssign.TimeSlot != null ? taskAssign.TimeSlot.Id : 0,
-                        TimeSlotOrder = (taskAssign.TimeSlot != null ? (int)taskAssign.TimeSlot.OrderNumber : 0)
-                    },
-                    RoomOfTask = null,
-                    Subject = new SubjectOfTask()
-                    {
-                        SubjectId = taskAssign.Subject != null ? taskAssign.Subject.Id : 0,
-                        SubjectName = taskAssign.Subject != null ? taskAssign.Subject.Name : null
-                    },
-                }).ToList() : null
-            }).ToList();
+            var context = _unitOfWork.Context;
+            var result = from A in (
+                                from l in context.Lecturers
+                                from ts in context.TimeSlots
+                                select new
+                                { LecturerId = l.Id, LecturerName = l.Name, TimeSlotId = ts.Id, TimeSlotName = ts.Name, TimeSlotOrder = ts.OrderNumber }
+                            )
+                         join B in context.TaskAssigns
+                             on new { A.TimeSlotId, A.LecturerId } equals new { TimeSlotId = B.TimeSlotId ?? 0, LecturerId = B.LecturerId ?? 0 } into AB
+                         from B in AB.DefaultIfEmpty()
+                         join C in context.Classes
+                         on B.ClassId equals C.Id into BC
+                         from C in BC.DefaultIfEmpty()
+                         join D in context.Subjects
+                         on B.SubjectId equals D.Id into BD
+                         from D in BD.DefaultIfEmpty()
+                         join E in context.Rooms
+                         on B.Room1Id equals E.Id into BE
+                         from E in BE.DefaultIfEmpty()
+                         select new QueryDataByLecturerAndTimeSlot()
+                         {
+                             LecturerId = A.LecturerId,
+                             LecturerName = A.LecturerName,
+                             TimeSlotId = A.TimeSlotId,
+                             TimeSlotName = A.TimeSlotName,
+                             TimeSlotOrder = A.TimeSlotOrder,
+                             ClassName = C.Name,
+                             SubjectName = D.Name,
+                             RoomName = E.Name ?? "",
+                             IsAssign = (B.Id == null) ? 0 : 1,
+                         };
+            return result;
         }
+        public IEnumerable<ResponseTaskByLecturerIsKey> ResponseTaskByLecturerIsKey()
+        {
+            var data = GetTaskResponses().GroupBy(item => item.LecturerId);
+            var result = data.Select(group =>
+                new ResponseTaskByLecturerIsKey
+                {
+                    LecturerId = group.Key,
+                    SemesterId = group.First().SemesterId,
+                    LecturerName = group.First().LecturerName,
+                    TimeSlotInfos = group.OrderBy(item => item.TimeSlotOrder).Select(data =>
+                        new TimeSlotInfo
+                        {
+                            TaskId = data.TaskId,
+                            TimeSlotId = data.TimeSlotId,
+                            TimeSlotName = data.TimeSlotName,
+                            ClassId = data.ClassId,
+                            ClassName = data.ClassName,
+                            SubjectId = data.SubjectId,
+                            SubjectName = data.SubjectName,
+                            RoomId = data.RoomId,
+                            RoomName = data.RoomName,
+                            Status = data.Status,
+                            IsAssign = data.IsAssign
+                        }).ToList()
+                }).ToList();
+            return result;
+        }
+
+        public GenericResult<List<List<TimeSlotInfo>>> GetAllTaskNotAssign()
+        {
+            try
+            {
+                var data = _unitOfWork.TaskRepository.MappingTaskData()
+                    .Where(item => item.LecturerId == null)
+                    .GroupBy(item => item.TimeSlotId);
+                var result = data.Select(group => group.OrderBy(item => item?.TimeSlot?.OrderNumber).Select(data =>
+                            new TimeSlotInfo
+                            {
+                                TaskId = data.Id,
+                                TimeSlotId = (int)data.TimeSlotId,
+                                TimeSlotName = data.TimeSlot.Name,
+                                ClassId = (int)data.ClassId,
+                                ClassName = data.Class.Name,
+                                SubjectId = (int)data.SubjectId,
+                                SubjectName = data.Subject.Name,
+                                RoomId = (int)data.Room1Id,
+                                RoomName = data.Room1.Name,
+                                Status = data.Status != null ? "" : "",
+                            }).ToList()).ToList();
+
+                return new GenericResult<List<List<TimeSlotInfo>>>(result, true);
+            }
+            catch (Exception ex)
+            {
+                return new GenericResult<List<List<TimeSlotInfo>>>($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
 
     }
 }

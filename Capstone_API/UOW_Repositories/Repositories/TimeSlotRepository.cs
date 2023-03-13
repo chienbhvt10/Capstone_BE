@@ -1,5 +1,4 @@
-﻿using Capstone_API.Enum;
-using Capstone_API.Models;
+﻿using Capstone_API.Models;
 using Capstone_API.UOW_Repositories.Infrastructures;
 using Capstone_API.UOW_Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +12,14 @@ namespace Capstone_API.UOW_Repositories.Repositories
         {
             _context = context;
         }
-
+        public IEnumerable<TimeSlot> MappingTimeSlotData()
+        {
+            var items = _context.TimeSlots
+                .Include(ts => ts.TaskAssigns)
+                    .ThenInclude(task => task.Lecturer)
+                .Select(item => item);
+            return items;
+        }
         #region Delete
         public virtual void Delete(int entityId, bool isHardDeleted = false)
         {
@@ -24,7 +30,6 @@ namespace Capstone_API.UOW_Repositories.Repositories
 
             if (isHardDeleted == false)
             {
-                entity.ExistStatus = Status.Deleted.ToString();
                 Context.Entry(entity).State = EntityState.Modified;
                 return;
             }
@@ -41,7 +46,6 @@ namespace Capstone_API.UOW_Repositories.Repositories
 
             if (isHardDeleted == false)
             {
-                entity.ExistStatus = Status.Deleted.ToString();
                 Context.Entry(entity).State = EntityState.Modified;
                 return;
             }
@@ -58,7 +62,6 @@ namespace Capstone_API.UOW_Repositories.Repositories
 
             if (isHardDeleted == false)
             {
-                entitiesExist.ExistStatus = Status.Deleted.ToString();
                 Context.Entry(entitiesExist).State = EntityState.Modified;
                 return;
             }
@@ -75,7 +78,6 @@ namespace Capstone_API.UOW_Repositories.Repositories
 
             if (isHardDeleted == false)
             {
-                entitiesExist.ExistStatus = Status.Deleted.ToString();
                 Context.Entry(entitiesExist).State = EntityState.Modified;
                 return;
             }
@@ -92,7 +94,6 @@ namespace Capstone_API.UOW_Repositories.Repositories
 
             if (isHardDeleted == false)
             {
-                entitiesExist.ExistStatus = Status.Deleted.ToString();
                 Context.Entry(entitiesExist).State = EntityState.Modified;
                 return;
             }

@@ -1,5 +1,4 @@
-﻿using Capstone_API.Enum;
-using Capstone_API.Models;
+﻿using Capstone_API.Models;
 using Capstone_API.UOW_Repositories.Infrastructures;
 using Capstone_API.UOW_Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +30,6 @@ namespace Capstone_API.UOW_Repositories.Repositories
 
             if (isHardDeleted == false)
             {
-                entity.ExistStatus = Status.Deleted.ToString();
                 Context.Entry(entity).State = EntityState.Modified;
                 return;
             }
@@ -53,7 +51,6 @@ namespace Capstone_API.UOW_Repositories.Repositories
 
             if (isHardDeleted == false)
             {
-                entity.ExistStatus = Status.Deleted.ToString();
                 Context.Entry(entity).State = EntityState.Modified;
                 return;
             }
@@ -75,7 +72,6 @@ namespace Capstone_API.UOW_Repositories.Repositories
 
             if (isHardDeleted == false)
             {
-                entitiesExist.ExistStatus = Status.Deleted.ToString();
                 Context.Entry(entitiesExist).State = EntityState.Modified;
                 return;
             }
@@ -97,7 +93,6 @@ namespace Capstone_API.UOW_Repositories.Repositories
 
             if (isHardDeleted == false)
             {
-                entitiesExist.ExistStatus = Status.Deleted.ToString();
                 Context.Entry(entitiesExist).State = EntityState.Modified;
                 return;
             }
@@ -120,7 +115,6 @@ namespace Capstone_API.UOW_Repositories.Repositories
 
             if (isHardDeleted == false)
             {
-                entitiesExist.ExistStatus = Status.Deleted.ToString();
                 Context.Entry(entitiesExist).State = EntityState.Modified;
                 return;
             }

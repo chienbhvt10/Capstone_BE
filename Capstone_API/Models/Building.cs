@@ -14,9 +14,6 @@ namespace Capstone_API.Models
         public int Id { get; set; }
         public string? Name { get; set; }
         public string? ShortName { get; set; }
-        public DateTime? CreateOn { get; set; }
-        public DateTime? UpdateOn { get; set; }
-        public string? ExistStatus { get; set; }
 
         public virtual ICollection<Distance> DistanceBuilding1s { get; set; }
         public virtual ICollection<Distance> DistanceBuilding2s { get; set; }

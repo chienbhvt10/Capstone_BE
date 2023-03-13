@@ -174,6 +174,9 @@ namespace Capstone_API.Service.Implement
                                 TimeSlotId = timeSlotFind == null ? (timeSlotTemp.Id == 0 ? null : timeSlotTemp.Id) : (timeSlotFind?.Id == 0 ? null : timeSlotFind?.Id),
                                 Room1Id = roomFind == null ? (roomTemp.Id == 0 ? null : roomTemp.Id) : (roomFind?.Id == 0 ? null : roomFind?.Id),
                             };
+                            subjectTemp.OrderNumber = subjectTemp.Id;
+                            timeSlotTemp.OrderNumber = timeSlotTemp.Id;
+
                             _unitOfWork.TaskRepository.Add(taskAssign);
                             _unitOfWork.Complete();
                         }

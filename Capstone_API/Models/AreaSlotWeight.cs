@@ -10,9 +10,6 @@ namespace Capstone_API.Models
         public int? AreaSlotId { get; set; }
         public int? AreaSlotWeight1 { get; set; }
         public int? SemesterId { get; set; }
-        public DateTime? CreateOn { get; set; }
-        public DateTime? UpdateOn { get; set; }
-        public string? ExistStatus { get; set; }
 
         public virtual TimeSlot? AreaSlot { get; set; }
         public virtual TimeSlot? Slot { get; set; }
