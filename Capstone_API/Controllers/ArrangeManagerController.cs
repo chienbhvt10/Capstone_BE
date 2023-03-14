@@ -25,6 +25,12 @@ namespace Capstone_API.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
+        [HttpGet("get-a-task/{taskId}")]
+        public GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int taskId)
+        {
+            return _taskService.GetATask(taskId);
+        }
+
         [HttpPost("search-tasks")]
         public GenericResult<List<QueryDataByLecturerAndTimeSlot>> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
         {

@@ -18,7 +18,6 @@ namespace Capstone_API.Config.AutoMapper
             CreateMap<TaskAssign, TaskModifyRequest>().ReverseMap();
             CreateMap<TaskAssign, GetAllTaskAssignResponse>().ReverseMap();
             CreateMap<TaskAssign, GetAllTaskAssignRequest>().ReverseMap();
-            CreateMap<TaskAssign, ExecuteResponse>().ReverseMap();
 
 
             // Lecturer Mapper

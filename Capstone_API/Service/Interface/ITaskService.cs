@@ -13,6 +13,7 @@ namespace Capstone_API.Service.Interface
         GenericResult<List<QueryDataByLecturerAndTimeSlot>> SearchTask(GetAllTaskAssignRequest request);
         GenericResult<TimeSlotInfoResponse> GetAllTaskNotAssign();
         Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId);
+        GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int TaskId);
 
     }
 }
