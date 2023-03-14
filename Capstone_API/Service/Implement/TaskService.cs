@@ -202,12 +202,13 @@ namespace Capstone_API.Service.Implement
                             RoomName = data.RoomName,
                             Status = data.Status,
                             IsAssign = data.IsAssign
-                        }).ToList()
+                        }).ToList(),
+                    Total = group.Where(item => item.IsAssign != 0).Count(),
                 }).ToList();
             return result;
         }
 
-        public GenericResult<List<List<TimeSlotInfo>>> GetAllTaskNotAssign()
+        public GenericResult<TimeSlotInfoResponse> GetAllTaskNotAssign()
         {
             try
             {
@@ -229,11 +230,17 @@ namespace Capstone_API.Service.Implement
                                 Status = data.Status != null ? "" : "",
                             }).ToList()).ToList();
 
-                return new GenericResult<List<List<TimeSlotInfo>>>(result, true);
+                var total = new TimeSlotInfoResponse()
+                {
+                    Total = _unitOfWork.TaskRepository.MappingTaskData()
+                    .Where(item => item.LecturerId == null).Count(),
+                    TimeSlotInfos = result
+                };
+                return new GenericResult<TimeSlotInfoResponse>(total, true);
             }
             catch (Exception ex)
             {
-                return new GenericResult<List<List<TimeSlotInfo>>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<TimeSlotInfoResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 

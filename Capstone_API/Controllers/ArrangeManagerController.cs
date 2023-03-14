@@ -32,7 +32,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpGet("get-tasks-not-assigned")]
-        public GenericResult<List<List<TimeSlotInfo>>> GetTaskNotAssign()
+        public GenericResult<TimeSlotInfoResponse> GetTaskNotAssign()
         {
             return _taskService.GetAllTaskNotAssign();
         }

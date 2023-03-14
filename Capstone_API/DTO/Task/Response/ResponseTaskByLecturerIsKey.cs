@@ -5,6 +5,7 @@
         public int LecturerId { get; set; }
         public string? LecturerName { get; set; }
         public int SemesterId { get; set; }
+        public int Total { get; set; }
         public List<TimeSlotInfo>? TimeSlotInfos { get; set; }
     }
     public class ResponseTaskByLecturerIsKeyNotAssign
@@ -12,6 +13,11 @@
         public int TimeSlotId { get; set; }
         public int TimeSlotName { get; set; }
         public List<TimeSlotInfo>? TimeSlotInfos { get; set; }
+    }
+    public class TimeSlotInfoResponse
+    {
+        public int Total { get; set; }
+        public List<List<TimeSlotInfo>>? TimeSlotInfos { get; set; }
     }
     public class TimeSlotInfo
     {
