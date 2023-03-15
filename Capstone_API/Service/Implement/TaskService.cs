@@ -24,6 +24,24 @@ namespace Capstone_API.Service.Implement
             _httpClient = httpClient;
         }
 
+        #region GetATask
+        public GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int taskId)
+        {
+            try
+            {
+                var query = GetTaskResponses().Where(item => item.TaskId == taskId).FirstOrDefault();
+                query ??= _mapper.Map<QueryDataByLecturerAndTimeSlot>(GetTasksNotAssign2().Where(item => item.TaskId == taskId).FirstOrDefault());
+
+                return new GenericResult<QueryDataByLecturerAndTimeSlot>(query, true);
+            }
+            catch (Exception ex)
+            {
+                return new GenericResult<QueryDataByLecturerAndTimeSlot>($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+        #endregion
+
+        #region SearchTask
         public GenericResult<List<QueryDataByLecturerAndTimeSlot>> SearchTask(GetAllTaskAssignRequest request)
         {
             try
@@ -42,7 +60,9 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<List<QueryDataByLecturerAndTimeSlot>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+        #endregion
 
+        #region RequestLecturerConfirm
         public ResponseResult RequestLecturerConfirm()
         {
             try
@@ -54,7 +74,9 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+        #endregion
 
+        #region SwapLecturer
         public ResponseResult SwapLecturer(SwapLecturerRequest request)
         {
             try
@@ -69,7 +91,9 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+        #endregion
 
+        #region SwapRoom
         public ResponseResult SwapRoom(SwapRoomRequest request)
         {
             try
@@ -85,23 +109,29 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+        #endregion
 
+        #region TimeTableModify
 
         public ResponseResult TimeTableModify(TaskModifyRequest request)
         {
             try
             {
-                TaskAssign taskAssign = _mapper.Map<TaskAssign>(request);
-                _unitOfWork.TaskRepository.Update(taskAssign);
+                var taskFind = _unitOfWork.TaskRepository.Find(request.TaskId);
+                taskFind.Room1Id = request.RoomId;
+                taskFind.LecturerId = request.LecturerId;
+                _unitOfWork.TaskRepository.Update(taskFind);
                 _unitOfWork.Complete();
-                return new ResponseResult("Modify task successfully");
+                return new ResponseResult();
             }
             catch (Exception ex)
             {
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+        #endregion
 
+        #region GetSchedule
         public async Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId)
         {
             try
@@ -143,7 +173,9 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<List<ResponseTaskByLecturerIsKey>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+        #endregion
 
+        #region GetTaskAssigned
         public IEnumerable<QueryDataByLecturerAndTimeSlot> GetTaskResponses()
         {
             try
@@ -195,7 +227,7 @@ namespace Capstone_API.Service.Implement
         }
         public IEnumerable<ResponseTaskByLecturerIsKey> ResponseTaskByLecturerIsKey()
         {
-            var data = GetTaskResponses().GroupBy(item => item.LecturerId);
+            var data = GetTaskResponses().OrderBy(item => item.LecturerId).GroupBy(item => item.LecturerId);
             var result = data.Select(group =>
                 new ResponseTaskByLecturerIsKey
                 {
@@ -221,28 +253,57 @@ namespace Capstone_API.Service.Implement
                 }).ToList();
             return result;
         }
+        #endregion
 
+        #region GetTasksNotAssigned
+        public List<List<TimeSlotInfo>> GetTasksNotAssign()
+        {
+            var data = _unitOfWork.TaskRepository.MappingTaskData()
+                    .Where(item => item.LecturerId == null)
+                    .OrderBy(item => item.TimeSlot?.OrderNumber)
+                    .GroupBy(item => item.TimeSlotId);
+            var result = data.Select(group => group.Select(data =>
+                        new TimeSlotInfo
+                        {
+                            TaskId = data.Id,
+                            TimeSlotId = (int)data.TimeSlotId,
+                            TimeSlotName = data.TimeSlot.Name,
+                            ClassId = (int)data.ClassId,
+                            ClassName = data.Class.Name,
+                            SubjectId = (int)data.SubjectId,
+                            SubjectName = data.Subject.Name,
+                            RoomId = (int)data.Room1Id,
+                            RoomName = data.Room1.Name,
+                            Status = data.Status != null ? "" : "",
+                        }).ToList()).ToList();
+            return result;
+        }
+
+        public List<TimeSlotInfo> GetTasksNotAssign2()
+        {
+            var data = _unitOfWork.TaskRepository.MappingTaskData()
+                    .Where(item => item.LecturerId == null);
+            var result = data.Select(data =>
+                        new TimeSlotInfo
+                        {
+                            TaskId = data.Id,
+                            TimeSlotId = (int)data.TimeSlotId,
+                            TimeSlotName = data.TimeSlot.Name,
+                            ClassId = (int)data.ClassId,
+                            ClassName = data.Class.Name,
+                            SubjectId = (int)data.SubjectId,
+                            SubjectName = data.Subject.Name,
+                            RoomId = (int)data.Room1Id,
+                            RoomName = data.Room1.Name,
+                            Status = data.Status != null ? "" : "",
+                        }).ToList();
+            return result;
+        }
         public GenericResult<TimeSlotInfoResponse> GetAllTaskNotAssign()
         {
             try
             {
-                var data = _unitOfWork.TaskRepository.MappingTaskData()
-                    .Where(item => item.LecturerId == null)
-                    .GroupBy(item => item.TimeSlotId);
-                var result = data.Select(group => group.OrderBy(item => item?.TimeSlot?.OrderNumber).Select(data =>
-                            new TimeSlotInfo
-                            {
-                                TaskId = data.Id,
-                                TimeSlotId = (int)data.TimeSlotId,
-                                TimeSlotName = data.TimeSlot.Name,
-                                ClassId = (int)data.ClassId,
-                                ClassName = data.Class.Name,
-                                SubjectId = (int)data.SubjectId,
-                                SubjectName = data.Subject.Name,
-                                RoomId = (int)data.Room1Id,
-                                RoomName = data.Room1.Name,
-                                Status = data.Status != null ? "" : "",
-                            }).ToList()).ToList();
+                var result = GetTasksNotAssign();
 
                 var total = new TimeSlotInfoResponse()
                 {
@@ -257,19 +318,7 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<TimeSlotInfoResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
-
-        public GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int taskId)
-        {
-            try
-            {
-                var result = GetTaskResponses().Where(item => item.TaskId == taskId).FirstOrDefault();
-                return new GenericResult<QueryDataByLecturerAndTimeSlot>(result, true);
-            }
-            catch (Exception ex)
-            {
-                return new GenericResult<QueryDataByLecturerAndTimeSlot>($"{ex.Message}: {ex.InnerException?.Message}");
-            }
-        }
+        #endregion
 
 
     }

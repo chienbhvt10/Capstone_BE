@@ -29,6 +29,8 @@ builder.Services.AddScoped<ISubjectPreferenceLevelService, SubjectPreferenceLeve
 builder.Services.AddScoped<ITimeSlotCompatibilityService, TimeSlotCompatibilityService>();
 builder.Services.AddScoped<ITimeSlotConflictService, TimeSlotConflictService>();
 builder.Services.AddScoped<ITimeSlotService, TimeSlotService>();
+builder.Services.AddScoped<IClassService, ClassService>();
+
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 //add hostingEnvironment service
 var hostingEnvironment = builder.Services.BuildServiceProvider()?.GetService<IWebHostEnvironment>();
@@ -39,7 +41,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:3000");
+                          policy.WithOrigins("http://localhost:3000")
+                           .AllowAnyMethod()
+                   .AllowAnyHeader();
                       });
 });
 

@@ -90,7 +90,7 @@ namespace Capstone_API.Service.Implement
                         for (int row = 2; row <= rowCount; row++)
                         {
                             var className = worksheet.Cells[row, 1].Value?.ToString()?.Trim() ?? string.Empty;
-                            var subjectName = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? string.Empty;
+                            var subjectCode = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? string.Empty;
                             var subjectDepartment = worksheet.Cells[row, 3].Value?.ToString()?.Trim() ?? string.Empty;
                             var timeSlotName = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? string.Empty;
                             var timeSlotSlot1 = worksheet.Cells[row, 5].Value?.ToString()?.Trim() ?? string.Empty;
@@ -104,7 +104,7 @@ namespace Capstone_API.Service.Implement
 
                             var clasFind = classes.Find(clas => clas.Name.Equals(className));
                             var roomFind = rooms.Find(room => room.Name.Equals(roomName));
-                            var subjectFind = subjects.Find(sub => sub.Name.Equals(subjectName) || sub.Department.Equals(subjectDepartment));
+                            var subjectFind = subjects.Find(sub => sub.Code.Equals(subjectCode) || sub.Department.Equals(subjectDepartment));
                             var timeSlotFind = timeSlots.Find(ts => ts.Name.Equals(timeSlotName));
 
                             if (classes.Count() == 0)
@@ -136,14 +136,14 @@ namespace Capstone_API.Service.Implement
 
                             if (subjects.Count() == 0)
                             {
-                                subjectTemp.Name = subjectName;
+                                subjectTemp.Code = subjectCode;
                                 subjectTemp.Department = subjectDepartment;
                                 subjects.Add(subjectTemp);
                                 _unitOfWork.SubjectRepository.Add(subjectTemp);
                             }
                             else if (subjects.Count() > 0 && subjectFind == null)
                             {
-                                subjectTemp.Name = subjectName;
+                                subjectTemp.Code = subjectCode;
                                 subjectTemp.Department = subjectDepartment;
                                 subjects.Add(subjectTemp);
                                 _unitOfWork.SubjectRepository.Add(subjectTemp);

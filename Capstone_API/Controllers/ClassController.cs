@@ -1,4 +1,4 @@
-﻿using Capstone_API.DTO.Distance.Response;
+﻿using Capstone_API.DTO.Class.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -7,44 +7,42 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Capstone_API.Controllers
 {
-    [Route("api/distance")]
+    [Route("api/class")]
     [ApiController]
-    public class DistanceController : ControllerBase
+    public class ClassController : ControllerBase
     {
-        private readonly IDistanceService _distanceService;
-        public DistanceController(IDistanceService distanceService)
+        private readonly IClassService _classService;
+        public ClassController(IClassService classService)
         {
-            _distanceService = distanceService;
+            _classService = classService;
         }
-
+        // GET: api/<ClassController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public GenericResult<IEnumerable<ClassResponse>> Get()
         {
-            return new string[] { "value1", "value2" };
+            return _classService.GetAll();
         }
 
-        [HttpGet("get-rooms")]
-        public GenericResult<List<RoomResponse>> GetRooms()
-        {
-            return _distanceService.GetAll();
-        }
-
+        // GET api/<ClassController>/5
         [HttpGet("{id}")]
         public string Get(int id)
         {
             return "value";
         }
 
+        // POST api/<ClassController>
         [HttpPost]
         public void Post([FromBody] string value)
         {
         }
 
+        // PUT api/<ClassController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
+        // DELETE api/<ClassController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
