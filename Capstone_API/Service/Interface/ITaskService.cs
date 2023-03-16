@@ -15,6 +15,9 @@ namespace Capstone_API.Service.Interface
         Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId);
         GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int TaskId);
         Task<GenericResult<int>> Execute();
+        ResponseResult LockAndUnLockTask(LockAndUnLockTaskRequest request);
+        ResponseResult UnLockAllTask();
+
 
     }
 }

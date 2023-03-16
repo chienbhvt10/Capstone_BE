@@ -177,11 +177,13 @@ namespace Capstone_API.Service.Implement
                         }
                     }
                 }
+
                 GenerateAreaDistanceDefault();
                 GenerateSubjectPreferenceLevelDefault();
                 GenerateTimeSlotConstainDefault();
                 GenerateTimeSlotPreferenceLevelDefault();
                 GenerateLecturerQuotaDefault();
+
                 return new ResponseResult("Import excel and add new default data success", true);
             }
             catch (Exception ex)

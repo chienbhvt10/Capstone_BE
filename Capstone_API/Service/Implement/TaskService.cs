@@ -118,10 +118,65 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
+                var taskDupplicate = _unitOfWork.TaskRepository.GetAll()
+                    .FirstOrDefault(item => item.LecturerId == request.LecturerId && item.TimeSlotId == request.TimeSlotId);
                 var taskFind = _unitOfWork.TaskRepository.Find(request.TaskId);
-                taskFind.Room1Id = request.RoomId;
-                taskFind.LecturerId = request.LecturerId;
+                if (taskDupplicate != null)
+                {
+                    int tmpId = (int)taskDupplicate.LecturerId;
+                    taskDupplicate.LecturerId = taskFind.LecturerId;
+                    taskFind.LecturerId = tmpId;
+                    _unitOfWork.TaskRepository.Update(taskFind);
+                    _unitOfWork.TaskRepository.Update(taskDupplicate);
+
+                }
+                else
+                {
+                    taskFind.Room1Id = request.RoomId;
+                    taskFind.LecturerId = request.LecturerId;
+                    _unitOfWork.TaskRepository.Update(taskFind);
+                }
+                _unitOfWork.Complete();
+
+
+                return new ResponseResult();
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+        public ResponseResult LockAndUnLockTask(LockAndUnLockTaskRequest request)
+        {
+            try
+            {
+                var taskFind = _unitOfWork.TaskRepository.Find(request.TaskId);
+                var isPreAssign = taskFind.PreAssign != null && (bool)taskFind.PreAssign;
+                taskFind.PreAssign = !isPreAssign;
+                taskFind.LecturerId ??= request.LecturerId;
+
                 _unitOfWork.TaskRepository.Update(taskFind);
+                _unitOfWork.Complete();
+                return new ResponseResult();
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+        public ResponseResult UnLockAllTask()
+        {
+            try
+            {
+                var tasksFind = _unitOfWork.TaskRepository.GetAll().Where(item => item.PreAssign == true);
+                foreach (var task in tasksFind)
+                {
+                    task.PreAssign = false;
+                }
+
+                _unitOfWork.TaskRepository.UpdateRange(tasksFind);
                 _unitOfWork.Complete();
                 return new ResponseResult();
             }
@@ -218,6 +273,7 @@ namespace Capstone_API.Service.Implement
                                  SemesterId = B.SemesterId ?? 0,
                                  RoomName = E.Name ?? "",
                                  IsAssign = (B.Id == null) ? 0 : 1,
+                                 PreAssign = (bool)B.PreAssign ? true : false
                              };
                 return result;
             }
@@ -245,11 +301,13 @@ namespace Capstone_API.Service.Implement
                             ClassId = data.ClassId ?? 0,
                             ClassName = data.ClassName,
                             SubjectId = data.SubjectId ?? 0,
+                            SubjectCode = data.SubjectCode,
                             SubjectName = data.SubjectName,
                             RoomId = data.RoomId ?? 0,
                             RoomName = data.RoomName,
                             Status = data.Status,
-                            IsAssign = data.IsAssign ?? 0
+                            IsAssign = data.IsAssign ?? 0,
+                            PreAssign = (bool)data.PreAssign ? true : false
                         }).ToList(),
                     Total = group.Where(item => item.IsAssign != 0).Count(),
                 }).ToList();

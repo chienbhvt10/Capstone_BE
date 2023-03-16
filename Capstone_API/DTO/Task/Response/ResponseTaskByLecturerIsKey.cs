@@ -34,5 +34,7 @@
         public string? RoomName { get; set; }
         public string? Status { get; set; }
         public int IsAssign { get; set; }
+        public bool PreAssign { get; set; }
+
     }
 }

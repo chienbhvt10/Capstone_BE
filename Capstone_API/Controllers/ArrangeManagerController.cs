@@ -58,6 +58,18 @@ namespace Capstone_API.Controllers
             return _taskService.SwapLecturer(value);
         }
 
+        [HttpPut("lock-and-unlock-task")]
+        public ResponseResult LockAndUnLockTask([FromBody] LockAndUnLockTaskRequest value)
+        {
+            return _taskService.LockAndUnLockTask(value);
+        }
+
+        [HttpPut("unlock-all-task")]
+        public ResponseResult UnLockAllTask()
+        {
+            return _taskService.UnLockAllTask();
+        }
+
 
         [HttpPut("swap-room")]
         public ResponseResult SwapRoom([FromBody] SwapRoomRequest value)
