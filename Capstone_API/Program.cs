@@ -30,6 +30,7 @@ builder.Services.AddScoped<ITimeSlotCompatibilityService, TimeSlotCompatibilityS
 builder.Services.AddScoped<ITimeSlotConflictService, TimeSlotConflictService>();
 builder.Services.AddScoped<ITimeSlotService, TimeSlotService>();
 builder.Services.AddScoped<IClassService, ClassService>();
+builder.Services.AddScoped<IExecuteInfoService, ExecuteInfoService>();
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 //add hostingEnvironment service

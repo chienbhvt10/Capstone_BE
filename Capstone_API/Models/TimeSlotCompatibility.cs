@@ -10,9 +10,8 @@ namespace Capstone_API.Models
         public int? CompatibilitySlotId { get; set; }
         public int? CompatibilityLevel { get; set; }
         public int? SemesterId { get; set; }
-        public int? TimeSlotId { get; set; }
 
         public virtual TimeSlot? CompatibilitySlot { get; set; }
-        public virtual TimeSlot? TimeSlot { get; set; }
+        public virtual TimeSlot? Slot { get; set; }
     }
 }

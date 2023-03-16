@@ -48,16 +48,16 @@ namespace Capstone_API.Service.Implement
 
 
 
-        public async Task<GenericResult<IEnumerable<TaskAssignImportDTO>>> ImportTimetable(IFormFile file, CancellationToken cancellationToken)
+        public async Task<ResponseResult> ImportTimetable(IFormFile file, CancellationToken cancellationToken)
         {
             if (file == null || file.Length <= 0)
             {
-                return new GenericResult<IEnumerable<TaskAssignImportDTO>>("formfile is empty");
+                return new ResponseResult("formfile is empty");
             }
 
             if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
             {
-                return new GenericResult<IEnumerable<TaskAssignImportDTO>>("Not Support file extension");
+                return new ResponseResult("Not Support file extension");
             }
             try
             {
@@ -66,12 +66,7 @@ namespace Capstone_API.Service.Implement
                 // this code must be get executeSemesterId in database
 
                 var semesterId = 0;
-                _unitOfWork.TaskRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-                _unitOfWork.RoomRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-                _unitOfWork.ClassRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-                _unitOfWork.SubjectRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-                _unitOfWork.TimeSlotRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-                _unitOfWork.Complete();
+                RemoveTableBeforeImport(semesterId);
 
                 var classes = new List<Class>();
                 var rooms = new List<Room>();
@@ -182,13 +177,140 @@ namespace Capstone_API.Service.Implement
                         }
                     }
                 }
-
-                return new GenericResult<IEnumerable<TaskAssignImportDTO>>();
+                GenerateAreaDistanceDefault();
+                GenerateSubjectPreferenceLevelDefault();
+                GenerateTimeSlotConstainDefault();
+                GenerateTimeSlotPreferenceLevelDefault();
+                GenerateLecturerQuotaDefault();
+                return new ResponseResult("Import excel and add new default data success", true);
             }
             catch (Exception ex)
             {
-                return new GenericResult<IEnumerable<TaskAssignImportDTO>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
+        }
+
+        public void RemoveTableBeforeImport(int semesterId)
+        {
+            _unitOfWork.SubjectPreferenceLevelRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+            _unitOfWork.SlotPreferenceLevelRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+            _unitOfWork.AreaSlotWeightRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+            _unitOfWork.LecturerQuotaRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+            _unitOfWork.TimeSlotConflictRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+            _unitOfWork.TimeSlotCompatibilityRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+
+            _unitOfWork.TaskRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+            _unitOfWork.RoomRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+            _unitOfWork.ClassRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+            _unitOfWork.SubjectRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+            _unitOfWork.TimeSlotRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+            _unitOfWork.Complete();
+        }
+
+        public void GenerateSubjectPreferenceLevelDefault()
+        {
+            var subject = _unitOfWork.SubjectRepository.GetAll().ToList();
+            var lecturers = _unitOfWork.LecturerRepository.GetAll().ToList();
+            List<SubjectPreferenceLevel> subjectPreferenceLevels = new List<SubjectPreferenceLevel>();
+            foreach (var item in lecturers)
+            {
+                foreach (var item2 in subject)
+                {
+                    var subjectPreferenceLevel = new SubjectPreferenceLevel()
+                    {
+                        LecturerId = item.Id,
+                        SubjectId = item2.Id,
+                        PreferenceLevel = 0
+                    };
+                    subjectPreferenceLevels.Add(subjectPreferenceLevel);
+                }
+            }
+
+            _unitOfWork.SubjectPreferenceLevelRepository.AddRange(subjectPreferenceLevels);
+            _unitOfWork.Complete();
+        }
+
+        public void GenerateTimeSlotPreferenceLevelDefault()
+        {
+            var timeslot = _unitOfWork.TimeSlotRepository.GetAll().ToList();
+            var lecturers = _unitOfWork.LecturerRepository.GetAll().ToList();
+            foreach (var item in lecturers)
+            {
+                foreach (var item2 in timeslot)
+                {
+                    var slotPreferenceLevel = new SlotPreferenceLevel()
+                    {
+                        LecturerId = item.Id,
+                        SlotId = item2.Id,
+                        PreferenceLevel = 0
+                    };
+                    _unitOfWork.SlotPreferenceLevelRepository.Add(slotPreferenceLevel);
+                    _unitOfWork.Complete();
+                }
+            }
+        }
+
+        public void GenerateTimeSlotConstainDefault()
+        {
+            var timeslot = _unitOfWork.TimeSlotRepository.GetAll().ToList();
+            var timeslot2 = _unitOfWork.TimeSlotRepository.GetAll().ToList();
+            List<TimeSlotConflict> timeSlotConflicts = new();
+            List<TimeSlotCompatibility> timeSlotCompatibilities = new();
+            List<AreaSlotWeight> areaSlotWeights = new();
+
+            foreach (var item in timeslot)
+            {
+                foreach (var item2 in timeslot2)
+                {
+                    TimeSlotConflict timeSlotConflict = new()
+                    {
+                        SlotId = item.Id,
+                        ConflictSlotId = item2.Id,
+                        Conflict = false
+                    };
+                    timeSlotConflicts.Add(timeSlotConflict);
+                    TimeSlotCompatibility timeSlotCompatibility = new()
+                    {
+                        SlotId = item.Id,
+                        CompatibilitySlotId = item2.Id,
+                        CompatibilityLevel = 0
+                    };
+                    timeSlotCompatibilities.Add(timeSlotCompatibility);
+                    AreaSlotWeight areaSlotWeight = new()
+                    {
+                        SlotId = item.Id,
+                        AreaSlotId = item2.Id,
+                        AreaSlotWeight1 = 0
+                    };
+                    areaSlotWeights.Add(areaSlotWeight);
+                }
+            }
+            _unitOfWork.TimeSlotConflictRepository.AddRange(timeSlotConflicts);
+            _unitOfWork.TimeSlotCompatibilityRepository.AddRange(timeSlotCompatibilities);
+            _unitOfWork.AreaSlotWeightRepository.AddRange(areaSlotWeights);
+            _unitOfWork.Complete();
+        }
+
+        public void GenerateAreaDistanceDefault()
+        {
+
+        }
+
+        public void GenerateLecturerQuotaDefault()
+        {
+            var lecturers = _unitOfWork.LecturerRepository.GetAll().ToList();
+            List<LecturerQuotum> lecturerQuotaList = new();
+            foreach (var item in lecturers)
+            {
+                var lecturerQuota = new LecturerQuotum()
+                {
+                    LecturerId = item.Id,
+                    Quota = 8
+                };
+                lecturerQuotaList.Add(lecturerQuota);
+            }
+            _unitOfWork.LecturerQuotaRepository.AddRange(lecturerQuotaList);
+            _unitOfWork.Complete();
         }
 
         public ResponseResult TaskImportExcel()

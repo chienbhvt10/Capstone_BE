@@ -13,6 +13,7 @@ namespace Capstone_API.Models
         public bool? Status { get; set; }
         public int? LecturerId { get; set; }
         public int? Room1Id { get; set; }
+        public bool? PreAssign { get; set; }
 
         public virtual Class? Class { get; set; }
         public virtual Lecturer? Lecturer { get; set; }

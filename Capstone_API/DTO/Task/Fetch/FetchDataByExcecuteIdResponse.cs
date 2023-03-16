@@ -19,4 +19,12 @@ namespace Capstone_API.DTO.Task.Fetch
         public string message { get; set; }
         public DataFetch data { get; set; }
     }
+
+    public class FetchExcecuteResponse
+    {
+        public bool success { get; set; }
+        public int code { get; set; }
+        public string message { get; set; }
+        public int data { get; set; }
+    }
 }

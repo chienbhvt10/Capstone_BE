@@ -7,6 +7,7 @@ namespace Capstone_API.Models
     {
         public Semester()
         {
+            LecturerQuota = new HashSet<LecturerQuotum>();
             SlotPreferenceLevels = new HashSet<SlotPreferenceLevel>();
             SubjectPreferenceLevels = new HashSet<SubjectPreferenceLevel>();
             Subjects = new HashSet<Subject>();
@@ -17,6 +18,7 @@ namespace Capstone_API.Models
         public string? Name { get; set; }
         public int? Year { get; set; }
 
+        public virtual ICollection<LecturerQuotum> LecturerQuota { get; set; }
         public virtual ICollection<SlotPreferenceLevel> SlotPreferenceLevels { get; set; }
         public virtual ICollection<SubjectPreferenceLevel> SubjectPreferenceLevels { get; set; }
         public virtual ICollection<Subject> Subjects { get; set; }

@@ -1,4 +1,5 @@
 ﻿using Capstone_API.DTO.Excel;
+using Capstone_API.DTO.Task.Fetch;
 using Capstone_API.DTO.Task.Request;
 using Capstone_API.DTO.Task.Response;
 using Capstone_API.Results;
@@ -16,15 +17,23 @@ namespace Capstone_API.Controllers
 
         private readonly ITaskService _taskService;
         private readonly IExcelService _excelService;
+        private readonly IExecuteInfoService _executeInfoService;
+
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ArrangeManagerController(ITaskService taskService, IExcelService excelService, IHttpContextAccessor httpContextAccessor)
+        public ArrangeManagerController(
+            ITaskService taskService,
+            IExcelService excelService,
+            IHttpContextAccessor httpContextAccessor,
+            IExecuteInfoService executeInfoService)
         {
             _taskService = taskService;
             _excelService = excelService;
             _httpContextAccessor = httpContextAccessor;
+            _executeInfoService = executeInfoService;
         }
 
+        #region Task Api
         [HttpGet("get-a-task/{taskId}")]
         public GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int taskId)
         {
@@ -62,6 +71,10 @@ namespace Capstone_API.Controllers
             return _taskService.TimeTableModify(value);
         }
 
+        #endregion
+
+        #region Excel Api
+
         [HttpPost("export-in-import-format")]
         public GenericResult<string> ExportInImportFormat([FromBody] IEnumerable<ExportInImportFormatDTO> exportItem)
         {
@@ -69,10 +82,13 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("import-time-table")]
-        public async Task<GenericResult<IEnumerable<TaskAssignImportDTO>>> ImportTimeTable(IFormFile file, CancellationToken cancellationToken)
+        public async Task<ResponseResult> ImportTimeTable(IFormFile file, CancellationToken cancellationToken)
         {
             return await _excelService.ImportTimetable(file, cancellationToken);
         }
+        #endregion
+
+        #region Schedule Api
 
         [HttpGet("get-schedule/{executeId}")]
         public async Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId)
@@ -80,5 +96,23 @@ namespace Capstone_API.Controllers
             return await _taskService.GetSchedule(executeId);
         }
 
+        [HttpGet("execute-info")]
+        public GenericResult<List<ExecuteInfoResponse>> GetExecuteInfo()
+        {
+            return _executeInfoService.GetAll();
+        }
+
+        [HttpPost("execute-info")]
+        public ResponseResult CreateExecuteInfo([FromBody] ExecuteInfoResponse request)
+        {
+            return _executeInfoService.CreateExecuteInfo(request);
+        }
+
+        [HttpPost("execute")]
+        public async Task<GenericResult<int>> Execute()
+        {
+            return await _taskService.Execute();
+        }
+        #endregion
     }
 }

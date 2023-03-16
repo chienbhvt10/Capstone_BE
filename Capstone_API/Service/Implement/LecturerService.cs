@@ -53,7 +53,7 @@ namespace Capstone_API.Service.Implement
                 var lecturer = _mapper.Map<Lecturer>(request);
                 _unitOfWork.LecturerRepository.Add(lecturer);
                 _unitOfWork.Complete();
-                return new ResponseResult("Create successfully");
+                return new ResponseResult("Create successfully", true);
             }
             catch (Exception ex)
             {
@@ -68,7 +68,7 @@ namespace Capstone_API.Service.Implement
                 var lecturer = _mapper.Map<Lecturer>(request);
                 _unitOfWork.LecturerRepository.Update(lecturer);
                 _unitOfWork.Complete();
-                return new ResponseResult("Update successfully");
+                return new ResponseResult("Update successfully", true);
             }
             catch (Exception ex)
             {
@@ -83,7 +83,7 @@ namespace Capstone_API.Service.Implement
                 var lecturer = _unitOfWork.LecturerRepository.Find(id) ?? throw new ArgumentException("Lecturer does not exist");
                 _unitOfWork.LecturerRepository.Delete(lecturer, isHardDeleted: true);
                 _unitOfWork.Complete();
-                return new ResponseResult("Delete successfully");
+                return new ResponseResult("Delete successfully", true);
             }
             catch (Exception ex)
             {

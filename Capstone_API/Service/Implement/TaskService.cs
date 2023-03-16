@@ -6,6 +6,7 @@ using Capstone_API.Models;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Capstone_API.UOW_Repositories.UnitOfWork;
+using System.Text;
 using System.Text.Json;
 
 namespace Capstone_API.Service.Implement
@@ -210,6 +211,7 @@ namespace Capstone_API.Service.Implement
                                  ClassId = C.Id,
                                  ClassName = C.Name,
                                  SubjectId = D.Id,
+                                 SubjectCode = D.Code,
                                  SubjectName = D.Name,
                                  RoomId = E.Id,
                                  Status = (bool)B.Status ? "" : "",
@@ -271,6 +273,7 @@ namespace Capstone_API.Service.Implement
                             ClassId = (int)data.ClassId,
                             ClassName = data.Class.Name,
                             SubjectId = (int)data.SubjectId,
+                            SubjectCode = data.Subject.Code,
                             SubjectName = data.Subject.Name,
                             RoomId = (int)data.Room1Id,
                             RoomName = data.Room1.Name,
@@ -292,6 +295,7 @@ namespace Capstone_API.Service.Implement
                             ClassId = (int)data.ClassId,
                             ClassName = data.Class.Name,
                             SubjectId = (int)data.SubjectId,
+                            SubjectCode = data.Subject.Code,
                             SubjectName = data.Subject.Name,
                             RoomId = (int)data.Room1Id,
                             RoomName = data.Room1.Name,
@@ -320,6 +324,32 @@ namespace Capstone_API.Service.Implement
         }
         #endregion
 
+        #region Execute
+        public async Task<GenericResult<int>> Execute()
+        {
+            try
+            {
+                var xampledata = new Class() { Id = 1, Name = "asdasd", SemesterId = 1 };
+                var jsonRequest = JsonSerializer.Serialize(xampledata);
+                var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync($"http://localhost:3001", content);
+
+                var json = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new GenericResult<int>("Fetch fail");
+                }
+                var result = JsonSerializer.Deserialize<FetchExcecuteResponse>(json);
+
+                var dataFetch = result?.data ?? 0;
+                return new GenericResult<int>(dataFetch, true);
+            }
+            catch (Exception ex)
+            {
+                return new GenericResult<int>($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+        #endregion
 
     }
 }

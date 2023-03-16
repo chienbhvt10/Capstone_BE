@@ -11,6 +11,7 @@
         public int? ClassId { get; set; }
         public string? ClassName { get; set; }
         public int? SubjectId { get; set; }
+        public string? SubjectCode { get; set; }
         public string? SubjectName { get; set; }
         public int? SemesterId { get; set; }
         public int? RoomId { get; set; }

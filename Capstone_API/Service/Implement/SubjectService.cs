@@ -55,7 +55,7 @@ namespace Capstone_API.Service.Implement
                 var subject = _mapper.Map<Subject>(request);
                 _unitOfWork.SubjectRepository.Add(subject);
                 _unitOfWork.Complete();
-                return new ResponseResult("Create successfully");
+                return new ResponseResult("Create successfully", true);
             }
             catch (Exception ex)
             {
@@ -70,7 +70,7 @@ namespace Capstone_API.Service.Implement
                 var subject = _mapper.Map<Subject>(request);
                 _unitOfWork.SubjectRepository.Update(subject);
                 _unitOfWork.Complete();
-                return new ResponseResult("Update successfully");
+                return new ResponseResult("Update successfully", true);
             }
             catch (Exception ex)
             {
@@ -86,7 +86,7 @@ namespace Capstone_API.Service.Implement
                 var subject = _unitOfWork.SubjectRepository.Find(id) ?? throw new ArgumentException("Subject does not exist");
                 _unitOfWork.SubjectRepository.Delete(subject, isHardDeleted: true);
                 _unitOfWork.Complete();
-                return new ResponseResult("Delete successfully");
+                return new ResponseResult("Delete successfully", true);
             }
             catch (Exception ex)
             {

@@ -20,7 +20,9 @@ namespace Capstone_API.Models
         public virtual DbSet<Building> Buildings { get; set; } = null!;
         public virtual DbSet<Class> Classes { get; set; } = null!;
         public virtual DbSet<Distance> Distances { get; set; } = null!;
+        public virtual DbSet<ExecuteInfo> ExecuteInfos { get; set; } = null!;
         public virtual DbSet<Lecturer> Lecturers { get; set; } = null!;
+        public virtual DbSet<LecturerQuotum> LecturerQuota { get; set; } = null!;
         public virtual DbSet<LecturerRegister> LecturerRegisters { get; set; } = null!;
         public virtual DbSet<Room> Rooms { get; set; } = null!;
         public virtual DbSet<Semester> Semesters { get; set; } = null!;
@@ -48,8 +50,6 @@ namespace Capstone_API.Models
             modelBuilder.Entity<AreaSlotWeight>(entity =>
             {
                 entity.ToTable("AreaSlotWeight");
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.AreaSlotWeight1).HasColumnName("AreaSlotWeight");
 
@@ -95,6 +95,13 @@ namespace Capstone_API.Models
                     .HasForeignKey(d => d.Building2Id);
             });
 
+            modelBuilder.Entity<ExecuteInfo>(entity =>
+            {
+                entity.ToTable("ExecuteInfo");
+
+                entity.Property(e => e.ExecuteTime).HasColumnType("datetime");
+            });
+
             modelBuilder.Entity<Lecturer>(entity =>
             {
                 entity.ToTable("Lecturer");
@@ -102,6 +109,21 @@ namespace Capstone_API.Models
                 entity.Property(e => e.Name).HasMaxLength(50);
 
                 entity.Property(e => e.ShortName).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<LecturerQuotum>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.HasOne(d => d.Lecturer)
+                    .WithMany(p => p.LecturerQuota)
+                    .HasForeignKey(d => d.LecturerId)
+                    .HasConstraintName("FK_LecturerQuota_Lecturer");
+
+                entity.HasOne(d => d.Semester)
+                    .WithMany(p => p.LecturerQuota)
+                    .HasForeignKey(d => d.SemesterId)
+                    .HasConstraintName("FK_LecturerQuota_Semester");
             });
 
             modelBuilder.Entity<LecturerRegister>(entity =>
@@ -169,8 +191,6 @@ namespace Capstone_API.Models
 
                 entity.HasIndex(e => e.SemesterId, "IX_SlotPreferenceLevel_SemesterId");
 
-                entity.HasIndex(e => e.TimeSlotInstanceId, "IX_SlotPreferenceLevel_TimeSlotInstanceId");
-
                 entity.HasOne(d => d.Lecturer)
                     .WithMany(p => p.SlotPreferenceLevels)
                     .HasForeignKey(d => d.LecturerId)
@@ -181,9 +201,10 @@ namespace Capstone_API.Models
                     .HasForeignKey(d => d.SemesterId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(d => d.TimeSlotInstance)
+                entity.HasOne(d => d.Slot)
                     .WithMany(p => p.SlotPreferenceLevels)
-                    .HasForeignKey(d => d.TimeSlotInstanceId);
+                    .HasForeignKey(d => d.SlotId)
+                    .HasConstraintName("FK_SlotPreferenceLevel_TimeSlot");
             });
 
             modelBuilder.Entity<Subject>(entity =>
@@ -278,32 +299,30 @@ namespace Capstone_API.Models
             {
                 entity.ToTable("TimeSlotCompatibility");
 
-                entity.HasIndex(e => e.TimeSlotId, "IX_TimeSlotCompatibility_TimeSlotId");
-
                 entity.HasOne(d => d.CompatibilitySlot)
                     .WithMany(p => p.TimeSlotCompatibilityCompatibilitySlots)
                     .HasForeignKey(d => d.CompatibilitySlotId)
                     .HasConstraintName("FK_TimeSlotCompatibility_TimeSlot");
 
-                entity.HasOne(d => d.TimeSlot)
-                    .WithMany(p => p.TimeSlotCompatibilityTimeSlots)
-                    .HasForeignKey(d => d.TimeSlotId);
+                entity.HasOne(d => d.Slot)
+                    .WithMany(p => p.TimeSlotCompatibilitySlots)
+                    .HasForeignKey(d => d.SlotId)
+                    .HasConstraintName("FK_TimeSlotCompatibility_TimeSlot1");
             });
 
             modelBuilder.Entity<TimeSlotConflict>(entity =>
             {
                 entity.ToTable("TimeSLotConflict");
 
-                entity.HasIndex(e => e.TimeSlotId, "IX_TimeSLotConflict_TimeSlotId");
-
                 entity.HasOne(d => d.ConflictSlot)
                     .WithMany(p => p.TimeSlotConflictConflictSlots)
                     .HasForeignKey(d => d.ConflictSlotId)
                     .HasConstraintName("FK_TimeSLotConflict_TimeSlot");
 
-                entity.HasOne(d => d.TimeSlot)
-                    .WithMany(p => p.TimeSlotConflictTimeSlots)
-                    .HasForeignKey(d => d.TimeSlotId);
+                entity.HasOne(d => d.Slot)
+                    .WithMany(p => p.TimeSlotConflictSlots)
+                    .HasForeignKey(d => d.SlotId)
+                    .HasConstraintName("FK_TimeSLotConflict_TimeSlot1");
             });
 
             OnModelCreatingPartial(modelBuilder);

@@ -13,9 +13,9 @@ namespace Capstone_API.Models
             SlotPreferenceLevels = new HashSet<SlotPreferenceLevel>();
             TaskAssigns = new HashSet<TaskAssign>();
             TimeSlotCompatibilityCompatibilitySlots = new HashSet<TimeSlotCompatibility>();
-            TimeSlotCompatibilityTimeSlots = new HashSet<TimeSlotCompatibility>();
+            TimeSlotCompatibilitySlots = new HashSet<TimeSlotCompatibility>();
             TimeSlotConflictConflictSlots = new HashSet<TimeSlotConflict>();
-            TimeSlotConflictTimeSlots = new HashSet<TimeSlotConflict>();
+            TimeSlotConflictSlots = new HashSet<TimeSlotConflict>();
         }
 
         public int Id { get; set; }
@@ -32,8 +32,8 @@ namespace Capstone_API.Models
         public virtual ICollection<SlotPreferenceLevel> SlotPreferenceLevels { get; set; }
         public virtual ICollection<TaskAssign> TaskAssigns { get; set; }
         public virtual ICollection<TimeSlotCompatibility> TimeSlotCompatibilityCompatibilitySlots { get; set; }
-        public virtual ICollection<TimeSlotCompatibility> TimeSlotCompatibilityTimeSlots { get; set; }
+        public virtual ICollection<TimeSlotCompatibility> TimeSlotCompatibilitySlots { get; set; }
         public virtual ICollection<TimeSlotConflict> TimeSlotConflictConflictSlots { get; set; }
-        public virtual ICollection<TimeSlotConflict> TimeSlotConflictTimeSlots { get; set; }
+        public virtual ICollection<TimeSlotConflict> TimeSlotConflictSlots { get; set; }
     }
 }

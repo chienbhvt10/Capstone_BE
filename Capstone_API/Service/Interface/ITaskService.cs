@@ -14,6 +14,7 @@ namespace Capstone_API.Service.Interface
         GenericResult<TimeSlotInfoResponse> GetAllTaskNotAssign();
         Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId);
         GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int TaskId);
+        Task<GenericResult<int>> Execute();
 
     }
 }

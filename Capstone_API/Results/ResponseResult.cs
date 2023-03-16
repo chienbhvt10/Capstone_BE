@@ -16,5 +16,10 @@
             IsSuccess = false;
             Message = message;
         }
+        public ResponseResult(string message, bool isSuccess)
+        {
+            IsSuccess = isSuccess;
+            Message = message;
+        }
     }
 }
