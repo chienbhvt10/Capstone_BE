@@ -1,4 +1,5 @@
-﻿using Capstone_API.DTO.Task.Request;
+﻿using Capstone_API.DTO.Task.Fetch;
+using Capstone_API.DTO.Task.Request;
 using Capstone_API.DTO.Task.Response;
 using Capstone_API.Results;
 
@@ -14,7 +15,7 @@ namespace Capstone_API.Service.Interface
         GenericResult<TimeSlotInfoResponse> GetAllTaskNotAssign();
         Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId);
         GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int TaskId);
-        Task<GenericResult<int>> Execute();
+        Task<GenericResult<int>> Execute(SettingRequest request);
         ResponseResult LockAndUnLockTask(LockAndUnLockTaskRequest request);
         ResponseResult UnLockAllTask();
 

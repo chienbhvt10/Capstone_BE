@@ -72,7 +72,7 @@ namespace Capstone_API.Service.Implement
                 var rooms = new List<Room>();
                 var subjects = new List<Subject>();
                 var timeSlots = new List<TimeSlot>();
-
+                var buildings = new List<Building>();
                 using (var stream = new MemoryStream())
                 {
                     await file.CopyToAsync(stream, cancellationToken);
@@ -96,11 +96,15 @@ namespace Capstone_API.Service.Implement
                             var roomTemp = new Room();
                             var subjectTemp = new Subject();
                             var timeSlotTemp = new TimeSlot();
+                            var buildingTemp = new Building();
 
                             var clasFind = classes.Find(clas => clas.Name.Equals(className));
                             var roomFind = rooms.Find(room => room.Name.Equals(roomName));
                             var subjectFind = subjects.Find(sub => sub.Code.Equals(subjectCode) || sub.Department.Equals(subjectDepartment));
                             var timeSlotFind = timeSlots.Find(ts => ts.Name.Equals(timeSlotName));
+                            var shortNameBuilding = new string(roomName.Take(2).ToArray()).Trim();
+                            var buildingFind = buildings.Find(b => b.ShortName.Equals(shortNameBuilding));
+
 
                             if (classes.Count() == 0)
                             {
@@ -160,6 +164,25 @@ namespace Capstone_API.Service.Implement
                                 timeSlots.Add(timeSlotTemp);
                                 _unitOfWork.TimeSlotRepository.Add(timeSlotTemp);
                             };
+
+                            if (buildings.Count() == 0)
+                            {
+                                if (shortNameBuilding.Length > 0)
+                                {
+                                    buildingTemp.ShortName = shortNameBuilding;
+                                    buildings.Add(buildingTemp);
+                                    _unitOfWork.BuildingRepository.Add(buildingTemp);
+                                }
+                            }
+                            else if (buildings.Count() > 0 && buildingFind == null)
+                            {
+                                if (shortNameBuilding.Length > 0)
+                                {
+                                    buildingTemp.ShortName = shortNameBuilding;
+                                    buildings.Add(buildingTemp);
+                                    _unitOfWork.BuildingRepository.Add(buildingTemp);
+                                }
+                            };
                             _unitOfWork.Complete();
 
                             var taskAssign = new TaskAssign()
@@ -201,6 +224,7 @@ namespace Capstone_API.Service.Implement
             _unitOfWork.TimeSlotConflictRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
             _unitOfWork.TimeSlotCompatibilityRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
 
+            _unitOfWork.BuildingRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
             _unitOfWork.TaskRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
             _unitOfWork.RoomRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
             _unitOfWork.ClassRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
@@ -295,7 +319,26 @@ namespace Capstone_API.Service.Implement
 
         public void GenerateAreaDistanceDefault()
         {
+            var building = _unitOfWork.BuildingRepository.GetAll().ToList();
+            var building2 = _unitOfWork.BuildingRepository.GetAll().ToList();
+            List<Distance> distances = new();
 
+            foreach (var item in building)
+            {
+                foreach (var item2 in building2)
+                {
+                    Distance distance = new()
+                    {
+                        Building1Id = item.Id,
+                        Building2Id = item2.Id,
+                        DistanceBetween = 0,
+                    };
+                    distances.Add(distance);
+
+                }
+            }
+            _unitOfWork.DistanceRepository.AddRange(distances);
+            _unitOfWork.Complete();
         }
 
         public void GenerateLecturerQuotaDefault()

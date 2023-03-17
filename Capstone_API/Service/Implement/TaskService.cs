@@ -383,14 +383,16 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region Execute
-        public async Task<GenericResult<int>> Execute()
+        public async Task<GenericResult<int>> Execute(SettingRequest request)
         {
             try
             {
-                var xampledata = new Class() { Id = 1, Name = "asdasd", SemesterId = 1 };
-                var jsonRequest = JsonSerializer.Serialize(xampledata);
+
+                ExecuteFetchRequest executeFetchRequest = GetExecuteFetchRequest(request);
+
+                var jsonRequest = JsonSerializer.Serialize(executeFetchRequest);
                 var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync($"http://localhost:3001", content);
+                var response = await _httpClient.PostAsync($"https://localhost:7062/ATTASAPI/excecute", content);
 
                 var json = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
@@ -398,6 +400,7 @@ namespace Capstone_API.Service.Implement
                     return new GenericResult<int>("Fetch fail");
                 }
                 var result = JsonSerializer.Deserialize<FetchExcecuteResponse>(json);
+                //var result = JsonSerializer.Deserialize<int>(json);
 
                 var dataFetch = result?.data ?? 0;
                 return new GenericResult<int>(dataFetch, true);
@@ -407,6 +410,227 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<int>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+
+        #region GetExecuteFetchRequest
+        public ExecuteFetchRequest GetExecuteFetchRequest(SettingRequest request)
+        {
+            List<List<int>>? SlotConflict = GetSlotConflict();
+            List<List<int?>>? SlotCompatibility = GetSlotCompatibility();
+            List<List<int?>>? AreaSlotCoefficient = GetAreaSlotCoefficient();
+            List<List<int?>>? InstructorSubject = GetInstructorSubject();
+            List<List<int?>>? InstructorSlot = GetInstructorSlot();
+            List<List<int?>>? AreaDistance = GetAreaDistance();
+
+            List<Building> Buildings = _unitOfWork.BuildingRepository.GetAll().ToList();
+            List<int?> InstructorQuota = GetInstructorQuota();
+            List<SlotFetchRequest> Slots = GetSlotFetchRequest();
+            List<SubjectFetchRequest> Subjects = GetSubjectFetchRequest();
+            List<InstructorFetchRequest> Instructors = GetInstructorFetchRequest();
+            List<TaskFetchRequest> Tasks = GetTaskFetchRequest(Slots, Subjects);
+            List<TaskPreAssignFetchRequest> PreAssign = GetTaskPreAssignFetchRequest(Instructors, Tasks);
+
+            ExecuteFetchRequest executeFetchRequest = new()
+            {
+                BackupInstructor = 0,
+                NumAreas = Buildings.Count(),
+                NumInstructors = Instructors.Count(),
+                NumSlots = Slots.Count(),
+                NumSubjects = Subjects.Count(),
+                NumTasks = Tasks.Count(),
+                Setting = request,
+                SlotConflict = SlotConflict,
+                SlotCompability = SlotCompatibility,
+                AreaSlotCoefficient = AreaSlotCoefficient,
+                InstructorSubject = InstructorSubject,
+                InstructorSlot = InstructorSlot,
+                AreaDistance = AreaDistance,
+                InstructorQuota = InstructorQuota,
+                Slots = Slots,
+                Instructors = Instructors,
+                Tasks = Tasks,
+                PreAssign = PreAssign
+            };
+            return executeFetchRequest;
+        }
+
+        #endregion
+
+        #region GetAreaDistance
+        private List<List<int?>> GetAreaDistance()
+        {
+            return _unitOfWork.DistanceRepository.GetAll()
+                                        .OrderBy(item => item.Building1Id)
+                                        .GroupBy(item => item.Building1Id)
+                                        .Select(item => item.Select(item => item.DistanceBetween)
+                                        .ToList()).ToList();
+        }
+        #endregion
+
+        #region GetTaskFetchRequest
+        private List<TaskFetchRequest> GetTaskFetchRequest(List<SlotFetchRequest> Slots, List<SubjectFetchRequest> Subjects)
+        {
+            List<TaskFetchRequest>? Tasks = new();
+
+            int count = 0;
+            List<TaskAssign> taskAssigns = _unitOfWork.TaskRepository.GetAll().OrderBy(item => item.Id).ToList();
+            foreach (var task in taskAssigns)
+            {
+                Tasks.Add(new TaskFetchRequest()
+                {
+                    Id = task.Id.ToString(),
+                    Order = count,
+                    SlotOrder = Slots.Where(i => Convert.ToInt32(i.Id) == task.TimeSlotId).Select(item => item.Order).FirstOrDefault(),
+                    SubjectOrder = Subjects.Where(i => Convert.ToInt32(i.Id) == task.SubjectId).Select(item => item.Order).FirstOrDefault(),
+                });
+                count++;
+            }
+
+            return Tasks;
+        }
+        #endregion
+
+        #region GetTaskPreAssignFetchRequest
+        private List<TaskPreAssignFetchRequest> GetTaskPreAssignFetchRequest(List<InstructorFetchRequest> Instructors, List<TaskFetchRequest> Tasks)
+        {
+            List<TaskPreAssignFetchRequest>? PreAssign = _unitOfWork.TaskRepository.GetAll()
+                .Where(item => item.LecturerId != null && (item.PreAssign ?? false))
+                .Select(item => new TaskPreAssignFetchRequest()
+                {
+                    InstructorOrder = Instructors.Where(i => Convert.ToInt32(i.Id) == item.LecturerId).Select(item => item.Order).FirstOrDefault(),
+                    TaskOrder = Tasks.Where(t => Convert.ToInt32(t.Id) == item.Id).Select(item => item.Order).FirstOrDefault(),
+                    Type = 1
+                }).ToList();
+            return PreAssign;
+        }
+        #endregion
+
+        #region GetSubjectFetchRequest
+        private List<SubjectFetchRequest> GetSubjectFetchRequest()
+        {
+            List<SubjectFetchRequest>? Subjects = new();
+
+            int count = 0;
+            List<Subject> subjects = _unitOfWork.SubjectRepository.GetAll().OrderBy(item => item.Id).ToList();
+            foreach (var lecturer in subjects)
+            {
+                Subjects.Add(new SubjectFetchRequest()
+                {
+                    Id = lecturer.Id.ToString(),
+                    Order = count
+                });
+                count++;
+            }
+
+            return Subjects;
+        }
+        #endregion
+
+        #region GetInstructorFetchRequest
+        private List<InstructorFetchRequest> GetInstructorFetchRequest()
+        {
+            List<InstructorFetchRequest>? Instructors = new();
+
+            int count = 0;
+            List<Lecturer> lecturers = _unitOfWork.LecturerRepository.GetAll().OrderBy(item => item.Id).ToList();
+            foreach (var lecturer in lecturers)
+            {
+                Instructors.Add(new InstructorFetchRequest()
+                {
+                    Id = lecturer.Id.ToString(),
+                    Order = count
+                });
+                count++;
+            }
+
+            return Instructors;
+        }
+        #endregion
+
+        #region GetSlotFetchRequest
+        private List<SlotFetchRequest> GetSlotFetchRequest()
+        {
+            List<SlotFetchRequest>? Slots = new();
+            int count = 0;
+            List<TimeSlot> timeSlots = _unitOfWork.TimeSlotRepository.GetAll().OrderBy(item => item.Id).ToList();
+            foreach (var slot in timeSlots)
+            {
+                Slots.Add(new SlotFetchRequest()
+                {
+                    Id = slot.Id.ToString(),
+                    Order = count
+                });
+                count++;
+            }
+
+            return Slots;
+        }
+        #endregion
+
+        #region GetInstructorSlot
+        private List<List<int?>> GetInstructorSlot()
+        {
+            return _unitOfWork.SlotPreferenceLevelRepository.GetAll()
+                            .OrderBy(item => item.LecturerId)
+                            .GroupBy(item => item.LecturerId)
+                            .Select(item => item.Select(item => item.PreferenceLevel)
+                            .ToList()).ToList();
+        }
+        #endregion
+
+        #region GetInstructorSubject
+        private List<List<int?>> GetInstructorSubject()
+        {
+            return _unitOfWork.SubjectPreferenceLevelRepository.GetAll()
+                            .OrderBy(item => item.LecturerId)
+                            .GroupBy(item => item.LecturerId)
+                            .Select(item => item.Select(item => item.PreferenceLevel)
+                            .ToList()).ToList();
+        }
+        #endregion
+
+        #region GetInstructorQuota
+        private List<int?> GetInstructorQuota()
+        {
+            return _unitOfWork.LecturerQuotaRepository.GetAll()
+                            .OrderBy(item => item.LecturerId)
+                            .Select(item => item.Quota)
+                            .ToList();
+        }
+        #endregion
+
+        #region GetAreaSlotCoefficient
+        private List<List<int?>> GetAreaSlotCoefficient()
+        {
+            return _unitOfWork.AreaSlotWeightRepository.GetAll()
+                            .OrderBy(item => item.SlotId)
+                            .GroupBy(item => item.SlotId)
+                            .Select(item => item.Select(item => item.AreaSlotWeight1)
+                            .ToList()).ToList();
+        }
+        #endregion 
+
+        #region GetSlotCompatibility
+        private List<List<int?>> GetSlotCompatibility()
+        {
+            return _unitOfWork.TimeSlotCompatibilityRepository.GetAll()
+                            .OrderBy(item => item.SlotId)
+                            .GroupBy(item => item.SlotId)
+                            .Select(item => item.Select(item => item.CompatibilityLevel)
+                            .ToList()).ToList();
+        }
+        #endregion
+
+        #region GetSlotConflict
+        private List<List<int>> GetSlotConflict()
+        {
+            return _unitOfWork.TimeSlotConflictRepository.GetAll()
+                            .OrderBy(item => item.SlotId)
+                            .GroupBy(item => item.SlotId)
+                            .Select(item => item.Select(item => (bool)item.Conflict ? 1 : 0)
+                            .ToList()).ToList();
+        }
+        #endregion
+
         #endregion
 
     }

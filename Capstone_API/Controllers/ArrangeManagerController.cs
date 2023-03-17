@@ -121,9 +121,9 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("execute")]
-        public async Task<GenericResult<int>> Execute()
+        public async Task<GenericResult<int>> Execute(SettingRequest request)
         {
-            return await _taskService.Execute();
+            return await _taskService.Execute(request);
         }
         #endregion
     }

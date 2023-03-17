@@ -12,7 +12,6 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         IAreaSlotWeightRepository AreaSlotWeightRepository { get; }
         IBuildingRepository BuildingRepository { get; }
         IDistanceRepository DistanceRepository { get; }
-        ISettingModelRepository SettingModelRepository { get; }
         ISlotPreferenceLevelRepository SlotPreferenceLevelRepository { get; }
         ISubjectPreferenceLevelRepository SubjectPreferenceLevelRepository { get; }
         ITimeSlotCompatibilityRepository TimeSlotCompatibilityRepository { get; }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Capstone_API.Models
 {
@@ -26,7 +23,6 @@ namespace Capstone_API.Models
         public virtual DbSet<LecturerRegister> LecturerRegisters { get; set; } = null!;
         public virtual DbSet<Room> Rooms { get; set; } = null!;
         public virtual DbSet<Semester> Semesters { get; set; } = null!;
-        public virtual DbSet<SettingModel> SettingModels { get; set; } = null!;
         public virtual DbSet<SlotDay> SlotDays { get; set; } = null!;
         public virtual DbSet<SlotPreferenceLevel> SlotPreferenceLevels { get; set; } = null!;
         public virtual DbSet<Subject> Subjects { get; set; } = null!;
@@ -165,17 +161,6 @@ namespace Capstone_API.Models
                 entity.ToTable("Semester");
 
                 entity.Property(e => e.Name).HasMaxLength(50);
-            });
-
-            modelBuilder.Entity<SettingModel>(entity =>
-            {
-                entity.ToTable("SettingModel");
-
-                entity.Property(e => e.InputType).HasMaxLength(50);
-
-                entity.Property(e => e.Solver).HasMaxLength(50);
-
-                entity.Property(e => e.Strategy).HasMaxLength(50);
             });
 
             modelBuilder.Entity<SlotDay>(entity =>

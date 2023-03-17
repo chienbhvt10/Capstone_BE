@@ -12,7 +12,6 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         IAreaSlotWeightRepository _areaSlotWeightRepository;
         IBuildingRepository _buildingRepository;
         IDistanceRepository _distanceRepository;
-        ISettingModelRepository _settingModelRepository;
         ISlotPreferenceLevelRepository _slotPreferenceLevelRepository;
         ISubjectPreferenceLevelRepository _subjectPreferenceLevelRepository;
         ITimeSlotCompatibilityRepository _timeSlotCompatibilityRepository;
@@ -37,7 +36,6 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         public IAreaSlotWeightRepository AreaSlotWeightRepository => _areaSlotWeightRepository ??= new AreaSlotWeightRepository(Context);
         public IBuildingRepository BuildingRepository => _buildingRepository ??= new BuildingRepository(Context);
         public IDistanceRepository DistanceRepository => _distanceRepository ??= new DistanceRepository(Context);
-        public ISettingModelRepository SettingModelRepository => _settingModelRepository ??= new SettingModelRepository(Context);
         public ISlotPreferenceLevelRepository SlotPreferenceLevelRepository => _slotPreferenceLevelRepository ??= new SlotPreferenceLevelRepository(Context);
         public ISubjectPreferenceLevelRepository SubjectPreferenceLevelRepository => _subjectPreferenceLevelRepository ??= new SubjectPreferenceLevelRepository(Context);
         public ITimeSlotCompatibilityRepository TimeSlotCompatibilityRepository => _timeSlotCompatibilityRepository ??= new TimeSlotCompatibilityRepository(Context);
