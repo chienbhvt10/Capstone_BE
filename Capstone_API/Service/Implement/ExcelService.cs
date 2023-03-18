@@ -156,7 +156,7 @@ namespace Capstone_API.Service.Implement
                                 timeSlots.Add(timeSlotTemp);
                                 _unitOfWork.TimeSlotRepository.Add(timeSlotTemp);
                             }
-                            else if (timeSlots.Count() > 0 && timeSlotFind == null)
+                            else if (timeSlots.Count() > 0 && timeSlotFind == null && !timeSlotName.Equals(string.Empty))
                             {
                                 timeSlotTemp.Name = timeSlotName;
                                 timeSlotTemp.Slot1 = timeSlotSlot1;
@@ -221,6 +221,7 @@ namespace Capstone_API.Service.Implement
             _unitOfWork.LecturerQuotaRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
             _unitOfWork.TimeSlotConflictRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
             _unitOfWork.TimeSlotCompatibilityRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+            _unitOfWork.DistanceRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
 
             _unitOfWork.BuildingRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
             _unitOfWork.TaskRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);

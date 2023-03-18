@@ -363,6 +363,7 @@ namespace Capstone_API.Service.Implement
                         }).ToList();
             return result;
         }
+
         public GenericResult<TimeSlotInfoResponse> GetAllTaskNotAssign()
         {
             try
