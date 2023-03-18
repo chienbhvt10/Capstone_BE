@@ -17,8 +17,8 @@ namespace Capstone_API.Models
         public int Id { get; set; }
         public string? Name { get; set; }
         public string? ShortName { get; set; }
+        public string? Email { get; set; }
         public int? SemesterId { get; set; }
-        public int? OrderNumber { get; set; }
 
         public virtual ICollection<LecturerQuotum> LecturerQuota { get; set; }
         public virtual ICollection<LecturerRegister> LecturerRegisters { get; set; }

@@ -192,7 +192,10 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var response = await _httpClient.GetAsync($"http://localhost:3001/{executeId}");
+
+                var jsonRequest = JsonSerializer.Serialize(1);
+                var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync($"https://localhost:7062/ATTASAPI/get", content);
                 var json = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
                 {
@@ -241,7 +244,7 @@ namespace Capstone_API.Service.Implement
                                     from l in context.Lecturers
                                     from ts in context.TimeSlots
                                     select new
-                                    { LecturerId = l.Id, LecturerName = l.Name, TimeSlotId = ts.Id, TimeSlotName = ts.Name, TimeSlotOrder = ts.OrderNumber }
+                                    { LecturerId = l.Id, LecturerName = l.Name, TimeSlotId = ts.Id, TimeSlotName = ts.Name }
                                 )
                              join B in context.TaskAssigns
                                  on new { A.TimeSlotId, A.LecturerId } equals new { TimeSlotId = B.TimeSlotId ?? 0, LecturerId = B.LecturerId ?? 0 } into AB
@@ -262,7 +265,6 @@ namespace Capstone_API.Service.Implement
                                  LecturerName = A.LecturerName,
                                  TimeSlotId = A.TimeSlotId,
                                  TimeSlotName = A.TimeSlotName,
-                                 TimeSlotOrder = A.TimeSlotOrder,
                                  ClassId = C.Id,
                                  ClassName = C.Name,
                                  SubjectId = D.Id,
@@ -292,7 +294,7 @@ namespace Capstone_API.Service.Implement
                     LecturerId = group.Key,
                     SemesterId = group.First().SemesterId ?? 0,
                     LecturerName = group.First().LecturerName,
-                    TimeSlotInfos = group.OrderBy(item => item.TimeSlotOrder).Select(data =>
+                    TimeSlotInfos = group.OrderBy(item => item.TimeSlotId).Select(data =>
                         new TimeSlotInfo
                         {
                             TaskId = data.TaskId ?? 0,
@@ -320,7 +322,7 @@ namespace Capstone_API.Service.Implement
         {
             var data = _unitOfWork.TaskRepository.MappingTaskData()
                     .Where(item => item.LecturerId == null)
-                    .OrderBy(item => item.TimeSlot?.OrderNumber)
+                    .OrderBy(item => item.TimeSlot?.Id)
                     .GroupBy(item => item.TimeSlotId);
             var result = data.Select(group => group.Select(data =>
                         new TimeSlotInfo

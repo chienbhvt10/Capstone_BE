@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Capstone_API.Models
 {
@@ -101,6 +104,10 @@ namespace Capstone_API.Models
             modelBuilder.Entity<Lecturer>(entity =>
             {
                 entity.ToTable("Lecturer");
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(10)
+                    .IsFixedLength();
 
                 entity.Property(e => e.Name).HasMaxLength(50);
 

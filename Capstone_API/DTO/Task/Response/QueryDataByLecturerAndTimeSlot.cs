@@ -7,7 +7,6 @@
         public string? LecturerName { get; set; }
         public int TimeSlotId { get; set; }
         public string? TimeSlotName { get; set; }
-        public int? TimeSlotOrder { get; set; }
         public int? ClassId { get; set; }
         public string? ClassName { get; set; }
         public int? SubjectId { get; set; }
