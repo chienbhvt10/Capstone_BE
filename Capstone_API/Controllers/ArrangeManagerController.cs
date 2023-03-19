@@ -41,7 +41,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("search-tasks")]
-        public GenericResult<List<QueryDataByLecturerAndTimeSlot>> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
+        public GenericResult<SearchResponse> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
         {
             return _taskService.SearchTask(request);
         }

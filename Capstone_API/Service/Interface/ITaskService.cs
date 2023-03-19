@@ -11,7 +11,7 @@ namespace Capstone_API.Service.Interface
         ResponseResult SwapLecturer(SwapLecturerRequest request);
         ResponseResult SwapRoom(SwapRoomRequest request);
         ResponseResult RequestLecturerConfirm();
-        GenericResult<List<QueryDataByLecturerAndTimeSlot>> SearchTask(GetAllTaskAssignRequest request);
+        GenericResult<SearchResponse> SearchTask(GetAllTaskAssignRequest request);
         GenericResult<TimeSlotInfoResponse> GetAllTaskNotAssign();
         Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId);
         GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int TaskId);

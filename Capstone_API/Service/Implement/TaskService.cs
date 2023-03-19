@@ -43,22 +43,119 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region SearchTask
-        public GenericResult<List<QueryDataByLecturerAndTimeSlot>> SearchTask(GetAllTaskAssignRequest request)
+        public GenericResult<SearchResponse> SearchTask(GetAllTaskAssignRequest request)
         {
             try
             {
-                var querySearchData = GetTaskResponses().Where(item =>
-                    request.LecturerIds != null && item?.LecturerId != null && request.LecturerIds.Contains((int)item.LecturerId)
-                    && request.ClassIds != null && item?.ClassId != null && request.ClassIds.Contains((int)item.ClassId)
-                    && request.SubjectIds != null && item?.SubjectId != null && request.SubjectIds.Contains((int)item.SubjectId)
-                    && request.RoomId != null && item?.RoomId != null && (request.RoomId.Contains((int)item.RoomId))).ToList();
+                List<List<TimeSlotInfo>> querySearchDataNotAssign = GetTasksNotAssign();
+                IEnumerable<ResponseTaskByLecturerIsKey> querySearchDataAssign = ResponseTaskByLecturerIsKey();
+                if (request.SemesterId != 0)
+                {
+                    querySearchDataAssign = querySearchDataAssign.Where(item => item.SemesterId == request.SemesterId);
+                }
+                if (request.LecturerIds.Count != 0)
+                {
+                    querySearchDataAssign = querySearchDataAssign.Where(item =>
+                    request.LecturerIds.Count != 0 && request.LecturerIds.Contains(item.LecturerId));
+                }
+                if (request.ClassIds.Count != 0)
+                {
+                    querySearchDataAssign = querySearchDataAssign.Select(innerItem => new ResponseTaskByLecturerIsKey()
+                    {
+                        LecturerId = innerItem.LecturerId,
+                        SemesterId = innerItem.SemesterId,
+                        LecturerName = innerItem.LecturerName,
+                        Total = innerItem.Total,
+                        TimeSlotInfos = innerItem.TimeSlotInfos?.Select(item => new TimeSlotInfo()
+                        {
+                            ClassId = request.ClassIds.Contains(item.ClassId) ? item.ClassId : 0,
+                            ClassName = request.ClassIds.Contains(item.ClassId) ? item.ClassName : "",
+                            IsAssign = request.ClassIds.Contains(item.ClassId) ? item.IsAssign : 0,
+                            PreAssign = request.ClassIds.Contains(item.ClassId) && item.PreAssign,
+                            RoomId = request.ClassIds.Contains(item.ClassId) ? item.RoomId : 0,
+                            RoomName = request.ClassIds.Contains(item.ClassId) ? item.RoomName : "",
+                            Status = request.ClassIds.Contains(item.ClassId) ? item.Status : "",
+                            SubjectCode = request.ClassIds.Contains(item.ClassId) ? item.SubjectCode : "",
+                            SubjectId = request.ClassIds.Contains(item.ClassId) ? item.SubjectId : 0,
+                            SubjectName = request.ClassIds.Contains(item.ClassId) ? item.SubjectName : "",
+                            TaskId = request.ClassIds.Contains(item.ClassId) ? item.TaskId : 0,
+                            TimeSlotId = request.ClassIds.Contains(item.ClassId) ? item.TimeSlotId : 0,
+                            TimeSlotName = request.ClassIds.Contains(item.ClassId) ? item.TimeSlotName : "",
+                        }).ToList()
+                    });
+                    querySearchDataNotAssign = querySearchDataNotAssign.Select(innerItem => innerItem.Where(item => request.ClassIds.Contains(item.ClassId)).ToList()).ToList();
+                }
+                if (request.SubjectIds.Count != 0)
+                {
+                    querySearchDataAssign = querySearchDataAssign.Select(innerItem => new ResponseTaskByLecturerIsKey()
+                    {
+                        LecturerId = innerItem.LecturerId,
+                        SemesterId = innerItem.SemesterId,
+                        LecturerName = innerItem.LecturerName,
+                        Total = innerItem.Total,
+                        TimeSlotInfos = innerItem.TimeSlotInfos?.Select(item => new TimeSlotInfo()
+                        {
+                            ClassId = request.SubjectIds.Contains(item.SubjectId) ? item.ClassId : 0,
+                            ClassName = request.SubjectIds.Contains(item.SubjectId) ? item.ClassName : "",
+                            IsAssign = request.SubjectIds.Contains(item.SubjectId) ? item.IsAssign : 0,
+                            PreAssign = request.SubjectIds.Contains(item.SubjectId) && item.PreAssign,
+                            RoomId = request.SubjectIds.Contains(item.SubjectId) ? item.RoomId : 0,
+                            RoomName = request.SubjectIds.Contains(item.SubjectId) ? item.RoomName : "",
+                            Status = request.SubjectIds.Contains(item.SubjectId) ? item.Status : "",
+                            SubjectCode = request.SubjectIds.Contains(item.SubjectId) ? item.SubjectCode : "",
+                            SubjectId = request.SubjectIds.Contains(item.SubjectId) ? item.SubjectId : 0,
+                            SubjectName = request.SubjectIds.Contains(item.SubjectId) ? item.SubjectName : "",
+                            TaskId = request.SubjectIds.Contains(item.SubjectId) ? item.TaskId : 0,
+                            TimeSlotId = request.SubjectIds.Contains(item.SubjectId) ? item.TimeSlotId : 0,
+                            TimeSlotName = request.SubjectIds.Contains(item.SubjectId) ? item.TimeSlotName : "",
+                        }).ToList()
+                    });
+                    querySearchDataNotAssign = querySearchDataNotAssign.Select(innerItem => innerItem.Where(item => request.SubjectIds.Contains(item.SubjectId)).ToList()).ToList();
+                }
+                if (request.RoomId.Count != 0)
+                {
+                    querySearchDataAssign = querySearchDataAssign.Select(innerItem => new ResponseTaskByLecturerIsKey()
+                    {
+                        LecturerId = innerItem.LecturerId,
+                        SemesterId = innerItem.SemesterId,
+                        LecturerName = innerItem.LecturerName,
+                        Total = innerItem.Total,
+                        TimeSlotInfos = innerItem.TimeSlotInfos?.Select(item => new TimeSlotInfo()
+                        {
+                            ClassId = request.RoomId.Contains(item.RoomId) ? item.ClassId : 0,
+                            ClassName = request.RoomId.Contains(item.RoomId) ? item.ClassName : "",
+                            IsAssign = request.RoomId.Contains(item.RoomId) ? item.IsAssign : 0,
+                            PreAssign = request.RoomId.Contains(item.RoomId) && item.PreAssign,
+                            RoomId = request.RoomId.Contains(item.RoomId) ? item.RoomId : 0,
+                            RoomName = request.RoomId.Contains(item.RoomId) ? item.RoomName : "",
+                            Status = request.RoomId.Contains(item.RoomId) ? item.Status : "",
+                            SubjectCode = request.RoomId.Contains(item.RoomId) ? item.SubjectCode : "",
+                            SubjectId = request.RoomId.Contains(item.RoomId) ? item.SubjectId : 0,
+                            SubjectName = request.RoomId.Contains(item.RoomId) ? item.SubjectName : "",
+                            TaskId = request.RoomId.Contains(item.RoomId) ? item.TaskId : 0,
+                            TimeSlotId = request.RoomId.Contains(item.RoomId) ? item.TimeSlotId : 0,
+                            TimeSlotName = request.RoomId.Contains(item.RoomId) ? item.TimeSlotName : "",
+                        }).ToList()
+                    });
+                    querySearchDataNotAssign = querySearchDataNotAssign.Select(innerItem => innerItem.Where(item => request.RoomId.Contains(item.RoomId)).ToList()).ToList();
+                }
 
-                return new GenericResult<List<QueryDataByLecturerAndTimeSlot>>(querySearchData, true);
+                return new GenericResult<SearchResponse>(new SearchResponse()
+                {
+                    DataAssign = querySearchDataAssign.ToList(),
+                    DataNotAssign = new TimeSlotInfoResponse()
+                    {
+                        Total = _unitOfWork.TaskRepository.MappingTaskData().Where(item => item.LecturerId == null).Count(),
+                        TimeSlotInfos = querySearchDataNotAssign
+                    }
+
+                }
+                , true);
             }
 
             catch (Exception ex)
             {
-                return new GenericResult<List<QueryDataByLecturerAndTimeSlot>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<SearchResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
         #endregion
@@ -610,7 +707,7 @@ namespace Capstone_API.Service.Implement
                             .Select(item => item.Select(item => item.AreaSlotWeight1)
                             .ToList()).ToList();
         }
-        #endregion 
+        #endregion
 
         #region GetSlotCompatibility
         private List<List<int?>> GetSlotCompatibility()
