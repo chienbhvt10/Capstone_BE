@@ -1,9 +1,10 @@
-﻿using Capstone_API.DTO.TimeSlot.Response;
+﻿using Capstone_API.DTO.PreferenceLevel.Request;
+using Capstone_API.DTO.TimeSlot.Request;
+using Capstone_API.DTO.TimeSlot.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Capstone_API.Controllers
 {
@@ -14,10 +15,19 @@ namespace Capstone_API.Controllers
 
 
         private readonly ITimeSlotService _timeSlotService;
+        private readonly ITimeSlotCompatibilityService _timeSlotCompatibilityService;
+        private readonly ITimeSlotConflictService _timeSlotConflictService;
+        private readonly IAreaSlotWeightService _areaSlotWeightService;
 
-        public TimeSlotController(ITimeSlotService timeSlotService)
+        public TimeSlotController(ITimeSlotService timeSlotService,
+            ITimeSlotCompatibilityService timeSlotCompatibilityService,
+            ITimeSlotConflictService timeSlotConflictService,
+            IAreaSlotWeightService areaSlotWeightService)
         {
             _timeSlotService = timeSlotService;
+            _timeSlotCompatibilityService = timeSlotCompatibilityService;
+            _timeSlotConflictService = timeSlotConflictService;
+            _areaSlotWeightService = areaSlotWeightService;
         }
 
         #region TimeSlot Api
@@ -54,14 +64,15 @@ namespace Capstone_API.Controllers
         #region TimeSlotCompatibility Api
 
         [HttpGet("timeslot-compatibility")]
-        public IEnumerable<string> GetTimeSlotCompatibilities()
+        public GenericResult<List<GetTimeSlotCompatibilityDTO>> GetAllTimeSlotCompatibility()
         {
-            return new string[] { "value1", "value2" };
+            return _timeSlotCompatibilityService.GetAll();
         }
 
-        [HttpPut("timeslot-compatibility/{id}")]
-        public void UpdateTimeSlotCompatibility()
+        [HttpPut("timeslot-compatibility")]
+        public ResponseResult UpdateTimeSlotCompatibility([FromBody] UpdateTimeSlotCompatibilityDTO request)
         {
+            return _timeSlotCompatibilityService.UpdateTimeSlotCompatibility(request);
         }
 
         #endregion
@@ -69,14 +80,33 @@ namespace Capstone_API.Controllers
         #region TimeSlotConflict Api
 
         [HttpGet("timeslot-conflict")]
-        public IEnumerable<string> GetTimeSlotConflict()
+        public GenericResult<List<GetTimeSlotConflictDTO>> GetAllTimeSlotConflict()
         {
-            return new string[] { "value1", "value2" };
+            return _timeSlotConflictService.GetAll();
         }
 
-        [HttpPut("timeslot-conflict/{id}")]
-        public void UpdateTimeSlotConflict()
+
+        [HttpPut("timeslot-conflict")]
+        public ResponseResult UpdateTimeSlotConflict([FromBody] UpdateTimeSlotCompatibilityDTO request)
         {
+            return _timeSlotCompatibilityService.UpdateTimeSlotCompatibility(request);
+        }
+
+        #endregion
+
+        #region AreaSlotWeight Api
+
+        [HttpGet("area-time-slot-weight")]
+        public GenericResult<List<GetAreaSlotWeightDTO>> GetAllAreaTimeSlotWeight()
+        {
+            return _areaSlotWeightService.GetAll();
+        }
+
+
+        [HttpPut("area-time-slot-weight")]
+        public ResponseResult UpdateAreaTimeSlotWeight([FromBody] UpdateAreaTimeSlotWeight request)
+        {
+            return _areaSlotWeightService.UpdateAreaTimeSlotWeight(request);
         }
 
         #endregion

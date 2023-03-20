@@ -46,8 +46,8 @@ namespace Capstone_API.Service.Implement
                         new SlotPreferenceInfo
                         {
                             PreferenceId = data.Id,
-                            PreferenceLevel = (int)data.PreferenceLevel,
-                            TimeSlotId = (int)data.SlotId
+                            PreferenceLevel = data.PreferenceLevel ?? 0,
+                            TimeSlotId = data.SlotId ?? 0
                         }).ToList(),
                 }).ToList();
             return result;

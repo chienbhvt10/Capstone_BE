@@ -46,8 +46,6 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-
-
         public async Task<ResponseResult> ImportTimetable(IFormFile file, CancellationToken cancellationToken)
         {
             if (file == null || file.Length <= 0)

@@ -12,6 +12,12 @@ namespace Capstone_API.UOW_Repositories.Repositories
         {
             _context = context;
         }
+        public IEnumerable<AreaSlotWeight> TimeSlotData()
+        {
+            var items = _context.AreaSlotWeights
+                .Include(item => item.AreaSlot);
+            return items;
+        }
         public virtual void Delete(int entityId, bool isHardDeleted = false)
         {
             var entity = _context.AreaSlotWeights.FirstOrDefault(x => x.Id.Equals(entityId));

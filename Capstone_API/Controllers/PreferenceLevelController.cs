@@ -15,7 +15,6 @@ namespace Capstone_API.Controllers
         private readonly ISubjectPreferenceLevelService _subjectPreferenceLevelService;
         private readonly ISlotPreferenceLevelService _slotPreferenceLevelService;
 
-
         public PreferenceLevelController(
             ISubjectPreferenceLevelService subjectPreferenceLevelService,
             ISlotPreferenceLevelService slotPreferenceLevelRepository)
@@ -23,6 +22,7 @@ namespace Capstone_API.Controllers
             _subjectPreferenceLevelService = subjectPreferenceLevelService;
             _slotPreferenceLevelService = slotPreferenceLevelRepository;
         }
+
         #region Slot PreferenceLevel Api
 
         [HttpGet("slot")]

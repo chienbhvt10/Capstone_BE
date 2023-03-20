@@ -46,8 +46,8 @@ namespace Capstone_API.Service.Implement
                         new SubjectPreferenceInfo
                         {
                             PreferenceId = data.Id,
-                            PreferenceLevel = (int)data.PreferenceLevel,
-                            SubjectId = (int)data.SubjectId
+                            PreferenceLevel = data.PreferenceLevel ?? 0,
+                            SubjectId = data.SubjectId ?? 0
                         }).ToList(),
                 }).ToList();
             return result;

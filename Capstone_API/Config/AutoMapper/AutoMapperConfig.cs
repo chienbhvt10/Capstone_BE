@@ -33,6 +33,9 @@ namespace Capstone_API.Config.AutoMapper
 
             // Timeslot Mapper
             CreateMap<TimeSlot, TimeSlotResponse>().ReverseMap();
+            CreateMap<TimeSlotCompatibility, GetTimeSlotCompatibilityDTO>().ReverseMap();
+            CreateMap<TimeSlotConflict, GetTimeSlotConflictDTO>().ReverseMap();
+            CreateMap<AreaSlotWeight, GetAreaSlotWeightDTO>().ReverseMap();
 
             // Room Mapper
             CreateMap<Room, RoomResponse>().ReverseMap();
@@ -45,9 +48,7 @@ namespace Capstone_API.Config.AutoMapper
 
             // Preference Mapper
             CreateMap<SubjectPreferenceLevel, GetSubjectPreferenceLevelDTO>().ReverseMap();
-            CreateMap<SlotPreferenceLevel, GetSlotPreferenceLevelDTO>().ReverseMap();
             CreateMap<SubjectPreferenceLevel, UpdateSubjectPreferenceLevelDTO>().ReverseMap();
-            CreateMap<SlotPreferenceLevel, UpdateSlotPreferenceLevelDTO>().ReverseMap();
 
 
 

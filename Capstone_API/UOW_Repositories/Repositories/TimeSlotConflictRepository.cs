@@ -12,6 +12,14 @@ namespace Capstone_API.UOW_Repositories.Repositories
         {
             _context = context;
         }
+
+        public IEnumerable<TimeSlotConflict> TimeSlotData()
+        {
+            var items = _context.TimeSlotConflicts
+                .Include(item => item.ConflictSlot);
+            return items;
+        }
+
         public virtual void Delete(int entityId, bool isHardDeleted = false)
         {
             var entity = _context.TimeSlotConflicts.FirstOrDefault(x => x.Id.Equals(entityId));

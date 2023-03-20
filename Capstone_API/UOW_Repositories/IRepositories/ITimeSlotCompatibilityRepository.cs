@@ -5,6 +5,7 @@ namespace Capstone_API.UOW_Repositories.IRepositories
 {
     public interface ITimeSlotCompatibilityRepository : IGenericRepository<TimeSlotCompatibility>
     {
+        IEnumerable<TimeSlotCompatibility> TimeSlotData();
         public void Delete(int entityId, bool isHardDeleted = false);
         public void Delete(TimeSlotCompatibility entity, bool isHardDeleted = false);
         public void Delete(bool isHardDeleted = false, params object[] keyValues);
