@@ -12,7 +12,13 @@ namespace Capstone_API.UOW_Repositories.Repositories
         {
             _context = context;
         }
-
+        public IEnumerable<SlotPreferenceLevel> MappingTaskData()
+        {
+            var items = _context.SlotPreferenceLevels
+                .Include(item => item.Lecturer)
+                .Include(item => item.Slot);
+            return items;
+        }
         public virtual void Delete(int entityId, bool isHardDeleted = false)
         {
             var entity = _context.SlotPreferenceLevels.FirstOrDefault(x => x.Id.Equals(entityId));

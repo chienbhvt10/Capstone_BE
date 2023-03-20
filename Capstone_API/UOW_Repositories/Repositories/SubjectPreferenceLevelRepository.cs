@@ -108,5 +108,14 @@ namespace Capstone_API.UOW_Repositories.Repositories
                 await DeleteAsync(entity, isHardDeleted);
             }
         }
+
+        public IEnumerable<SubjectPreferenceLevel> MappingTaskData()
+        {
+            var items = _context.SubjectPreferenceLevels
+                .Include(item => item.Lecturer)
+                .Include(item => item.Subject);
+            return items;
+        }
+
     }
 }

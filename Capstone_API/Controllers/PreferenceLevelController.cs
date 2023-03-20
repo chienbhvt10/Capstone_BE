@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Capstone_API.DTO.PreferenceLevel.Request;
+using Capstone_API.DTO.PreferenceLevel.Response;
+using Capstone_API.Results;
+using Capstone_API.Service.Interface;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,17 +12,29 @@ namespace Capstone_API.Controllers
     [ApiController]
     public class PreferenceLevelController : ControllerBase
     {
+        private readonly ISubjectPreferenceLevelService _subjectPreferenceLevelService;
+        private readonly ISlotPreferenceLevelService _slotPreferenceLevelService;
+
+
+        public PreferenceLevelController(
+            ISubjectPreferenceLevelService subjectPreferenceLevelService,
+            ISlotPreferenceLevelService slotPreferenceLevelRepository)
+        {
+            _subjectPreferenceLevelService = subjectPreferenceLevelService;
+            _slotPreferenceLevelService = slotPreferenceLevelRepository;
+        }
         #region Slot PreferenceLevel Api
 
         [HttpGet("slot")]
-        public IEnumerable<string> GetSlotPreferenceLevels()
+        public GenericResult<List<GetSlotPreferenceLevelDTO>> GetAllSlotPreferenceLevel()
         {
-            return new string[] { "value1", "value2" };
+            return _slotPreferenceLevelService.GetAll();
         }
 
         [HttpPut("slot")]
-        public void UpdateSlotPreferenceLevels()
+        public ResponseResult UpdateSlotPreferenceLevels([FromBody] UpdateSlotPreferenceLevelDTO request)
         {
+            return _slotPreferenceLevelService.UpdateSlotPreferenceLevel(request);
         }
 
         #endregion
@@ -26,16 +42,16 @@ namespace Capstone_API.Controllers
         #region Subject PreferenceLevel Api
 
         [HttpGet("subject")]
-        public IEnumerable<string> GetSubjectPreferenceLevels()
+        public GenericResult<List<GetSubjectPreferenceLevelDTO>> GetAllSubjectPreferenceLevel()
         {
-            return new string[] { "value1", "value2" };
+            return _subjectPreferenceLevelService.GetAll();
         }
 
 
-
         [HttpPut("subject")]
-        public void UpdateSubjectPreferenceLevels()
+        public ResponseResult UpdateSubjectPreferenceLevels([FromBody] UpdateSubjectPreferenceLevelDTO request)
         {
+            return _subjectPreferenceLevelService.UpdateSubjectPreferenceLevel(request);
         }
 
         #endregion
