@@ -17,6 +17,7 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
         }
 
+
         public GenericResult<List<GetTimeSlotCompatibilityDTO>> GetAll()
         {
             try
