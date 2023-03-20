@@ -42,7 +42,7 @@ namespace Capstone_API.Service.Implement
             var result = data.Select(group =>
                 new GetTimeSlotCompatibilityDTO
                 {
-                    TimeslotId = group.First().SlotId ?? 0,
+                    TimeSlotId = group.First().SlotId ?? 0,
                     SemesterId = group.First().SemesterId ?? 0,
                     TimeSlotName = group.First().Slot?.Name ?? "",
                     SlotCompatibilityInfos = group.OrderBy(item => item.CompatibilitySlotId).Select(data =>

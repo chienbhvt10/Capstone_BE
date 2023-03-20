@@ -2,7 +2,7 @@
 {
     public class GetTimeSlotConflictDTO
     {
-        public int TimeslotId { get; set; }
+        public int TimeSlotId { get; set; }
         public int SemesterId { get; set; }
         public string? TimeSlotName { get; set; }
         public List<SlotConflictInfo>? SlotConflictInfos { get; set; }

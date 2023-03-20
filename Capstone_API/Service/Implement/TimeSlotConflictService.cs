@@ -41,7 +41,7 @@ namespace Capstone_API.Service.Implement
             var result = data.Select(group =>
                 new GetTimeSlotConflictDTO
                 {
-                    TimeslotId = group.First().SlotId ?? 0,
+                    TimeSlotId = group.First().SlotId ?? 0,
                     SemesterId = group.First().SemesterId ?? 0,
                     TimeSlotName = group.First().Slot?.Name ?? "",
                     SlotConflictInfos = group.OrderBy(item => item.ConflictSlotId).Select(data =>

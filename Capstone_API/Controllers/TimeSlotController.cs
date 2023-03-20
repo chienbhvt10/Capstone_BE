@@ -12,8 +12,6 @@ namespace Capstone_API.Controllers
     [ApiController]
     public class TimeSlotController : ControllerBase
     {
-
-
         private readonly ITimeSlotService _timeSlotService;
         private readonly ITimeSlotCompatibilityService _timeSlotCompatibilityService;
         private readonly ITimeSlotConflictService _timeSlotConflictService;
@@ -63,13 +61,13 @@ namespace Capstone_API.Controllers
 
         #region TimeSlotCompatibility Api
 
-        [HttpGet("timeslot-compatibility")]
+        [HttpGet("compatibility")]
         public GenericResult<List<GetTimeSlotCompatibilityDTO>> GetAllTimeSlotCompatibility()
         {
             return _timeSlotCompatibilityService.GetAll();
         }
 
-        [HttpPut("timeslot-compatibility")]
+        [HttpPut("compatibility")]
         public ResponseResult UpdateTimeSlotCompatibility([FromBody] UpdateTimeSlotCompatibilityDTO request)
         {
             return _timeSlotCompatibilityService.UpdateTimeSlotCompatibility(request);
@@ -79,31 +77,31 @@ namespace Capstone_API.Controllers
 
         #region TimeSlotConflict Api
 
-        [HttpGet("timeslot-conflict")]
+        [HttpGet("conflict")]
         public GenericResult<List<GetTimeSlotConflictDTO>> GetAllTimeSlotConflict()
         {
             return _timeSlotConflictService.GetAll();
         }
 
 
-        [HttpPut("timeslot-conflict")]
-        public ResponseResult UpdateTimeSlotConflict([FromBody] UpdateTimeSlotCompatibilityDTO request)
+        [HttpPut("conflict")]
+        public ResponseResult UpdateTimeSlotConflict([FromBody] UpdateTimeSlotConflictDTO request)
         {
-            return _timeSlotCompatibilityService.UpdateTimeSlotCompatibility(request);
+            return _timeSlotConflictService.UpdateTimeSlotConflict(request);
         }
 
         #endregion
 
         #region AreaSlotWeight Api
 
-        [HttpGet("area-time-slot-weight")]
+        [HttpGet("slot-weight")]
         public GenericResult<List<GetAreaSlotWeightDTO>> GetAllAreaTimeSlotWeight()
         {
             return _areaSlotWeightService.GetAll();
         }
 
 
-        [HttpPut("area-time-slot-weight")]
+        [HttpPut("slot-weight")]
         public ResponseResult UpdateAreaTimeSlotWeight([FromBody] UpdateAreaTimeSlotWeight request)
         {
             return _areaSlotWeightService.UpdateAreaTimeSlotWeight(request);
