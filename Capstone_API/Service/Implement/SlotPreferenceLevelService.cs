@@ -34,7 +34,7 @@ namespace Capstone_API.Service.Implement
         }
         public IEnumerable<GetSlotPreferenceLevelDTO> SubjectPreferenceLevelByLecturerIsKey()
         {
-            var data = _unitOfWork.SlotPreferenceLevelRepository.MappingTaskData()
+            var data = _unitOfWork.SlotPreferenceLevelRepository.MappingSlotPreferenceData()
                 .OrderBy(item => item.LecturerId).GroupBy(item => item.LecturerId);
             var result = data.Select(group =>
                 new GetSlotPreferenceLevelDTO

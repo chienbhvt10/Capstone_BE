@@ -22,7 +22,6 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ILecturerService, LecturerService>();
 builder.Services.AddScoped<IAreaSlotWeightService, AreaSlotWeightService>();
 builder.Services.AddScoped<IDistanceService, DistanceService>();
-builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<ISlotPreferenceLevelService, SlotPreferenceLevelService>();
 builder.Services.AddScoped<ISubjectPreferenceLevelService, SubjectPreferenceLevelService>();
 builder.Services.AddScoped<ITimeSlotCompatibilityService, TimeSlotCompatibilityService>();

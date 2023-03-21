@@ -12,7 +12,7 @@ namespace Capstone_API.UOW_Repositories.Repositories
         {
             _context = context;
         }
-        public IEnumerable<SlotPreferenceLevel> MappingTaskData()
+        public IEnumerable<SlotPreferenceLevel> MappingSlotPreferenceData()
         {
             var items = _context.SlotPreferenceLevels
                 .Include(item => item.Lecturer)

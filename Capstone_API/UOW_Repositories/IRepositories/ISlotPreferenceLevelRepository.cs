@@ -5,7 +5,7 @@ namespace Capstone_API.UOW_Repositories.IRepositories
 {
     public interface ISlotPreferenceLevelRepository : IGenericRepository<SlotPreferenceLevel>
     {
-        IEnumerable<SlotPreferenceLevel> MappingTaskData();
+        IEnumerable<SlotPreferenceLevel> MappingSlotPreferenceData();
         public void Delete(int entityId, bool isHardDeleted = false);
         public void Delete(SlotPreferenceLevel entity, bool isHardDeleted = false);
         public void Delete(bool isHardDeleted = false, params object[] keyValues);

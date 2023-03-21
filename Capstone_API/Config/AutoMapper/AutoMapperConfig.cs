@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Capstone_API.DTO.Class.Response;
+using Capstone_API.DTO.Distance.Request;
 using Capstone_API.DTO.Distance.Response;
 using Capstone_API.DTO.Lecturer.Response;
 using Capstone_API.DTO.PreferenceLevel.Request;
@@ -50,6 +51,10 @@ namespace Capstone_API.Config.AutoMapper
             CreateMap<SubjectPreferenceLevel, GetSubjectPreferenceLevelDTO>().ReverseMap();
             CreateMap<SubjectPreferenceLevel, UpdateSubjectPreferenceLevelDTO>().ReverseMap();
 
+            // Distance Mapper
+
+            CreateMap<Building, CreateBuildingDTO>().ReverseMap();
+            CreateMap<Building, BuildingResponse>().ReverseMap();
 
 
         }

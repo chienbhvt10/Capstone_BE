@@ -3,6 +3,7 @@ using Capstone_API.Models;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Capstone_API.UOW_Repositories.UnitOfWork;
+using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 
 namespace Capstone_API.Service.Implement
@@ -18,31 +19,37 @@ namespace Capstone_API.Service.Implement
             _unitOfWork = unitOfWork;
         }
 
-        public GenericResult<string> ExportInImportFormat(IHttpContextAccessor _httpContextAccessor, IEnumerable<ExportInImportFormatDTO> exportItems)
+        public FileStreamResult ExportInImportFormat(IHttpContextAccessor _httpContextAccessor)
         {
             try
             {
-                string folder = _hostingEnvironment.WebRootPath;
-                string excelName = $"Timetable-{DateTime.Now:yyyyMMddHHmmssfff}.xlsx";
-                string downloadUrl = string.Format("{0}://{1}/{2}", _httpContextAccessor.HttpContext?.Request.Scheme, _httpContextAccessor.HttpContext?.Request.Host, excelName);
-                FileInfo file = new(Path.Combine(folder, excelName));
-                if (file.Exists)
+                var exportItems = _unitOfWork.TaskRepository.MappingTaskData().Select(item => new ExportInImportFormatDTO()
                 {
-                    file.Delete();
-                    file = new FileInfo(Path.Combine(folder, excelName));
-                }
+                    Class = item.Class?.Name,
+                    Subject = item.Subject?.Code,
+                    Dept = item.Subject?.Department,
+                    TimeSlot = item.TimeSlot?.Name,
+                    Slot1 = item.TimeSlot?.Slot1,
+                    Slot2 = item.TimeSlot?.Slot2,
+                    Room = item.Room1?.Name,
+                    Status = item.Status ?? false ? "" : "",
+                    Lecturer = item.Lecturer?.Name
 
-                using (var package = new ExcelPackage(file))
+                });
+                string excelName = $"Timetable-{DateTime.Now:yyyyMMddHHmmssfff}.xlsx";
+                var excelPackage = new ExcelPackage();
+                var worksheet = excelPackage.Workbook.Worksheets.Add("Sheet1");
+                worksheet.Cells.LoadFromCollection(exportItems, true);
+                excelPackage.Save();
+                var stream = new MemoryStream(excelPackage.GetAsByteArray());
+                return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                 {
-                    var workSheet = package.Workbook.Worksheets.Add("Sheet1");
-                    workSheet.Cells.LoadFromCollection(exportItems, true);
-                    package.Save();
-                }
-                return new GenericResult<string>(downloadUrl, true);
+                    FileDownloadName = excelName
+                };
             }
             catch (Exception ex)
             {
-                return new GenericResult<string>($"{ex.Message}: {ex.InnerException?.Message}");
+                return null;
             }
         }
 

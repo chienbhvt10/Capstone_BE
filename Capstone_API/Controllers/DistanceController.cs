@@ -1,4 +1,6 @@
-﻿using Capstone_API.DTO.Distance.Response;
+﻿using Capstone_API.DTO.Distance;
+using Capstone_API.DTO.Distance.Request;
+using Capstone_API.DTO.Distance.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -17,37 +19,47 @@ namespace Capstone_API.Controllers
             _distanceService = distanceService;
         }
 
+        #region Distance
         [HttpGet]
-        public IEnumerable<string> Get()
+        public GenericResult<List<DistanceResponse>> GetAllDistance()
         {
-            return new string[] { "value1", "value2" };
+            return _distanceService.GetAllDistance();
         }
 
-        [HttpGet("get-rooms")]
-        public GenericResult<List<RoomResponse>> GetRooms()
+        [HttpPut]
+        public ResponseResult UpdateDistance(UpdateDistanceDTO request)
         {
-            return _distanceService.GetAll();
-        }
-
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
+            return _distanceService.UpdateDistance(request);
         }
 
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
         }
+        #endregion
+
+        #region Building
+
+        [HttpGet("building")]
+        public GenericResult<List<BuildingResponse>> GetAllBuilding()
+        {
+            return _distanceService.GetAllBuilding();
+        }
+
+        [HttpPost("building")]
+        public ResponseResult CreateBuilding(CreateBuildingDTO request)
+        {
+            return _distanceService.CreateBuilding(request);
+        }
+
+        #endregion
+
+        #region Room
+        [HttpGet("room")]
+        public GenericResult<List<RoomResponse>> GetRooms()
+        {
+            return _distanceService.GetAllRoom();
+        }
+        #endregion
     }
 }

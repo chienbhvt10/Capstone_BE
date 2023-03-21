@@ -12,6 +12,15 @@ namespace Capstone_API.UOW_Repositories.Repositories
         {
             _context = context;
         }
+
+        public IEnumerable<Distance> MappingDistanceData()
+        {
+            var items = _context.Distances
+                .Include(item => item.Building1)
+                .Include(item => item.Building2);
+            return items;
+        }
+
         public virtual void Delete(int entityId, bool isHardDeleted = false)
         {
             var entity = _context.Distances.FirstOrDefault(x => x.Id.Equals(entityId));

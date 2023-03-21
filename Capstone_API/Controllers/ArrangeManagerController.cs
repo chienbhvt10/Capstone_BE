@@ -1,5 +1,4 @@
-﻿using Capstone_API.DTO.Excel;
-using Capstone_API.DTO.Task.Fetch;
+﻿using Capstone_API.DTO.Task.Fetch;
 using Capstone_API.DTO.Task.Request;
 using Capstone_API.DTO.Task.Response;
 using Capstone_API.Results;
@@ -87,10 +86,10 @@ namespace Capstone_API.Controllers
 
         #region Excel Api
 
-        [HttpPost("export-in-import-format")]
-        public GenericResult<string> ExportInImportFormat([FromBody] IEnumerable<ExportInImportFormatDTO> exportItem)
+        [HttpGet("export-in-import-format")]
+        public FileStreamResult ExportInImportFormat()
         {
-            return _excelService.ExportInImportFormat(_httpContextAccessor, exportItem);
+            return _excelService.ExportInImportFormat(_httpContextAccessor);
         }
 
         [HttpPost("import-time-table")]
@@ -126,5 +125,6 @@ namespace Capstone_API.Controllers
             return await _taskService.Execute(request);
         }
         #endregion
+
     }
 }

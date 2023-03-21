@@ -1,5 +1,5 @@
-﻿using Capstone_API.DTO.Excel;
-using Capstone_API.Results;
+﻿using Capstone_API.Results;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Capstone_API.Service.Interface
 {
@@ -7,7 +7,7 @@ namespace Capstone_API.Service.Interface
     {
         ResponseResult TaskImportExcel();
         Task<ResponseResult> ImportTimetable(IFormFile file, CancellationToken cancellationToken);
-        GenericResult<string> ExportInImportFormat(IHttpContextAccessor _httpContextAccessor, IEnumerable<ExportInImportFormatDTO> exportItems);
+        FileStreamResult ExportInImportFormat(IHttpContextAccessor _httpContextAccessor);
 
     }
 }

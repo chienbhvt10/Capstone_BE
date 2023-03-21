@@ -109,7 +109,7 @@ namespace Capstone_API.UOW_Repositories.Repositories
             }
         }
 
-        public IEnumerable<SubjectPreferenceLevel> MappingTaskData()
+        public IEnumerable<SubjectPreferenceLevel> MappingSubjectPreferenceData()
         {
             var items = _context.SubjectPreferenceLevels
                 .Include(item => item.Lecturer)

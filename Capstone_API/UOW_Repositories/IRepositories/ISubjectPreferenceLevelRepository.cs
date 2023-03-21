@@ -5,7 +5,7 @@ namespace Capstone_API.UOW_Repositories.IRepositories
 {
     public interface ISubjectPreferenceLevelRepository : IGenericRepository<SubjectPreferenceLevel>
     {
-        IEnumerable<SubjectPreferenceLevel> MappingTaskData();
+        IEnumerable<SubjectPreferenceLevel> MappingSubjectPreferenceData();
         public void Delete(int entityId, bool isHardDeleted = false);
         public void Delete(SubjectPreferenceLevel entity, bool isHardDeleted = false);
         public void Delete(bool isHardDeleted = false, params object[] keyValues);
