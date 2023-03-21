@@ -292,7 +292,7 @@ namespace Capstone_API.Service.Implement
 
                 var jsonRequest = JsonSerializer.Serialize(1);
                 var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync($"https://localhost:7062/ATTASAPI/get", content);
+                var response = await _httpClient.PostAsync($"https://localhost:7000/ATTASAPI/get", content);
                 var json = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
                 {
@@ -483,7 +483,7 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region Execute
-        public async Task<GenericResult<int>> Execute(SettingRequest request)
+        public async Task<GenericResult<ExecuteResponse>> Execute(SettingRequest request)
         {
             try
             {
@@ -492,22 +492,22 @@ namespace Capstone_API.Service.Implement
 
                 var jsonRequest = JsonSerializer.Serialize(executeFetchRequest);
                 var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync($"https://localhost:7062/ATTASAPI/excecute", content);
+                var response = await _httpClient.PostAsync($"https://localhost:7000/ATTASAPI/excecute", content);
 
                 var json = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
                 {
-                    return new GenericResult<int>("Fetch fail");
+                    return new GenericResult<ExecuteResponse>("Fetch fail");
                 }
-                var result = JsonSerializer.Deserialize<FetchExcecuteResponse>(json);
+                var result = JsonSerializer.Deserialize<ExecuteResponse>(json);
                 //var result = JsonSerializer.Deserialize<int>(json);
 
-                var dataFetch = result?.data ?? 0;
-                return new GenericResult<int>(dataFetch, true);
+                //var dataFetch = result?.data ?? 0;
+                return new GenericResult<ExecuteResponse>(result, true);
             }
             catch (Exception ex)
             {
-                return new GenericResult<int>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<ExecuteResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 
@@ -531,6 +531,8 @@ namespace Capstone_API.Service.Implement
 
             ExecuteFetchRequest executeFetchRequest = new()
             {
+                Token = "",
+                SessionHash = "",
                 BackupInstructor = 0,
                 NumAreas = Buildings.Count(),
                 NumInstructors = Instructors.Count(),

@@ -120,7 +120,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("execute")]
-        public async Task<GenericResult<int>> Execute(SettingRequest request)
+        public async Task<GenericResult<ExecuteResponse>> Execute(SettingRequest request)
         {
             return await _taskService.Execute(request);
         }

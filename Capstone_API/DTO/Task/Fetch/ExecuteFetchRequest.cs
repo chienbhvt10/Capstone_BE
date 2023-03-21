@@ -2,6 +2,8 @@
 {
     public class ExecuteFetchRequest
     {
+        public string? Token { get; set; }
+        public string? SessionHash { get; set; }
         public SettingRequest? Setting { get; set; }
         public List<TaskFetchRequest>? Tasks { get; set; }
         public List<SlotFetchRequest>? Slots { get; set; }
