@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.Lecturer.Request;
 using Capstone_API.DTO.Lecturer.Response;
 using Capstone_API.Models;
 using Capstone_API.Results;
@@ -46,18 +47,20 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public ResponseResult CreateLecturer(LecturerResponse request)
+        public GenericResult<LecturerResponse> CreateLecturer(LecturerRequest request)
         {
             try
             {
                 var lecturer = _mapper.Map<Lecturer>(request);
                 _unitOfWork.LecturerRepository.Add(lecturer);
                 _unitOfWork.Complete();
-                return new ResponseResult("Create successfully", true);
+                var lecturerRes = _mapper.Map<LecturerResponse>(lecturer);
+
+                return new GenericResult<LecturerResponse>(lecturerRes, true);
             }
             catch (Exception ex)
             {
-                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<LecturerResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 

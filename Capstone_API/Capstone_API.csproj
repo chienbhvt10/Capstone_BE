@@ -24,8 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\Lecturer\Request\" />
-    <Folder Include="DTO\Subject\Request\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

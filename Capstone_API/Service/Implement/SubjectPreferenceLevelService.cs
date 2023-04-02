@@ -41,7 +41,7 @@ namespace Capstone_API.Service.Implement
                 {
                     LecturerId = group.Key ?? 0,
                     SemesterId = group.First().SemesterId ?? 0,
-                    LecturerName = group.First().Lecturer?.Name ?? "",
+                    LecturerName = group.First().Lecturer?.ShortName ?? "",
                     PreferenceInfos = group.OrderBy(item => item.SubjectId).Select(data =>
                         new SubjectPreferenceInfo
                         {

@@ -272,7 +272,7 @@ namespace Capstone_API.Service.Implement
                     {
                         LecturerId = item.Id,
                         SlotId = item2.Id,
-                        PreferenceLevel = 0
+                        PreferenceLevel = 5
                     };
                     _unitOfWork.SlotPreferenceLevelRepository.Add(slotPreferenceLevel);
                     _unitOfWork.Complete();
@@ -296,8 +296,9 @@ namespace Capstone_API.Service.Implement
                     {
                         SlotId = item.Id,
                         ConflictSlotId = item2.Id,
-                        Conflict = false
+                        Conflict = item.Id == item2.Id ? true : false
                     };
+
                     timeSlotConflicts.Add(timeSlotConflict);
                     TimeSlotCompatibility timeSlotCompatibility = new()
                     {

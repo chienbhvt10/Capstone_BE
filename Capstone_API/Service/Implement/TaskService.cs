@@ -222,6 +222,7 @@ namespace Capstone_API.Service.Implement
                 {
                     int tmpId = (int)taskDupplicate.LecturerId;
                     taskDupplicate.LecturerId = taskFind.LecturerId;
+                    taskFind.Room1Id = request.RoomId;
                     taskFind.LecturerId = tmpId;
                     _unitOfWork.TaskRepository.Update(taskFind);
                     _unitOfWork.TaskRepository.Update(taskDupplicate);
@@ -341,7 +342,7 @@ namespace Capstone_API.Service.Implement
                                     from l in context.Lecturers
                                     from ts in context.TimeSlots
                                     select new
-                                    { LecturerId = l.Id, LecturerName = l.Name, TimeSlotId = ts.Id, TimeSlotName = ts.Name }
+                                    { LecturerId = l.Id, LecturerName = l.ShortName, TimeSlotId = ts.Id, TimeSlotName = ts.Name }
                                 )
                              join B in context.TaskAssigns
                                  on new { A.TimeSlotId, A.LecturerId } equals new { TimeSlotId = B.TimeSlotId ?? 0, LecturerId = B.LecturerId ?? 0 } into AB
@@ -533,7 +534,7 @@ namespace Capstone_API.Service.Implement
             {
                 Token = "",
                 SessionHash = "",
-                BackupInstructor = 0,
+                BackupInstructor = 10000,
                 NumAreas = Buildings.Count(),
                 NumInstructors = Instructors.Count(),
                 NumSlots = Slots.Count(),

@@ -2,9 +2,11 @@
 using Capstone_API.DTO.Class.Response;
 using Capstone_API.DTO.Distance.Request;
 using Capstone_API.DTO.Distance.Response;
+using Capstone_API.DTO.Lecturer.Request;
 using Capstone_API.DTO.Lecturer.Response;
 using Capstone_API.DTO.PreferenceLevel.Request;
 using Capstone_API.DTO.PreferenceLevel.Response;
+using Capstone_API.DTO.Subject.Request;
 using Capstone_API.DTO.Subject.Response;
 using Capstone_API.DTO.Task.Fetch;
 using Capstone_API.DTO.Task.Request;
@@ -28,9 +30,11 @@ namespace Capstone_API.Config.AutoMapper
 
             // Lecturer Mapper
             CreateMap<Lecturer, LecturerResponse>().ReverseMap();
+            CreateMap<Lecturer, LecturerRequest>().ReverseMap();
 
             // Subject Mapper
             CreateMap<Subject, SubjectResponse>().ReverseMap();
+            CreateMap<Subject, SubjectRequest>().ReverseMap();
 
             // Timeslot Mapper
             CreateMap<TimeSlot, TimeSlotResponse>().ReverseMap();
@@ -52,7 +56,6 @@ namespace Capstone_API.Config.AutoMapper
             CreateMap<SubjectPreferenceLevel, UpdateSubjectPreferenceLevelDTO>().ReverseMap();
 
             // Distance Mapper
-
             CreateMap<Building, CreateBuildingDTO>().ReverseMap();
             CreateMap<Building, BuildingResponse>().ReverseMap();
 

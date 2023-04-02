@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.Subject.Request;
 using Capstone_API.DTO.Subject.Response;
 using Capstone_API.Models;
 using Capstone_API.Results;
@@ -48,18 +49,20 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public ResponseResult CreateSubject(SubjectResponse request)
+        public GenericResult<SubjectResponse> CreateSubject(SubjectRequest request)
         {
             try
             {
                 var subject = _mapper.Map<Subject>(request);
                 _unitOfWork.SubjectRepository.Add(subject);
                 _unitOfWork.Complete();
-                return new ResponseResult("Create successfully", true);
+                var subjectRes = _mapper.Map<SubjectResponse>(subject);
+
+                return new GenericResult<SubjectResponse>(subjectRes, true);
             }
             catch (Exception ex)
             {
-                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<SubjectResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 

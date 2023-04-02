@@ -1,4 +1,5 @@
-﻿using Capstone_API.DTO.Subject.Response;
+﻿using Capstone_API.DTO.Subject.Request;
+using Capstone_API.DTO.Subject.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +31,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost]
-        public ResponseResult Post([FromBody] SubjectResponse request)
+        public GenericResult<SubjectResponse> Post([FromBody] SubjectRequest request)
         {
             return _subjectService.CreateSubject(request);
         }

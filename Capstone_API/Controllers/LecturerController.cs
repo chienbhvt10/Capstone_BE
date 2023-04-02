@@ -1,4 +1,5 @@
-﻿using Capstone_API.DTO.Lecturer.Response;
+﻿using Capstone_API.DTO.Lecturer.Request;
+using Capstone_API.DTO.Lecturer.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +31,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost]
-        public ResponseResult Post([FromBody] LecturerResponse request)
+        public GenericResult<LecturerResponse> Post([FromBody] LecturerRequest request)
         {
             return _lecturerService.CreateLecturer(request);
         }
