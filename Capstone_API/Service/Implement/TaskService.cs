@@ -43,7 +43,7 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region SearchTask
-        public GenericResult<SearchResponse> SearchTask(GetAllTaskAssignRequest request)
+        public GenericResult<SearchDTO> SearchTask(DTO.Task.Request.GetAllTaskAssignDTO request)
         {
             try
             {
@@ -140,7 +140,7 @@ namespace Capstone_API.Service.Implement
                     querySearchDataNotAssign = querySearchDataNotAssign.Select(innerItem => innerItem.Where(item => request.RoomId.Contains(item.RoomId)).ToList()).ToList();
                 }
 
-                return new GenericResult<SearchResponse>(new SearchResponse()
+                return new GenericResult<SearchDTO>(new SearchDTO()
                 {
                     DataAssign = querySearchDataAssign.ToList(),
                     DataNotAssign = new TimeSlotInfoResponse()
@@ -155,7 +155,7 @@ namespace Capstone_API.Service.Implement
 
             catch (Exception ex)
             {
-                return new GenericResult<SearchResponse>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<SearchDTO>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
         #endregion
@@ -175,7 +175,7 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region SwapLecturer
-        public ResponseResult SwapLecturer(SwapLecturerRequest request)
+        public ResponseResult SwapLecturer(SwapLecturerDTO request)
         {
             try
             {
@@ -192,7 +192,7 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region SwapRoom
-        public ResponseResult SwapRoom(SwapRoomRequest request)
+        public ResponseResult SwapRoom(SwapRoomDTO request)
         {
             try
             {
@@ -211,7 +211,7 @@ namespace Capstone_API.Service.Implement
 
         #region TimeTableModify
 
-        public ResponseResult TimeTableModify(TaskModifyRequest request)
+        public ResponseResult TimeTableModify(TaskModifyDTO request)
         {
             try
             {
@@ -245,7 +245,7 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public ResponseResult LockAndUnLockTask(LockAndUnLockTaskRequest request)
+        public ResponseResult LockAndUnLockTask(LockAndUnLockTaskDTO request)
         {
             try
             {

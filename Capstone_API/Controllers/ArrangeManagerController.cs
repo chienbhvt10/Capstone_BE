@@ -40,7 +40,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("search-tasks")]
-        public GenericResult<SearchResponse> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
+        public GenericResult<SearchDTO> GetTaskAssign([FromBody] DTO.Task.Request.GetAllTaskAssignDTO request)
         {
             return _taskService.SearchTask(request);
         }
@@ -52,13 +52,13 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPut("swap-lecturer")]
-        public ResponseResult SwapLectuter([FromBody] SwapLecturerRequest value)
+        public ResponseResult SwapLectuter([FromBody] SwapLecturerDTO value)
         {
             return _taskService.SwapLecturer(value);
         }
 
         [HttpPut("lock-and-unlock-task")]
-        public ResponseResult LockAndUnLockTask([FromBody] LockAndUnLockTaskRequest value)
+        public ResponseResult LockAndUnLockTask([FromBody] LockAndUnLockTaskDTO value)
         {
             return _taskService.LockAndUnLockTask(value);
         }
@@ -71,13 +71,13 @@ namespace Capstone_API.Controllers
 
 
         [HttpPut("swap-room")]
-        public ResponseResult SwapRoom([FromBody] SwapRoomRequest value)
+        public ResponseResult SwapRoom([FromBody] SwapRoomDTO value)
         {
             return _taskService.SwapRoom(value);
         }
 
         [HttpPut("timetable-modify")]
-        public ResponseResult TimeTableModify([FromBody] TaskModifyRequest value)
+        public ResponseResult TimeTableModify([FromBody] TaskModifyDTO value)
         {
             return _taskService.TimeTableModify(value);
         }

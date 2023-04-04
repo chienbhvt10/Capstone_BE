@@ -81,7 +81,6 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        // Đang lỗi
         public ResponseResult DeleteSubject(int id)
         {
             try

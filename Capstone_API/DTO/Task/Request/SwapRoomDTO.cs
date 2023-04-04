@@ -1,16 +1,16 @@
 ﻿namespace Capstone_API.DTO.Task.Request
 {
-    public class SwapRoomRequest
+    public class SwapRoomDTO
     {
         public int Id { get; set; }
         public int RoomId { get; set; }
 
-        public SwapRoomRequest()
+        public SwapRoomDTO()
         {
 
         }
 
-        public SwapRoomRequest(int id, int roomId)
+        public SwapRoomDTO(int id, int roomId)
         {
             Id = id;
             RoomId = roomId;

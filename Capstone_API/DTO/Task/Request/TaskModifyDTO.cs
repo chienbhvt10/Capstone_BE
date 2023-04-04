@@ -1,6 +1,6 @@
 ﻿namespace Capstone_API.DTO.Task.Request
 {
-    public class TaskModifyRequest
+    public class TaskModifyDTO
     {
         public int TaskId { get; set; }
         public int TimeSlotId { get; set; }
@@ -8,12 +8,12 @@
         public int RoomId { get; set; }
 
 
-        public TaskModifyRequest()
+        public TaskModifyDTO()
         {
 
         }
 
-        public TaskModifyRequest(int taskId, int timeSlotId, int lecturerId, int roomId)
+        public TaskModifyDTO(int taskId, int timeSlotId, int lecturerId, int roomId)
         {
             TaskId = taskId;
             TimeSlotId = timeSlotId;

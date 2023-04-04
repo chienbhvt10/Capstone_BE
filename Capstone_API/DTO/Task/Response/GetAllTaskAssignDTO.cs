@@ -1,8 +1,8 @@
 ﻿namespace Capstone_API.DTO.Task.Response
 {
-    public class GetAllTaskAssignResponse
+    public class GetAllTaskAssignDTO
     {
-        public GetAllTaskAssignResponse(int id, int? classId, int? subjectId, string? department, int? timeSlotId, string? slot1, string? slot2, int? semesterId, bool? status, int? lecturerId, int? room1Id, int? room2Id)
+        public GetAllTaskAssignDTO(int id, int? classId, int? subjectId, string? department, int? timeSlotId, string? slot1, string? slot2, int? semesterId, bool? status, int? lecturerId, int? room1Id, int? room2Id)
         {
             Id = id;
             ClassId = classId;
@@ -31,7 +31,7 @@
         public int? Room1Id { get; set; }
         public int? Room2Id { get; set; }
 
-        public GetAllTaskAssignResponse()
+        public GetAllTaskAssignDTO()
         {
         }
     }

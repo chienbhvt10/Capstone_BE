@@ -19,6 +19,7 @@ namespace Capstone_API.Models
         public virtual DbSet<AreaSlotWeight> AreaSlotWeights { get; set; } = null!;
         public virtual DbSet<Building> Buildings { get; set; } = null!;
         public virtual DbSet<Class> Classes { get; set; } = null!;
+        public virtual DbSet<DayOfWeek> DayOfWeeks { get; set; } = null!;
         public virtual DbSet<Distance> Distances { get; set; } = null!;
         public virtual DbSet<ExecuteInfo> ExecuteInfos { get; set; } = null!;
         public virtual DbSet<Lecturer> Lecturers { get; set; } = null!;
@@ -74,6 +75,13 @@ namespace Capstone_API.Models
 
             modelBuilder.Entity<Class>(entity =>
             {
+                entity.Property(e => e.Name).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<DayOfWeek>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
                 entity.Property(e => e.Name).HasMaxLength(50);
             });
 
@@ -300,10 +308,15 @@ namespace Capstone_API.Models
             {
                 entity.ToTable("TimeSlotSegment");
 
-                entity.HasOne(d => d.SlotInDayNavigation)
+                entity.HasOne(d => d.DayOfWeekNavigation)
                     .WithMany(p => p.TimeSlotSegments)
-                    .HasForeignKey(d => d.SlotInDay)
-                    .HasConstraintName("FK_TimeSlotSegment_TimeSlot");
+                    .HasForeignKey(d => d.DayOfWeek)
+                    .HasConstraintName("FK_TimeSlotSegment_DayOfWeek");
+
+                entity.HasOne(d => d.Slot)
+                    .WithMany(p => p.TimeSlotSegments)
+                    .HasForeignKey(d => d.SlotId)
+                    .HasConstraintName("FK_TimeSlotSegment_TimeSlot1");
             });
 
             OnModelCreatingPartial(modelBuilder);

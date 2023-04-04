@@ -21,11 +21,11 @@ namespace Capstone_API.Config.AutoMapper
         public AutoMapperConfig()
         {
             // TaskMapper
-            CreateMap<TaskAssign, SwapLecturerRequest>().ReverseMap();
-            CreateMap<TaskAssign, SwapRoomRequest>().ReverseMap();
-            CreateMap<TaskAssign, TaskModifyRequest>().ReverseMap();
-            CreateMap<TaskAssign, GetAllTaskAssignResponse>().ReverseMap();
-            CreateMap<TaskAssign, GetAllTaskAssignRequest>().ReverseMap();
+            CreateMap<TaskAssign, SwapLecturerDTO>().ReverseMap();
+            CreateMap<TaskAssign, SwapRoomDTO>().ReverseMap();
+            CreateMap<TaskAssign, TaskModifyDTO>().ReverseMap();
+            CreateMap<TaskAssign, DTO.Task.Response.GetAllTaskAssignDTO>().ReverseMap();
+            CreateMap<TaskAssign, DTO.Task.Request.GetAllTaskAssignDTO>().ReverseMap();
             CreateMap<TimeSlotInfo, QueryDataByLecturerAndTimeSlot>().ReverseMap();
 
             // Lecturer Mapper
@@ -38,7 +38,6 @@ namespace Capstone_API.Config.AutoMapper
 
             // Timeslot Mapper
             CreateMap<TimeSlot, TimeSlotResponse>().ReverseMap();
-            CreateMap<TimeSlotCompatibility, GetTimeSlotCompatibilityDTO>().ReverseMap();
             CreateMap<TimeSlotConflict, GetTimeSlotConflictDTO>().ReverseMap();
             CreateMap<AreaSlotWeight, GetAreaSlotWeightDTO>().ReverseMap();
 

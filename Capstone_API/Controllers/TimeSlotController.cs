@@ -56,6 +56,28 @@ namespace Capstone_API.Controllers
 
         #endregion
 
+        #region TimeSlotSegmentApi
+
+        [HttpGet("segment")]
+        public GenericResult<List<GetSegmentResponseDTO>> GetAllTimeSlotSegment()
+        {
+            return _timeSlotService.GetTimeSlotSegment();
+        }
+
+        [HttpPost("segment")]
+        public ResponseResult CreateTimeSlot(CreateTimeSlotDTO request)
+        {
+            return _timeSlotService.CreateTimeSlot(request);
+        }
+
+        [HttpDelete("segment/{id}")]
+        public ResponseResult DeleteTimeSlotSegment(int id)
+        {
+            return _timeSlotService.DeleteTimeSlotSegment(id);
+
+        }
+
+        #endregion
 
         #region TimeSlotConflict Api
 
