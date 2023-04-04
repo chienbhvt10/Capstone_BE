@@ -29,8 +29,6 @@ namespace Capstone_API.Service.Implement
                     Subject = item.Subject?.Code,
                     Dept = item.Subject?.Department,
                     TimeSlot = item.TimeSlot?.Name,
-                    Slot1 = item.TimeSlot?.Slot1,
-                    Slot2 = item.TimeSlot?.Slot2,
                     Room = item.Room1?.Name,
                     Status = item.Status ?? false ? "" : "",
                     Lecturer = item.Lecturer?.Name
@@ -156,16 +154,12 @@ namespace Capstone_API.Service.Implement
                             if (timeSlots.Count() == 0)
                             {
                                 timeSlotTemp.Name = timeSlotName;
-                                timeSlotTemp.Slot1 = timeSlotSlot1;
-                                timeSlotTemp.Slot2 = timeSlotSlot2;
                                 timeSlots.Add(timeSlotTemp);
                                 _unitOfWork.TimeSlotRepository.Add(timeSlotTemp);
                             }
                             else if (timeSlots.Count() > 0 && timeSlotFind == null && !timeSlotName.Equals(string.Empty))
                             {
                                 timeSlotTemp.Name = timeSlotName;
-                                timeSlotTemp.Slot1 = timeSlotSlot1;
-                                timeSlotTemp.Slot2 = timeSlotSlot2;
                                 timeSlots.Add(timeSlotTemp);
                                 _unitOfWork.TimeSlotRepository.Add(timeSlotTemp);
                             };
@@ -225,7 +219,6 @@ namespace Capstone_API.Service.Implement
             _unitOfWork.AreaSlotWeightRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
             _unitOfWork.LecturerQuotaRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
             _unitOfWork.TimeSlotConflictRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.TimeSlotCompatibilityRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
             _unitOfWork.DistanceRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
 
             _unitOfWork.BuildingRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
@@ -317,7 +310,6 @@ namespace Capstone_API.Service.Implement
                 }
             }
             _unitOfWork.TimeSlotConflictRepository.AddRange(timeSlotConflicts);
-            _unitOfWork.TimeSlotCompatibilityRepository.AddRange(timeSlotCompatibilities);
             _unitOfWork.AreaSlotWeightRepository.AddRange(areaSlotWeights);
             _unitOfWork.Complete();
         }

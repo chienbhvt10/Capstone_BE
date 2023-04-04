@@ -13,17 +13,14 @@ namespace Capstone_API.Controllers
     public class TimeSlotController : ControllerBase
     {
         private readonly ITimeSlotService _timeSlotService;
-        private readonly ITimeSlotCompatibilityService _timeSlotCompatibilityService;
         private readonly ITimeSlotConflictService _timeSlotConflictService;
         private readonly IAreaSlotWeightService _areaSlotWeightService;
 
         public TimeSlotController(ITimeSlotService timeSlotService,
-            ITimeSlotCompatibilityService timeSlotCompatibilityService,
             ITimeSlotConflictService timeSlotConflictService,
             IAreaSlotWeightService areaSlotWeightService)
         {
             _timeSlotService = timeSlotService;
-            _timeSlotCompatibilityService = timeSlotCompatibilityService;
             _timeSlotConflictService = timeSlotConflictService;
             _areaSlotWeightService = areaSlotWeightService;
         }
@@ -59,21 +56,6 @@ namespace Capstone_API.Controllers
 
         #endregion
 
-        #region TimeSlotCompatibility Api
-
-        [HttpGet("compatibility")]
-        public GenericResult<List<GetTimeSlotCompatibilityDTO>> GetAllTimeSlotCompatibility()
-        {
-            return _timeSlotCompatibilityService.GetAll();
-        }
-
-        [HttpPut("compatibility")]
-        public ResponseResult UpdateTimeSlotCompatibility([FromBody] UpdateTimeSlotCompatibilityDTO request)
-        {
-            return _timeSlotCompatibilityService.UpdateTimeSlotCompatibility(request);
-        }
-
-        #endregion
 
         #region TimeSlotConflict Api
 

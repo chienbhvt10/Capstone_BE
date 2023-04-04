@@ -26,14 +26,14 @@ namespace Capstone_API.Models
         public virtual DbSet<LecturerRegister> LecturerRegisters { get; set; } = null!;
         public virtual DbSet<Room> Rooms { get; set; } = null!;
         public virtual DbSet<Semester> Semesters { get; set; } = null!;
-        public virtual DbSet<SlotDay> SlotDays { get; set; } = null!;
+        public virtual DbSet<SlotPerDay> SlotPerDays { get; set; } = null!;
         public virtual DbSet<SlotPreferenceLevel> SlotPreferenceLevels { get; set; } = null!;
         public virtual DbSet<Subject> Subjects { get; set; } = null!;
         public virtual DbSet<SubjectPreferenceLevel> SubjectPreferenceLevels { get; set; } = null!;
         public virtual DbSet<TaskAssign> TaskAssigns { get; set; } = null!;
         public virtual DbSet<TimeSlot> TimeSlots { get; set; } = null!;
-        public virtual DbSet<TimeSlotCompatibility> TimeSlotCompatibilities { get; set; } = null!;
         public virtual DbSet<TimeSlotConflict> TimeSlotConflicts { get; set; } = null!;
+        public virtual DbSet<TimeSlotSegment> TimeSlotSegments { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -105,9 +105,7 @@ namespace Capstone_API.Models
             {
                 entity.ToTable("Lecturer");
 
-                entity.Property(e => e.Email)
-                    .HasMaxLength(10)
-                    .IsFixedLength();
+                entity.Property(e => e.Email).HasMaxLength(50);
 
                 entity.Property(e => e.Name).HasMaxLength(50);
 
@@ -170,9 +168,9 @@ namespace Capstone_API.Models
                 entity.Property(e => e.Name).HasMaxLength(50);
             });
 
-            modelBuilder.Entity<SlotDay>(entity =>
+            modelBuilder.Entity<SlotPerDay>(entity =>
             {
-                entity.ToTable("SlotDay");
+                entity.ToTable("SlotPerDay");
             });
 
             modelBuilder.Entity<SlotPreferenceLevel>(entity =>
@@ -278,28 +276,9 @@ namespace Capstone_API.Models
             {
                 entity.ToTable("TimeSlot");
 
-                entity.Property(e => e.Description).HasMaxLength(50);
+                entity.Property(e => e.AmorPm).HasColumnName("AMorPM");
 
                 entity.Property(e => e.Name).HasMaxLength(50);
-
-                entity.Property(e => e.Slot1).HasMaxLength(50);
-
-                entity.Property(e => e.Slot2).HasMaxLength(50);
-            });
-
-            modelBuilder.Entity<TimeSlotCompatibility>(entity =>
-            {
-                entity.ToTable("TimeSlotCompatibility");
-
-                entity.HasOne(d => d.CompatibilitySlot)
-                    .WithMany(p => p.TimeSlotCompatibilityCompatibilitySlots)
-                    .HasForeignKey(d => d.CompatibilitySlotId)
-                    .HasConstraintName("FK_TimeSlotCompatibility_TimeSlot");
-
-                entity.HasOne(d => d.Slot)
-                    .WithMany(p => p.TimeSlotCompatibilitySlots)
-                    .HasForeignKey(d => d.SlotId)
-                    .HasConstraintName("FK_TimeSlotCompatibility_TimeSlot1");
             });
 
             modelBuilder.Entity<TimeSlotConflict>(entity =>
@@ -315,6 +294,16 @@ namespace Capstone_API.Models
                     .WithMany(p => p.TimeSlotConflictSlots)
                     .HasForeignKey(d => d.SlotId)
                     .HasConstraintName("FK_TimeSLotConflict_TimeSlot1");
+            });
+
+            modelBuilder.Entity<TimeSlotSegment>(entity =>
+            {
+                entity.ToTable("TimeSlotSegment");
+
+                entity.HasOne(d => d.SlotInDayNavigation)
+                    .WithMany(p => p.TimeSlotSegments)
+                    .HasForeignKey(d => d.SlotInDay)
+                    .HasConstraintName("FK_TimeSlotSegment_TimeSlot");
             });
 
             OnModelCreatingPartial(modelBuilder);

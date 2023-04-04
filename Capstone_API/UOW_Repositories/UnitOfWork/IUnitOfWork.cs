@@ -14,7 +14,6 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         IDistanceRepository DistanceRepository { get; }
         ISlotPreferenceLevelRepository SlotPreferenceLevelRepository { get; }
         ISubjectPreferenceLevelRepository SubjectPreferenceLevelRepository { get; }
-        ITimeSlotCompatibilityRepository TimeSlotCompatibilityRepository { get; }
         ITimeSlotConflictRepository TimeSlotConflictRepository { get; }
         ITimeSlotRepository TimeSlotRepository { get; }
         IRoomRepository RoomRepository { get; }

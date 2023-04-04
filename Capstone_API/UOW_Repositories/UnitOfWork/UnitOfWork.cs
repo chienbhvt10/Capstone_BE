@@ -14,7 +14,6 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         IDistanceRepository _distanceRepository;
         ISlotPreferenceLevelRepository _slotPreferenceLevelRepository;
         ISubjectPreferenceLevelRepository _subjectPreferenceLevelRepository;
-        ITimeSlotCompatibilityRepository _timeSlotCompatibilityRepository;
         ITimeSlotConflictRepository _timeSlotConflictRepository;
         ITimeSlotRepository _timeSlotRepository;
         IRoomRepository _roomRepository;
@@ -38,7 +37,6 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         public IDistanceRepository DistanceRepository => _distanceRepository ??= new DistanceRepository(Context);
         public ISlotPreferenceLevelRepository SlotPreferenceLevelRepository => _slotPreferenceLevelRepository ??= new SlotPreferenceLevelRepository(Context);
         public ISubjectPreferenceLevelRepository SubjectPreferenceLevelRepository => _subjectPreferenceLevelRepository ??= new SubjectPreferenceLevelRepository(Context);
-        public ITimeSlotCompatibilityRepository TimeSlotCompatibilityRepository => _timeSlotCompatibilityRepository ??= new TimeSlotCompatibilityRepository(Context);
         public ITimeSlotConflictRepository TimeSlotConflictRepository => _timeSlotConflictRepository ??= new TimeSlotConflictRepository(Context);
         public ITimeSlotRepository TimeSlotRepository => _timeSlotRepository ??= new TimeSlotRepository(Context);
         public IRoomRepository RoomRepository => _roomRepository ??= new RoomRepository(Context);

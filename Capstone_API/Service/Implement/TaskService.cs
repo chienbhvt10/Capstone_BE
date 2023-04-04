@@ -516,7 +516,6 @@ namespace Capstone_API.Service.Implement
         public ExecuteFetchRequest GetExecuteFetchRequest(SettingRequest request)
         {
             List<List<int>>? SlotConflict = GetSlotConflict();
-            List<List<int?>>? SlotCompatibility = GetSlotCompatibility();
             List<List<int?>>? AreaSlotCoefficient = GetAreaSlotCoefficient();
             List<List<int?>>? InstructorSubject = GetInstructorSubject();
             List<List<int?>>? InstructorSlot = GetInstructorSlot();
@@ -542,7 +541,6 @@ namespace Capstone_API.Service.Implement
                 NumTasks = Tasks.Count(),
                 Setting = request,
                 SlotConflict = SlotConflict,
-                SlotCompability = SlotCompatibility,
                 AreaSlotCoefficient = AreaSlotCoefficient,
                 InstructorSubject = InstructorSubject,
                 InstructorSlot = InstructorSlot,
@@ -708,17 +706,6 @@ namespace Capstone_API.Service.Implement
                             .OrderBy(item => item.SlotId)
                             .GroupBy(item => item.SlotId)
                             .Select(item => item.Select(item => item.AreaSlotWeight1)
-                            .ToList()).ToList();
-        }
-        #endregion
-
-        #region GetSlotCompatibility
-        private List<List<int?>> GetSlotCompatibility()
-        {
-            return _unitOfWork.TimeSlotCompatibilityRepository.GetAll()
-                            .OrderBy(item => item.SlotId)
-                            .GroupBy(item => item.SlotId)
-                            .Select(item => item.Select(item => item.CompatibilityLevel)
                             .ToList()).ToList();
         }
         #endregion
