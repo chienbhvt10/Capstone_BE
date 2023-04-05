@@ -9,6 +9,10 @@ namespace Capstone_API.Service.Interface
         GenericResult<IEnumerable<TimeSlotResponse>> GetAll();
         GenericResult<List<GetSegmentResponseDTO>> GetTimeSlotSegment();
         ResponseResult CreateTimeSlot(CreateTimeSlotDTO request);
+        ResponseResult DeleteTimeSlot(int id);
         ResponseResult DeleteTimeSlotSegment(int id);
+        ResponseResult UpdateTimeslot(UpdateTimeSlotDTO request);
+        GenericResult<TimeSlotSegmentDTO> UpdateTimeslotSegment(TimeSlotSegmentDTO request);
+        GenericResult<TimeSlotSegmentDTO> CreateTimeSlotSegment(TimeSlotSegmentDTO request);
     }
 }

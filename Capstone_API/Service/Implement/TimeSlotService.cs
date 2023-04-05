@@ -18,19 +18,9 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
         }
 
-        public GenericResult<IEnumerable<TimeSlotResponse>> GetAll()
-        {
-            try
-            {
-                var timeSlot = _unitOfWork.TimeSlotRepository.GetAll();
-                var timeSlotsViewModel = _mapper.Map<IEnumerable<TimeSlotResponse>>(timeSlot);
-                return new GenericResult<IEnumerable<TimeSlotResponse>>(timeSlotsViewModel, true);
-            }
-            catch (Exception ex)
-            {
-                return new GenericResult<IEnumerable<TimeSlotResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
-            }
-        }
+
+
+        #region TimeSlot Segment 
 
         public List<GetSegmentDTO> ResponseTimeSlotSegment()
         {
@@ -92,6 +82,7 @@ namespace Capstone_API.Service.Implement
                     SemesterId = group.First().SemesterId ?? 0,
                     SlotSegments = group.OrderBy(item => item.DayId).Select(item => new SlotSegment()
                     {
+                        SlotId = item.TimeSlotId,
                         Day = item.Day,
                         DayId = item.DayId ?? 0,
                         SegmentId = item.SegmentId ?? 0,
@@ -104,6 +95,88 @@ namespace Capstone_API.Service.Implement
             catch (Exception ex)
             {
                 return new GenericResult<List<GetSegmentResponseDTO>>($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+        public ResponseResult DeleteTimeSlotSegment(int id)
+        {
+            try
+            {
+                var timeSlot = _unitOfWork.TimeSlotSegmentRepository.Find(id) ?? throw new ArgumentException("Timeslot segment does not exist");
+                _unitOfWork.TimeSlotSegmentRepository.Delete(timeSlot, isHardDeleted: true);
+                _unitOfWork.Complete();
+                return new ResponseResult("Delete successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+        public GenericResult<TimeSlotSegmentDTO> CreateTimeSlotSegment(TimeSlotSegmentDTO request)
+        {
+            try
+            {
+                if (request.SegmentId != 0 && _unitOfWork.TimeSlotSegmentRepository?.GetByCondition(item => item.SlotId == request.SlotId).Count() > 0)
+                {
+                    return UpdateTimeslotSegment(request);
+                }
+                var timeSlotSegment = _mapper.Map<TimeSlotSegment>(request);
+                _unitOfWork.TimeSlotSegmentRepository?.Add(timeSlotSegment);
+                _unitOfWork.Complete();
+                var timeSlotSegment2 = new TimeSlotSegmentDTO()
+                {
+                    DayOfWeek = timeSlotSegment.DayOfWeek,
+                    Segment = timeSlotSegment.Segment,
+                    SegmentId = timeSlotSegment.Id,
+                    SemesterId = timeSlotSegment.SemesterId,
+                    SlotId = timeSlotSegment.SlotId
+                };
+
+                return new GenericResult<TimeSlotSegmentDTO>(timeSlotSegment2, true);
+            }
+            catch (Exception ex)
+            {
+                return new GenericResult<TimeSlotSegmentDTO>($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+        public GenericResult<TimeSlotSegmentDTO> UpdateTimeslotSegment(TimeSlotSegmentDTO request)
+        {
+            try
+            {
+                var timeSlotSegment = _unitOfWork.TimeSlotSegmentRepository.GetById(request.SegmentId);
+                if (timeSlotSegment != null)
+                {
+                    timeSlotSegment.Segment = request.Segment;
+                    _unitOfWork.TimeSlotSegmentRepository.Update(timeSlotSegment);
+                    _unitOfWork.Complete();
+                    var timeSlotSegment2 = _mapper.Map<TimeSlotSegmentDTO>(timeSlotSegment);
+                    return new GenericResult<TimeSlotSegmentDTO>(timeSlotSegment2, true);
+                }
+                return new GenericResult<TimeSlotSegmentDTO>("Cannot find timeslot segment");
+
+            }
+            catch (Exception ex)
+            {
+                return new GenericResult<TimeSlotSegmentDTO>($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+        #endregion
+
+        #region TimeSlot 
+
+        public GenericResult<IEnumerable<TimeSlotResponse>> GetAll()
+        {
+            try
+            {
+                var timeSlot = _unitOfWork.TimeSlotRepository.GetAll();
+                var timeSlotsViewModel = _mapper.Map<IEnumerable<TimeSlotResponse>>(timeSlot);
+                return new GenericResult<IEnumerable<TimeSlotResponse>>(timeSlotsViewModel, true);
+            }
+            catch (Exception ex)
+            {
+                return new GenericResult<IEnumerable<TimeSlotResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 
@@ -140,7 +213,8 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
-        public ResponseResult DeleteTimeSlotSegment(int id)
+
+        public ResponseResult DeleteTimeSlot(int id)
         {
             try
             {
@@ -155,5 +229,26 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+
+        public ResponseResult UpdateTimeslot(UpdateTimeSlotDTO request)
+        {
+            try
+            {
+                var timeSlot = _unitOfWork.TimeSlotRepository.GetById(request.Id);
+                if (timeSlot != null)
+                {
+                    timeSlot.AmorPm = request.AmorPm;
+                    _unitOfWork.TimeSlotRepository.Update(timeSlot);
+                    _unitOfWork.Complete();
+                }
+                return new ResponseResult("Update successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+        #endregion
     }
 }

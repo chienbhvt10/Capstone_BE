@@ -40,20 +40,23 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost]
-        public void CreateTimeSlot()
+        public ResponseResult CreateTimeSlot([FromBody] CreateTimeSlotDTO request)
         {
+            return _timeSlotService.CreateTimeSlot(request);
         }
 
-        [HttpPut("{id}")]
-        public void UpdateTimeSlot()
+        [HttpPut]
+        public ResponseResult UpdateTimeslot([FromBody] UpdateTimeSlotDTO request)
         {
+            return _timeSlotService.UpdateTimeslot(request);
         }
 
         [HttpDelete("{id}")]
-        public void DeleteTimeSlot()
+        public ResponseResult DeleteTimeSlot(int id)
         {
-        }
+            return _timeSlotService.DeleteTimeSlot(id);
 
+        }
         #endregion
 
         #region TimeSlotSegmentApi
@@ -65,16 +68,21 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("segment")]
-        public ResponseResult CreateTimeSlot(CreateTimeSlotDTO request)
+        public GenericResult<TimeSlotSegmentDTO> CreateTimeSlotSegment([FromBody] TimeSlotSegmentDTO request)
         {
-            return _timeSlotService.CreateTimeSlot(request);
+            return _timeSlotService.CreateTimeSlotSegment(request);
+        }
+
+        [HttpPut("segment")]
+        public GenericResult<TimeSlotSegmentDTO> UpdateTimeslotSegment([FromBody] TimeSlotSegmentDTO request)
+        {
+            return _timeSlotService.UpdateTimeslotSegment(request);
         }
 
         [HttpDelete("segment/{id}")]
         public ResponseResult DeleteTimeSlotSegment(int id)
         {
             return _timeSlotService.DeleteTimeSlotSegment(id);
-
         }
 
         #endregion

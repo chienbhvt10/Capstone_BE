@@ -11,6 +11,7 @@ using Capstone_API.DTO.Subject.Response;
 using Capstone_API.DTO.Task.Fetch;
 using Capstone_API.DTO.Task.Request;
 using Capstone_API.DTO.Task.Response;
+using Capstone_API.DTO.TimeSlot.Request;
 using Capstone_API.DTO.TimeSlot.Response;
 using Capstone_API.Models;
 
@@ -57,6 +58,10 @@ namespace Capstone_API.Config.AutoMapper
             // Distance Mapper
             CreateMap<Building, CreateBuildingDTO>().ReverseMap();
             CreateMap<Building, BuildingResponse>().ReverseMap();
+
+            // TimeSlot Mapper
+            CreateMap<TimeSlot, UpdateTimeSlotDTO>().ReverseMap();
+            CreateMap<TimeSlotSegment, TimeSlotSegmentDTO>().ReverseMap();
 
 
         }
