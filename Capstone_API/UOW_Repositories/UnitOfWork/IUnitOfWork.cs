@@ -21,7 +21,8 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         IExecuteInfoRepository ExecuteInfoRepository { get; }
         ILecturerQuotaRepository LecturerQuotaRepository { get; }
         ITimeSlotSegmentRepository TimeSlotSegmentRepository { get; }
-
+        INumSegmentsRepository NumSegmentsRepository { get; }
+        IDayOfWeeksRepository DayOfWeeksRepository { get; }
         void Complete();
         Task<int> CompleteAsync();
     }

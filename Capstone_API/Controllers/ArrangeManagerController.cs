@@ -51,12 +51,6 @@ namespace Capstone_API.Controllers
             return _taskService.GetAllTaskNotAssign();
         }
 
-        [HttpPut("swap-lecturer")]
-        public ResponseResult SwapLectuter([FromBody] SwapLecturerDTO value)
-        {
-            return _taskService.SwapLecturer(value);
-        }
-
         [HttpPut("lock-and-unlock-task")]
         public ResponseResult LockAndUnLockTask([FromBody] LockAndUnLockTaskDTO value)
         {
@@ -67,13 +61,6 @@ namespace Capstone_API.Controllers
         public ResponseResult UnLockAllTask()
         {
             return _taskService.UnLockAllTask();
-        }
-
-
-        [HttpPut("swap-room")]
-        public ResponseResult SwapRoom([FromBody] SwapRoomDTO value)
-        {
-            return _taskService.SwapRoom(value);
         }
 
         [HttpPut("timetable-modify")]

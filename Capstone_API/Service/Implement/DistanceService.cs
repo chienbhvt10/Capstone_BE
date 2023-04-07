@@ -95,6 +95,7 @@ namespace Capstone_API.Service.Implement
             }
         }
 
+        // need create distance between
         public ResponseResult CreateBuilding(CreateBuildingDTO request)
         {
             try
@@ -109,5 +110,10 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+
+        // update api
+
+        // delete api 
+        // need delete distance between
     }
 }

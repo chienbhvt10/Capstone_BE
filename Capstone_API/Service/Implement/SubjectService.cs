@@ -49,6 +49,24 @@ namespace Capstone_API.Service.Implement
             }
         }
 
+        #region CreateSubject
+        public void CreateSubjectPreferenceForNewSubject(Subject subject)
+        {
+            List<SubjectPreferenceLevel> slotPreferenceLevels = new();
+            foreach (var item in _unitOfWork.LecturerRepository.GetAll())
+            {
+                slotPreferenceLevels.Add(new SubjectPreferenceLevel()
+                {
+                    SubjectId = subject.Id,
+                    LecturerId = item.Id,
+                    PreferenceLevel = 0
+                });
+            }
+            _unitOfWork.SubjectPreferenceLevelRepository.AddRange(slotPreferenceLevels);
+            _unitOfWork.Complete();
+        }
+
+        // need create subject preference level
         public GenericResult<SubjectResponse> CreateSubject(SubjectRequest request)
         {
             try
@@ -56,6 +74,8 @@ namespace Capstone_API.Service.Implement
                 var subject = _mapper.Map<Subject>(request);
                 _unitOfWork.SubjectRepository.Add(subject);
                 _unitOfWork.Complete();
+
+                CreateSubjectPreferenceForNewSubject(subject);
                 var subjectRes = _mapper.Map<SubjectResponse>(subject);
 
                 return new GenericResult<SubjectResponse>(subjectRes, true);
@@ -65,7 +85,7 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<SubjectResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
-
+        #endregion
         public ResponseResult UpdateSubject(SubjectResponse request)
         {
             try
@@ -81,10 +101,22 @@ namespace Capstone_API.Service.Implement
             }
         }
 
+        // need delete subject preference level, task assign
         public ResponseResult DeleteSubject(int id)
         {
             try
             {
+                _unitOfWork.SubjectPreferenceLevelRepository.DeleteByCondition(item => item.SubjectId == id, true);
+                var taskContainThisDeleteSubject = _unitOfWork.TaskRepository.GetAll().Where(item => item.SubjectId == id).ToList();
+
+                foreach (var item in taskContainThisDeleteSubject)
+                {
+                    item.SubjectId = 0;
+                }
+
+                _unitOfWork.TaskRepository.UpdateRange(taskContainThisDeleteSubject);
+                _unitOfWork.Complete();
+
                 var subject = _unitOfWork.SubjectRepository.Find(id) ?? throw new ArgumentException("Subject does not exist");
                 _unitOfWork.SubjectRepository.Delete(subject, isHardDeleted: true);
                 _unitOfWork.Complete();

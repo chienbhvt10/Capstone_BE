@@ -180,6 +180,111 @@ namespace Capstone_API.Service.Implement
             }
         }
 
+        #region Create Timeslot
+
+        public void CreateAreaSlotWeightForNewTimeSlot(TimeSlot timeSlot)
+        {
+            List<AreaSlotWeight> newAreaSlotWeights = new();
+            foreach (var item in _unitOfWork.TimeSlotRepository.GetAll())
+            {
+                if (item.Id == timeSlot.Id)
+                {
+                    newAreaSlotWeights.Add(new AreaSlotWeight()
+                    {
+                        AreaSlotId = timeSlot.Id,
+                        SlotId = item.Id,
+                        AreaSlotWeight1 = 0
+                    });
+                }
+                if (item.Id != timeSlot.Id)
+                {
+                    newAreaSlotWeights.Add(new AreaSlotWeight()
+                    {
+                        AreaSlotId = timeSlot.Id,
+                        SlotId = item.Id,
+                        AreaSlotWeight1 = 0
+                    });
+                    newAreaSlotWeights.Add(new AreaSlotWeight()
+                    {
+                        AreaSlotId = item.Id,
+                        SlotId = timeSlot.Id,
+                        AreaSlotWeight1 = 0
+                    });
+                }
+            }
+            _unitOfWork.AreaSlotWeightRepository.AddRange(newAreaSlotWeights);
+            _unitOfWork.Complete();
+        }
+
+        public void CreateTimeSlotConflictForNewTimeSlot(TimeSlot timeSlot)
+        {
+            List<TimeSlotConflict> timeSlotConflicts = new();
+            foreach (var item in _unitOfWork.TimeSlotRepository.GetAll())
+            {
+                if (item.Id == timeSlot.Id)
+                {
+                    timeSlotConflicts.Add(new TimeSlotConflict()
+                    {
+                        SlotId = item.Id,
+                        ConflictSlotId = timeSlot.Id,
+                        Conflict = true,
+                    });
+                }
+                if (item.Id != timeSlot.Id)
+                {
+                    timeSlotConflicts.Add(new TimeSlotConflict()
+                    {
+                        SlotId = timeSlot.Id,
+                        ConflictSlotId = item.Id,
+                        Conflict = false,
+                    });
+                    timeSlotConflicts.Add(new TimeSlotConflict()
+                    {
+                        SlotId = item.Id,
+                        ConflictSlotId = timeSlot.Id,
+                        Conflict = false,
+                    });
+                }
+            }
+            _unitOfWork.TimeSlotConflictRepository.AddRange(timeSlotConflicts);
+            _unitOfWork.Complete();
+        }
+
+        public void CreateSlotPreferenceForNewTimeSlot(TimeSlot timeSlot)
+        {
+            List<SlotPreferenceLevel> slotPreferenceLevels = new();
+            foreach (var item in _unitOfWork.LecturerRepository.GetAll())
+            {
+                slotPreferenceLevels.Add(new SlotPreferenceLevel()
+                {
+                    SlotId = timeSlot.Id,
+                    LecturerId = item.Id,
+                    PreferenceLevel = 0
+                });
+            }
+            _unitOfWork.SlotPreferenceLevelRepository.AddRange(slotPreferenceLevels);
+            _unitOfWork.Complete();
+        }
+
+        public void CreateTimeSlotSegment(CreateTimeSlotDTO request, TimeSlot timeSlot)
+        {
+            if (request.Segments?.Count > 0)
+            {
+                foreach (var item in request.Segments)
+                {
+                    var segment = new TimeSlotSegment()
+                    {
+                        SlotId = timeSlot.Id,
+                        DayOfWeek = item.Day,
+                        Segment = item.Segment
+                    };
+                    _unitOfWork.TimeSlotSegmentRepository.Add(segment);
+                    _unitOfWork.Complete();
+                }
+            }
+        }
+
+        // need more create areaslotweight, timeslotconflict, timeslot preference level
         public ResponseResult CreateTimeSlot(CreateTimeSlotDTO request)
         {
             try
@@ -192,20 +297,10 @@ namespace Capstone_API.Service.Implement
                 _unitOfWork.TimeSlotRepository.Add(timeSlot);
                 _unitOfWork.Complete();
 
-                if (request.Segments?.Count > 0)
-                {
-                    foreach (var item in request.Segments)
-                    {
-                        var segment = new TimeSlotSegment()
-                        {
-                            SlotId = timeSlot.Id,
-                            DayOfWeek = item.Day,
-                            Segment = item.Segment
-                        };
-                        _unitOfWork.TimeSlotSegmentRepository.Add(segment);
-                        _unitOfWork.Complete();
-                    }
-                }
+                CreateTimeSlotSegment(request, timeSlot);
+                CreateAreaSlotWeightForNewTimeSlot(timeSlot);
+                CreateTimeSlotConflictForNewTimeSlot(timeSlot);
+                CreateSlotPreferenceForNewTimeSlot(timeSlot);
                 return new ResponseResult();
             }
             catch (Exception ex)
@@ -214,12 +309,28 @@ namespace Capstone_API.Service.Implement
             }
         }
 
+        #endregion
+
+        // delete delete areaslotweight, timeslotconflict, timeslot preference level first
         public ResponseResult DeleteTimeSlot(int id)
         {
             try
             {
-                var timeSlot = _unitOfWork.TimeSlotRepository.Find(id) ?? throw new ArgumentException("Timeslot does not exist");
+                _unitOfWork.TimeSlotConflictRepository.DeleteByCondition(item => item.SlotId == id || item.ConflictSlotId == id, true);
+                _unitOfWork.AreaSlotWeightRepository.DeleteByCondition(item => item.SlotId == id || item.AreaSlotId == id, true);
+                _unitOfWork.SlotPreferenceLevelRepository.DeleteByCondition(item => item.SlotId == id, true);
                 _unitOfWork.TimeSlotSegmentRepository.DeleteByCondition(item => item.SlotId != id, true);
+                var taskContainThisDeleteTimeSlot = _unitOfWork.TaskRepository.GetAll().Where(item => item.TimeSlotId == id).ToList();
+
+                foreach (var item in taskContainThisDeleteTimeSlot)
+                {
+                    item.TimeSlotId = 0;
+                }
+
+                _unitOfWork.TaskRepository.UpdateRange(taskContainThisDeleteTimeSlot);
+                _unitOfWork.Complete();
+
+                var timeSlot = _unitOfWork.TimeSlotRepository.Find(id) ?? throw new ArgumentException("Timeslot does not exist");
                 _unitOfWork.TimeSlotRepository.Delete(timeSlot, isHardDeleted: true);
                 _unitOfWork.Complete();
                 return new ResponseResult("Delete successfully", true);

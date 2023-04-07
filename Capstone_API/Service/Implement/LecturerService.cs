@@ -46,7 +46,40 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<LecturerResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+        #region Create Lecturer
+        public void CreateSlotPreferenceForNewLecturer(Lecturer lecturer)
+        {
+            List<SlotPreferenceLevel> slotPreferenceLevels = new();
+            foreach (var item in _unitOfWork.TimeSlotRepository.GetAll())
+            {
+                slotPreferenceLevels.Add(new SlotPreferenceLevel()
+                {
+                    SlotId = item.Id,
+                    LecturerId = lecturer.Id,
+                    PreferenceLevel = 0
+                });
+            }
+            _unitOfWork.SlotPreferenceLevelRepository.AddRange(slotPreferenceLevels);
+            _unitOfWork.Complete();
+        }
 
+        public void CreateSubjectPreferenceForNewLecturer(Lecturer lecturer)
+        {
+            List<SubjectPreferenceLevel> slotPreferenceLevels = new();
+            foreach (var item in _unitOfWork.SubjectRepository.GetAll())
+            {
+                slotPreferenceLevels.Add(new SubjectPreferenceLevel()
+                {
+                    SubjectId = item.Id,
+                    LecturerId = lecturer.Id,
+                    PreferenceLevel = 0
+                });
+            }
+            _unitOfWork.SubjectPreferenceLevelRepository.AddRange(slotPreferenceLevels);
+            _unitOfWork.Complete();
+        }
+
+        // need create subject preferencelevel, slot preference level
         public GenericResult<LecturerResponse> CreateLecturer(LecturerRequest request)
         {
             try
@@ -56,6 +89,8 @@ namespace Capstone_API.Service.Implement
                 _unitOfWork.Complete();
                 var lecturerRes = _mapper.Map<LecturerResponse>(lecturer);
 
+                CreateSubjectPreferenceForNewLecturer(lecturer);
+                CreateSlotPreferenceForNewLecturer(lecturer);
                 return new GenericResult<LecturerResponse>(lecturerRes, true);
             }
             catch (Exception ex)
@@ -63,7 +98,7 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<LecturerResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
-
+        #endregion
         public ResponseResult UpdateLecturer(LecturerResponse request)
         {
             try
@@ -79,10 +114,25 @@ namespace Capstone_API.Service.Implement
             }
         }
 
+        #region DeleteLecturer
+        // need delete subject preferencelevel, slot preference level first, and in task assign
         public ResponseResult DeleteLecturer(int id)
         {
             try
             {
+                _unitOfWork.SubjectPreferenceLevelRepository.DeleteByCondition(item => item.LecturerId == id, true);
+                _unitOfWork.SlotPreferenceLevelRepository.DeleteByCondition(item => item.LecturerId == id, true);
+
+                var taskContainThisDeleteLecturer = _unitOfWork.TaskRepository.GetAll().Where(item => item.LecturerId == id).ToList();
+
+                foreach (var item in taskContainThisDeleteLecturer)
+                {
+                    item.LecturerId = 0;
+                }
+
+                _unitOfWork.TaskRepository.UpdateRange(taskContainThisDeleteLecturer);
+                _unitOfWork.Complete();
+
                 var lecturer = _unitOfWork.LecturerRepository.Find(id) ?? throw new ArgumentException("Lecturer does not exist");
                 _unitOfWork.LecturerRepository.Delete(lecturer, isHardDeleted: true);
                 _unitOfWork.Complete();
@@ -93,5 +143,6 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+        #endregion
     }
 }

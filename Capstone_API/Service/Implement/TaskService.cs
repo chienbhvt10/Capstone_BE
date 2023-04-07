@@ -160,55 +160,6 @@ namespace Capstone_API.Service.Implement
         }
         #endregion
 
-        #region RequestLecturerConfirm
-        public ResponseResult RequestLecturerConfirm()
-        {
-            try
-            {
-                return new ResponseResult();
-            }
-            catch (Exception ex)
-            {
-                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
-            }
-        }
-        #endregion
-
-        #region SwapLecturer
-        public ResponseResult SwapLecturer(SwapLecturerDTO request)
-        {
-            try
-            {
-                TaskAssign taskAssign = _mapper.Map<TaskAssign>(request);
-                _unitOfWork.TaskRepository.Update(taskAssign);
-                _unitOfWork.Complete();
-                return new ResponseResult("Swap lecturer successfully");
-            }
-            catch (Exception ex)
-            {
-                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
-            }
-        }
-        #endregion
-
-        #region SwapRoom
-        public ResponseResult SwapRoom(SwapRoomDTO request)
-        {
-            try
-            {
-                TaskAssign taskAssign = _mapper.Map<TaskAssign>(request);
-                _unitOfWork.TaskRepository.Update(taskAssign);
-                _unitOfWork.Complete();
-                return new ResponseResult("Swap room successfully");
-
-            }
-            catch (Exception ex)
-            {
-                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
-            }
-        }
-        #endregion
-
         #region TimeTableModify
 
         public ResponseResult TimeTableModify(TaskModifyDTO request)
@@ -515,30 +466,41 @@ namespace Capstone_API.Service.Implement
         #region GetExecuteFetchRequest
         public ExecuteFetchRequest GetExecuteFetchRequest(SettingRequest request)
         {
+            List<int?> InstructorQuota = GetInstructorQuota();
+            List<int?> InstructorMinQuota = GetInstructorMinQuota();
+            List<int?> PatternCost = GetPatternCost();
             List<List<int>>? SlotConflict = GetSlotConflict();
             List<List<int?>>? AreaSlotCoefficient = GetAreaSlotCoefficient();
             List<List<int?>>? InstructorSubject = GetInstructorSubject();
             List<List<int?>>? InstructorSlot = GetInstructorSlot();
             List<List<int?>>? AreaDistance = GetAreaDistance();
+            List<List<int>>? Slotday = GetSlotDays();
+            List<List<int>>? SlotTimes = GetSlotTimes();
 
             List<Building> Buildings = _unitOfWork.BuildingRepository.GetAll().ToList();
-            List<int?> InstructorQuota = GetInstructorQuota();
             List<SlotFetchRequest> Slots = GetSlotFetchRequest();
+            List<DayOfWeekFetchRequest> DayOfWeeks = GetDayOfWeekFetchRequest();
             List<SubjectFetchRequest> Subjects = GetSubjectFetchRequest();
             List<InstructorFetchRequest> Instructors = GetInstructorFetchRequest();
             List<TaskFetchRequest> Tasks = GetTaskFetchRequest(Slots, Subjects);
+            List<List<int>>? SlotSegments = GetSlotSegments(Slots, DayOfWeeks);
             List<TaskPreAssignFetchRequest> PreAssign = GetTaskPreAssignFetchRequest(Instructors, Tasks);
 
+            var slotPerDay = _unitOfWork.NumSegmentsRepository.GetAll().FirstOrDefault();
             ExecuteFetchRequest executeFetchRequest = new()
             {
                 Token = "",
                 SessionHash = "",
-                BackupInstructor = 10000,
-                NumAreas = Buildings.Count(),
+                BackupInstructor = -1,
+                NumTasks = Tasks.Count(),
                 NumInstructors = Instructors.Count(),
                 NumSlots = Slots.Count(),
+                NumDays = _unitOfWork.DayOfWeeksRepository.GetAll().Count(),
+                NumTimes = 2,
+                NumSegments = slotPerDay != null ? (slotPerDay.NumberOfSlots ?? 0) : 4,
+                NumSegmentRules = _unitOfWork.TimeSlotSegmentRepository.GetAll().Count(),
                 NumSubjects = Subjects.Count(),
-                NumTasks = Tasks.Count(),
+                NumAreas = Buildings.Count(),
                 Setting = request,
                 SlotConflict = SlotConflict,
                 AreaSlotCoefficient = AreaSlotCoefficient,
@@ -549,9 +511,107 @@ namespace Capstone_API.Service.Implement
                 Slots = Slots,
                 Instructors = Instructors,
                 Tasks = Tasks,
-                PreAssign = PreAssign
+                PreAssign = PreAssign,
+                SlotDay = Slotday,
+                InstructorMinQuota = InstructorMinQuota,
+                PatternCost = PatternCost,
+                SlotSegment = SlotSegments,
+                SlotTime = SlotTimes
+
             };
             return executeFetchRequest;
+        }
+
+        #endregion
+
+        #region GetSlotTimes
+        // Timeslot AM or PM
+        private List<List<int>> GetSlotTimes()
+        {
+            List<List<int>> slotTimes = new();
+            List<TimeSlot> timeSlots = _unitOfWork.TimeSlotRepository.GetAll().OrderBy(item => item.Id).ToList();
+            foreach (var item in timeSlots)
+            {
+                if (item.AmorPm == 0)
+                {
+                    slotTimes.Add(new List<int>() { 0, 1 });
+                };
+                if (item.AmorPm == 1)
+                {
+                    slotTimes.Add(new List<int>() { 1, 0 });
+                };
+            }
+            return slotTimes;
+        }
+
+        #endregion
+
+        #region GetSlotSegments
+        // slotsegment info with slot order, day order, segment order
+        private List<List<int>> GetSlotSegments(List<SlotFetchRequest> Slots, List<DayOfWeekFetchRequest> dayOfWeeks)
+        {
+            List<List<int>> slotSegments = new();
+            List<TimeSlotSegment> timeSlotSegments = _unitOfWork.TimeSlotSegmentRepository.GetAll().OrderBy(item => item.Id).ToList();
+
+            foreach (var timeSlotSegment in timeSlotSegments)
+            {
+                slotSegments.Add(new List<int>()
+                {
+                    Slots.Where(i => Convert.ToInt32(i.Id) == timeSlotSegment.SlotId).Select(item => item.Order).FirstOrDefault(),
+                    dayOfWeeks.Where(i => Convert.ToInt32(i.Id) == timeSlotSegment.DayOfWeek).Select(item => item.Order).FirstOrDefault(),
+                    timeSlotSegment.Segment ?? 0
+                });
+            }
+            return slotSegments;
+        }
+
+        #endregion
+
+        #region GetSlotDays
+        // Timeslot in what day on weeks
+        private List<List<int>> GetSlotDays()
+        {
+            List<List<int>> slotDays =
+                _unitOfWork.TimeSlotSegmentRepository.GetAll()
+                .OrderBy(item => item.SlotId).GroupBy(item => item.SlotId)
+                .Select(gr => gr.Select(item =>
+                    item.Segment != 0 ? 1 : 0
+                ).ToList()).ToList();
+            return slotDays;
+        }
+
+        #endregion
+
+        #region GetPatternCost
+        private int CountZerosBetweenOnes(int n)
+        {
+            string binaryN = Convert.ToString(n, 2);
+            int count = 0;
+            int? lastOneIndex = null;
+            for (int i = 0; i < binaryN.Length; i++)
+            {
+                if (binaryN[i] == '1')
+                {
+                    if (lastOneIndex != null)
+                    {
+                        count += i - lastOneIndex.Value - 1;
+                    }
+                    lastOneIndex = i;
+                }
+            }
+            return count;
+        }
+        // calculate number of number 0 between number 1 in binarynumber 2^NumberOfSegment similar to space between 2 timeslot
+        private List<int?> GetPatternCost()
+        {
+            var slotPerDay = _unitOfWork.NumSegmentsRepository.GetAll().FirstOrDefault();
+            var combineParrentCost = new List<int?>();
+            var binaryTarget = Convert.ToInt32(Math.Pow(2, Convert.ToDouble(slotPerDay != null ? slotPerDay.NumberOfSlots : 4)));
+            for (int i = 0; i < binaryTarget; i++)
+            {
+                combineParrentCost.Add(CountZerosBetweenOnes(i));
+            }
+            return combineParrentCost;
         }
 
         #endregion
@@ -626,6 +686,27 @@ namespace Capstone_API.Service.Implement
         }
         #endregion
 
+        #region GetDayOfWeekFetchRequest
+        private List<DayOfWeekFetchRequest> GetDayOfWeekFetchRequest()
+        {
+            List<DayOfWeekFetchRequest>? DayOfWeeks = new();
+
+            int count = 0;
+            List<Models.DayOfWeek> dayOfWeeks = _unitOfWork.DayOfWeeksRepository.GetAll().OrderBy(item => item.Id).ToList();
+            foreach (var dayOfWeek in dayOfWeeks)
+            {
+                DayOfWeeks.Add(new DayOfWeekFetchRequest()
+                {
+                    Id = dayOfWeek.Id,
+                    Order = count
+                });
+                count++;
+            }
+
+            return DayOfWeeks;
+        }
+        #endregion
+
         #region GetInstructorFetchRequest
         private List<InstructorFetchRequest> GetInstructorFetchRequest()
         {
@@ -697,6 +778,19 @@ namespace Capstone_API.Service.Implement
                             .Select(item => item.Quota)
                             .ToList();
         }
+        #endregion
+
+        #region GetInstructorMinQuota
+
+        // Lecturer must be assign atleast number of quota
+        private List<int?> GetInstructorMinQuota()
+        {
+            return _unitOfWork.LecturerQuotaRepository.GetAll()
+                           .OrderBy(item => item.LecturerId)
+                           .Select(item => item.MinQuota)
+                           .ToList();
+        }
+
         #endregion
 
         #region GetAreaSlotCoefficient

@@ -11,13 +11,21 @@
         public int NumTasks { get; set; }
         public int NumInstructors { get; set; }
         public int NumSlots { get; set; }
+        public int NumDays { get; set; }
+        public int NumTimes { get; set; }
+        public int NumSegments { get; set; }
+        public int NumSegmentRules { get; set; }
         public int NumSubjects { get; set; }
         public int NumAreas { get; set; }
         public int BackupInstructor { get; set; }
         public List<List<int>>? SlotConflict { get; set; }
-        public List<List<int?>>? SlotCompability { get; set; }
+        public List<List<int>>? SlotDay { get; set; }
+        public List<List<int>>? SlotTime { get; set; }
+        public List<List<int>>? SlotSegment { get; set; }
+        public List<int?>? PatternCost { get; set; }
         public List<List<int?>>? InstructorSubject { get; set; }
         public List<List<int?>>? InstructorSlot { get; set; }
+        public List<int?>? InstructorMinQuota { get; set; }
         public List<int?>? InstructorQuota { get; set; }
         public List<List<int?>>? AreaDistance { get; set; }
         public List<List<int?>>? AreaSlotCoefficient { get; set; }
@@ -67,4 +75,11 @@
         public string? Id { get; set; }
         public int Order { get; set; }
     }
+
+    public class DayOfWeekFetchRequest
+    {
+        public int Id { get; set; }
+        public int Order { get; set; }
+    }
+
 }

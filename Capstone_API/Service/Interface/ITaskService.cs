@@ -8,9 +8,6 @@ namespace Capstone_API.Service.Interface
     public interface ITaskService
     {
         ResponseResult TimeTableModify(TaskModifyDTO request);
-        ResponseResult SwapLecturer(SwapLecturerDTO request);
-        ResponseResult SwapRoom(SwapRoomDTO request);
-        ResponseResult RequestLecturerConfirm();
         GenericResult<SearchDTO> SearchTask(DTO.Task.Request.GetAllTaskAssignDTO request);
         GenericResult<TimeSlotInfoResponse> GetAllTaskNotAssign();
         Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId);
