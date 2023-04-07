@@ -18,15 +18,20 @@
         public string? TimeSlotName { get; set; }
         public int SemesterId { get; set; }
         public int? AmorPm { get; set; }
-        public List<SlotSegment>? SlotSegments { get; set; }
+        public List<SegmentByDay>? SegmentByDays { get; set; }
 
     }
     public class SlotSegment
     {
         public int? SegmentId { get; set; }
         public int? SlotId { get; set; }
-        public int DayId { get; set; }
         public string? Day { get; set; }
         public int? Segment { get; set; }
+    }
+    public class SegmentByDay
+    {
+        public int DayId { get; set; }
+        public List<SlotSegment>? SlotSegments { get; set; }
+
     }
 }

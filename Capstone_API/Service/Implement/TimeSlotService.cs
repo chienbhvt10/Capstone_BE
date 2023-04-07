@@ -80,16 +80,19 @@ namespace Capstone_API.Service.Implement
                     TimeSlotName = group.First().TimeSlotName,
                     AmorPm = group.First().AmorPm ?? 0,
                     SemesterId = group.First().SemesterId ?? 0,
-                    SlotSegments = group.OrderBy(item => item.DayId).Select(item => new SlotSegment()
+                    SegmentByDays = group.OrderBy(item => item.DayId).GroupBy(item => item.DayId)
+                    .Select(item => new SegmentByDay()
                     {
-                        SlotId = item.TimeSlotId,
-                        Day = item.Day,
-                        DayId = item.DayId ?? 0,
-                        SegmentId = item.SegmentId ?? 0,
-                        Segment = item.Segment ?? 0,
+                        DayId = item.Key ?? 0,
+                        SlotSegments = item.Select(item => new SlotSegment()
+                        {
+                            SlotId = item.TimeSlotId,
+                            Day = item.Day,
+                            SegmentId = item.SegmentId ?? 0,
+                            Segment = item.Segment ?? 0,
+                        }).ToList()
                     }).ToList()
                 });
-
                 return new GenericResult<List<GetSegmentResponseDTO>>(result.ToList(), true);
             }
             catch (Exception ex)
