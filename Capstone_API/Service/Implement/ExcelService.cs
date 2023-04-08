@@ -69,13 +69,13 @@ namespace Capstone_API.Service.Implement
                 // this code must be get executeSemesterId in database
 
                 var semesterId = 0;
-                RemoveTableBeforeImport(semesterId);
+                _unitOfWork.TaskRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+                _unitOfWork.ClassRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+                _unitOfWork.RoomRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+                _unitOfWork.Complete();
 
                 var classes = new List<Class>();
                 var rooms = new List<Room>();
-                var subjects = new List<Subject>();
-                var timeSlots = new List<TimeSlot>();
-                var buildings = new List<Building>();
                 using (var stream = new MemoryStream())
                 {
                     await file.CopyToAsync(stream, cancellationToken);
@@ -91,22 +91,16 @@ namespace Capstone_API.Service.Implement
                             var subjectCode = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? string.Empty;
                             var subjectDepartment = worksheet.Cells[row, 3].Value?.ToString()?.Trim() ?? string.Empty;
                             var timeSlotName = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? string.Empty;
-                            var timeSlotSlot1 = worksheet.Cells[row, 5].Value?.ToString()?.Trim() ?? string.Empty;
-                            var timeSlotSlot2 = worksheet.Cells[row, 6].Value?.ToString()?.Trim() ?? string.Empty;
                             var roomName = worksheet.Cells[row, 7].Value?.ToString()?.Trim() ?? string.Empty;
 
                             var clasTemp = new Class();
                             var roomTemp = new Room();
-                            var subjectTemp = new Subject();
-                            var timeSlotTemp = new TimeSlot();
-                            var buildingTemp = new Building();
 
+                            var shortNameBuilding = new string(roomName.Take(2).ToArray()).Trim();
                             var clasFind = classes.Find(clas => clas.Name.Equals(className));
                             var roomFind = rooms.Find(room => room.Name.Equals(roomName));
-                            var subjectFind = subjects.Find(sub => sub.Code.Equals(subjectCode) || sub.Department.Equals(subjectDepartment));
-                            var timeSlotFind = timeSlots.Find(ts => ts.Name.Equals(timeSlotName));
-                            var shortNameBuilding = new string(roomName.Take(2).ToArray()).Trim();
-                            var buildingFind = buildings.Find(b => b.ShortName.Equals(shortNameBuilding));
+                            var subjectFind = _unitOfWork.SubjectRepository.GetAll().Where(sub => sub.Code.Equals(subjectCode) && sub.Department.Equals(subjectDepartment)).FirstOrDefault();
+                            var timeSlotFind = _unitOfWork.TimeSlotRepository.GetAll().Where(ts => ts.Name.Equals(timeSlotName)).FirstOrDefault();
 
 
                             if (classes.Count() == 0)
@@ -122,7 +116,6 @@ namespace Capstone_API.Service.Implement
                                 _unitOfWork.ClassRepository.Add(clasTemp);
                             }
 
-
                             if (rooms.Count() == 0)
                             {
                                 roomTemp.Name = roomName;
@@ -136,60 +129,14 @@ namespace Capstone_API.Service.Implement
                                 _unitOfWork.RoomRepository.Add(roomTemp);
                             };
 
-                            if (subjects.Count() == 0)
-                            {
-                                subjectTemp.Code = subjectCode;
-                                subjectTemp.Department = subjectDepartment;
-                                subjects.Add(subjectTemp);
-                                _unitOfWork.SubjectRepository.Add(subjectTemp);
-                            }
-                            else if (subjects.Count() > 0 && subjectFind == null)
-                            {
-                                subjectTemp.Code = subjectCode;
-                                subjectTemp.Department = subjectDepartment;
-                                subjects.Add(subjectTemp);
-                                _unitOfWork.SubjectRepository.Add(subjectTemp);
-                            };
-
-                            if (timeSlots.Count() == 0)
-                            {
-                                timeSlotTemp.Name = timeSlotName;
-                                timeSlots.Add(timeSlotTemp);
-                                _unitOfWork.TimeSlotRepository.Add(timeSlotTemp);
-                            }
-                            else if (timeSlots.Count() > 0 && timeSlotFind == null && !timeSlotName.Equals(string.Empty))
-                            {
-                                timeSlotTemp.Name = timeSlotName;
-                                timeSlots.Add(timeSlotTemp);
-                                _unitOfWork.TimeSlotRepository.Add(timeSlotTemp);
-                            };
-
-                            if (buildings.Count() == 0)
-                            {
-                                if (shortNameBuilding.Length > 0)
-                                {
-                                    buildingTemp.ShortName = shortNameBuilding;
-                                    buildings.Add(buildingTemp);
-                                    _unitOfWork.BuildingRepository.Add(buildingTemp);
-                                }
-                            }
-                            else if (buildings.Count() > 0 && buildingFind == null)
-                            {
-                                if (shortNameBuilding.Length > 0)
-                                {
-                                    buildingTemp.ShortName = shortNameBuilding;
-                                    buildings.Add(buildingTemp);
-                                    _unitOfWork.BuildingRepository.Add(buildingTemp);
-                                }
-                            };
                             _unitOfWork.Complete();
 
                             var taskAssign = new TaskAssign()
                             {
-                                ClassId = clasFind == null ? (clasTemp.Id == 0 ? null : clasTemp.Id) : (clasFind.Id == 0 ? null : clasFind.Id),
-                                SubjectId = subjectFind == null ? (subjectTemp.Id == 0 ? null : subjectTemp.Id) : (subjectFind?.Id == 0 ? null : subjectFind?.Id),
-                                TimeSlotId = timeSlotFind == null ? (timeSlotTemp.Id == 0 ? null : timeSlotTemp.Id) : (timeSlotFind?.Id == 0 ? null : timeSlotFind?.Id),
-                                Room1Id = roomFind == null ? (roomTemp.Id == 0 ? null : roomTemp.Id) : (roomFind?.Id == 0 ? null : roomFind?.Id),
+                                ClassId = clasFind == null ? (clasTemp.Id == 0 ? 0 : clasTemp.Id) : (clasFind.Id == 0 ? 0 : clasFind.Id),
+                                SubjectId = subjectFind?.Id == 0 ? 0 : subjectFind?.Id,
+                                TimeSlotId = timeSlotFind?.Id == 0 ? 0 : timeSlotFind?.Id,
+                                Room1Id = roomFind == null ? (roomTemp.Id == 0 ? 0 : roomTemp.Id) : (roomFind?.Id == 0 ? 0 : roomFind?.Id),
                             };
 
                             _unitOfWork.TaskRepository.Add(taskAssign);
@@ -198,161 +145,12 @@ namespace Capstone_API.Service.Implement
                     }
                 }
 
-                GenerateAreaDistanceDefault();
-                GenerateSubjectPreferenceLevelDefault();
-                GenerateTimeSlotConstainDefault();
-                GenerateTimeSlotPreferenceLevelDefault();
-                GenerateLecturerQuotaDefault();
-
                 return new ResponseResult("Import excel and add new default data success", true);
             }
             catch (Exception ex)
             {
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
-        }
-
-        public void RemoveTableBeforeImport(int semesterId)
-        {
-            _unitOfWork.SubjectPreferenceLevelRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.SlotPreferenceLevelRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.AreaSlotWeightRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.LecturerQuotaRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.TimeSlotConflictRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.DistanceRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-
-            _unitOfWork.BuildingRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.TaskRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.RoomRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.ClassRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.SubjectRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.TimeSlotRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-            _unitOfWork.Complete();
-        }
-
-        public void GenerateSubjectPreferenceLevelDefault()
-        {
-            var subject = _unitOfWork.SubjectRepository.GetAll().ToList();
-            var lecturers = _unitOfWork.LecturerRepository.GetAll().ToList();
-            List<SubjectPreferenceLevel> subjectPreferenceLevels = new List<SubjectPreferenceLevel>();
-            foreach (var item in lecturers)
-            {
-                foreach (var item2 in subject)
-                {
-                    var subjectPreferenceLevel = new SubjectPreferenceLevel()
-                    {
-                        LecturerId = item.Id,
-                        SubjectId = item2.Id,
-                        PreferenceLevel = 0
-                    };
-                    subjectPreferenceLevels.Add(subjectPreferenceLevel);
-                }
-            }
-
-            _unitOfWork.SubjectPreferenceLevelRepository.AddRange(subjectPreferenceLevels);
-            _unitOfWork.Complete();
-        }
-
-        public void GenerateTimeSlotPreferenceLevelDefault()
-        {
-            var timeslot = _unitOfWork.TimeSlotRepository.GetAll().ToList();
-            var lecturers = _unitOfWork.LecturerRepository.GetAll().ToList();
-            foreach (var item in lecturers)
-            {
-                foreach (var item2 in timeslot)
-                {
-                    var slotPreferenceLevel = new SlotPreferenceLevel()
-                    {
-                        LecturerId = item.Id,
-                        SlotId = item2.Id,
-                        PreferenceLevel = 5
-                    };
-                    _unitOfWork.SlotPreferenceLevelRepository.Add(slotPreferenceLevel);
-                    _unitOfWork.Complete();
-                }
-            }
-        }
-
-        public void GenerateTimeSlotConstainDefault()
-        {
-            var timeslot = _unitOfWork.TimeSlotRepository.GetAll().ToList();
-            var timeslot2 = _unitOfWork.TimeSlotRepository.GetAll().ToList();
-            List<TimeSlotConflict> timeSlotConflicts = new();
-            List<TimeSlotCompatibility> timeSlotCompatibilities = new();
-            List<AreaSlotWeight> areaSlotWeights = new();
-
-            foreach (var item in timeslot)
-            {
-                foreach (var item2 in timeslot2)
-                {
-                    TimeSlotConflict timeSlotConflict = new()
-                    {
-                        SlotId = item.Id,
-                        ConflictSlotId = item2.Id,
-                        Conflict = item.Id == item2.Id ? true : false
-                    };
-
-                    timeSlotConflicts.Add(timeSlotConflict);
-                    TimeSlotCompatibility timeSlotCompatibility = new()
-                    {
-                        SlotId = item.Id,
-                        CompatibilitySlotId = item2.Id,
-                        CompatibilityLevel = 0
-                    };
-                    timeSlotCompatibilities.Add(timeSlotCompatibility);
-                    AreaSlotWeight areaSlotWeight = new()
-                    {
-                        SlotId = item.Id,
-                        AreaSlotId = item2.Id,
-                        AreaSlotWeight1 = 0
-                    };
-                    areaSlotWeights.Add(areaSlotWeight);
-                }
-            }
-            _unitOfWork.TimeSlotConflictRepository.AddRange(timeSlotConflicts);
-            _unitOfWork.AreaSlotWeightRepository.AddRange(areaSlotWeights);
-            _unitOfWork.Complete();
-        }
-
-        public void GenerateAreaDistanceDefault()
-        {
-            var building = _unitOfWork.BuildingRepository.GetAll().ToList();
-            var building2 = _unitOfWork.BuildingRepository.GetAll().ToList();
-            List<Distance> distances = new();
-
-            foreach (var item in building)
-            {
-                foreach (var item2 in building2)
-                {
-                    Distance distance = new()
-                    {
-                        Building1Id = item.Id,
-                        Building2Id = item2.Id,
-                        DistanceBetween = 0,
-                    };
-                    distances.Add(distance);
-
-                }
-            }
-            _unitOfWork.DistanceRepository.AddRange(distances);
-            _unitOfWork.Complete();
-        }
-
-        public void GenerateLecturerQuotaDefault()
-        {
-            var lecturers = _unitOfWork.LecturerRepository.GetAll().ToList();
-            List<LecturerQuotum> lecturerQuotaList = new();
-            foreach (var item in lecturers)
-            {
-                var lecturerQuota = new LecturerQuotum()
-                {
-                    LecturerId = item.Id,
-                    Quota = 8
-                };
-                lecturerQuotaList.Add(lecturerQuota);
-            }
-            _unitOfWork.LecturerQuotaRepository.AddRange(lecturerQuotaList);
-            _unitOfWork.Complete();
         }
 
         public ResponseResult TaskImportExcel()

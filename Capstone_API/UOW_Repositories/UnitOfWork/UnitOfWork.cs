@@ -19,7 +19,6 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         IRoomRepository _roomRepository;
         IClassRepository _classRepository;
         IExecuteInfoRepository _executeInfoRepository;
-        ILecturerQuotaRepository _lecturerQuotaRepository;
         ITimeSlotSegmentRepository _timeSlotSegmentRepository;
         INumSegmentsRepository _numSegmentsRepository;
         IDayOfWeeksRepository _dayOfWeeksRepository;
@@ -45,7 +44,6 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         public IRoomRepository RoomRepository => _roomRepository ??= new RoomRepository(Context);
         public IClassRepository ClassRepository => _classRepository ??= new ClassRepository(Context);
         public IExecuteInfoRepository ExecuteInfoRepository => _executeInfoRepository ??= new ExecuteInfoRepository(Context);
-        public ILecturerQuotaRepository LecturerQuotaRepository => _lecturerQuotaRepository ??= new LecturerQuotaRepository(Context);
         public ITimeSlotSegmentRepository TimeSlotSegmentRepository => _timeSlotSegmentRepository ??= new TimeSlotSegmentRepository(Context);
         public INumSegmentsRepository NumSegmentsRepository => _numSegmentsRepository ??= new NumSegmentsRepository(Context);
         public IDayOfWeeksRepository DayOfWeeksRepository => _dayOfWeeksRepository ??= new DayOfWeeksRepository(Context);

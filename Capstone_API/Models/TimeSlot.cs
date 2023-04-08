@@ -9,7 +9,6 @@ namespace Capstone_API.Models
         {
             AreaSlotWeightAreaSlots = new HashSet<AreaSlotWeight>();
             AreaSlotWeightSlots = new HashSet<AreaSlotWeight>();
-            LecturerRegisters = new HashSet<LecturerRegister>();
             SlotPreferenceLevels = new HashSet<SlotPreferenceLevel>();
             TaskAssigns = new HashSet<TaskAssign>();
             TimeSlotConflictConflictSlots = new HashSet<TimeSlotConflict>();
@@ -24,7 +23,6 @@ namespace Capstone_API.Models
 
         public virtual ICollection<AreaSlotWeight> AreaSlotWeightAreaSlots { get; set; }
         public virtual ICollection<AreaSlotWeight> AreaSlotWeightSlots { get; set; }
-        public virtual ICollection<LecturerRegister> LecturerRegisters { get; set; }
         public virtual ICollection<SlotPreferenceLevel> SlotPreferenceLevels { get; set; }
         public virtual ICollection<TaskAssign> TaskAssigns { get; set; }
         public virtual ICollection<TimeSlotConflict> TimeSlotConflictConflictSlots { get; set; }

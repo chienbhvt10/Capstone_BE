@@ -23,8 +23,6 @@ namespace Capstone_API.Models
         public virtual DbSet<Distance> Distances { get; set; } = null!;
         public virtual DbSet<ExecuteInfo> ExecuteInfos { get; set; } = null!;
         public virtual DbSet<Lecturer> Lecturers { get; set; } = null!;
-        public virtual DbSet<LecturerQuotum> LecturerQuota { get; set; } = null!;
-        public virtual DbSet<LecturerRegister> LecturerRegisters { get; set; } = null!;
         public virtual DbSet<Room> Rooms { get; set; } = null!;
         public virtual DbSet<Semester> Semesters { get; set; } = null!;
         public virtual DbSet<SlotPerDay> SlotPerDays { get; set; } = null!;
@@ -118,48 +116,6 @@ namespace Capstone_API.Models
                 entity.Property(e => e.Name).HasMaxLength(50);
 
                 entity.Property(e => e.ShortName).HasMaxLength(50);
-            });
-
-            modelBuilder.Entity<LecturerQuotum>(entity =>
-            {
-                entity.Property(e => e.Id).HasColumnName("id");
-
-                entity.HasOne(d => d.Lecturer)
-                    .WithMany(p => p.LecturerQuota)
-                    .HasForeignKey(d => d.LecturerId)
-                    .HasConstraintName("FK_LecturerQuota_Lecturer");
-
-                entity.HasOne(d => d.Semester)
-                    .WithMany(p => p.LecturerQuota)
-                    .HasForeignKey(d => d.SemesterId)
-                    .HasConstraintName("FK_LecturerQuota_Semester");
-            });
-
-            modelBuilder.Entity<LecturerRegister>(entity =>
-            {
-                entity.ToTable("LecturerRegister");
-
-                entity.HasIndex(e => e.LecturerId, "IX_LecturerRegister_LecturerId");
-
-                entity.HasIndex(e => e.SubjectId, "IX_LecturerRegister_SubjectId");
-
-                entity.HasIndex(e => e.TimeSlotId, "IX_LecturerRegister_TimeSlotId");
-
-                entity.Property(e => e.Note).HasMaxLength(50);
-
-                entity.HasOne(d => d.Lecturer)
-                    .WithMany(p => p.LecturerRegisters)
-                    .HasForeignKey(d => d.LecturerId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(d => d.Subject)
-                    .WithMany(p => p.LecturerRegisters)
-                    .HasForeignKey(d => d.SubjectId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(d => d.TimeSlot)
-                    .WithMany(p => p.LecturerRegisters)
-                    .HasForeignKey(d => d.TimeSlotId);
             });
 
             modelBuilder.Entity<Room>(entity =>

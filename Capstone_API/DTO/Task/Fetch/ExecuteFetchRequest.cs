@@ -25,8 +25,8 @@
         public List<int?>? PatternCost { get; set; }
         public List<List<int?>>? InstructorSubject { get; set; }
         public List<List<int?>>? InstructorSlot { get; set; }
-        public List<int?>? InstructorMinQuota { get; set; }
-        public List<int?>? InstructorQuota { get; set; }
+        public List<int>? InstructorMinQuota { get; set; }
+        public List<int>? InstructorQuota { get; set; }
         public List<List<int?>>? AreaDistance { get; set; }
         public List<List<int?>>? AreaSlotCoefficient { get; set; }
         public List<TaskPreAssignFetchRequest>? PreAssign { get; set; }

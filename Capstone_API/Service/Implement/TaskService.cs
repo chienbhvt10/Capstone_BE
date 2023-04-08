@@ -253,7 +253,7 @@ namespace Capstone_API.Service.Implement
                 var result = JsonSerializer.Deserialize<FetchDataByExcecuteIdResponse>(json);
 
                 var dataFetch = result?.data;
-                ExecuteData[]? executeData = dataFetch?.data;
+                ExecuteData[]? executeData = dataFetch?.results;
 
                 // save executeId and time of semester by executeSemesterId
                 // and get executeSemesterId in database
@@ -264,10 +264,10 @@ namespace Capstone_API.Service.Implement
                 {
                     foreach (var data in executeData)
                     {
-                        var taskAssign = await _unitOfWork.TaskRepository.FindAsync((item) => item.Id == data.taskID && item.SemesterId != executeSemesterId);
+                        var taskAssign = await _unitOfWork.TaskRepository.FindAsync((item) => item.Id == Convert.ToInt32(data.taskID) && item.SemesterId != executeSemesterId);
                         if (taskAssign != null)
                         {
-                            taskAssign.LecturerId = data.instructorID;
+                            taskAssign.LecturerId = Convert.ToInt32(data.instructorID);
                             _unitOfWork.TaskRepository.Update(taskAssign);
                             await _unitOfWork.CompleteAsync();
                         }
@@ -466,8 +466,8 @@ namespace Capstone_API.Service.Implement
         #region GetExecuteFetchRequest
         public ExecuteFetchRequest GetExecuteFetchRequest(SettingRequest request)
         {
-            List<int?> InstructorQuota = GetInstructorQuota();
-            List<int?> InstructorMinQuota = GetInstructorMinQuota();
+            List<int> InstructorQuota = GetInstructorQuota();
+            List<int> InstructorMinQuota = GetInstructorMinQuota();
             List<int?> PatternCost = GetPatternCost();
             List<List<int>>? SlotConflict = GetSlotConflict();
             List<List<int?>>? AreaSlotCoefficient = GetAreaSlotCoefficient();
@@ -498,7 +498,7 @@ namespace Capstone_API.Service.Implement
                 NumDays = _unitOfWork.DayOfWeeksRepository.GetAll().Count(),
                 NumTimes = 2,
                 NumSegments = slotPerDay != null ? (slotPerDay.NumberOfSlots ?? 0) : 4,
-                NumSegmentRules = _unitOfWork.TimeSlotSegmentRepository.GetAll().Count(),
+                NumSegmentRules = SlotSegments.Count(),
                 NumSubjects = Subjects.Count(),
                 NumAreas = Buildings.Count(),
                 Setting = request,
@@ -555,14 +555,20 @@ namespace Capstone_API.Service.Implement
 
             foreach (var timeSlotSegment in timeSlotSegments)
             {
-                slotSegments.Add(new List<int>()
+                if (timeSlotSegment.Segment > 0)
                 {
-                    Slots.Where(i => Convert.ToInt32(i.Id) == timeSlotSegment.SlotId).Select(item => item.Order).FirstOrDefault(),
-                    dayOfWeeks.Where(i => Convert.ToInt32(i.Id) == timeSlotSegment.DayOfWeek).Select(item => item.Order).FirstOrDefault(),
-                    timeSlotSegment.Segment ?? 0
-                });
+                    slotSegments.Add(new List<int>()
+                    {
+                        Slots.Where(i => Convert.ToInt32(i.Id) == timeSlotSegment.SlotId).Select(item => item.Order).FirstOrDefault(),
+                        dayOfWeeks.Where(i => Convert.ToInt32(i.Id) == timeSlotSegment.DayOfWeek).Select(item => item.Order).FirstOrDefault(),
+                        timeSlotSegment.Segment.HasValue && timeSlotSegment.Segment.Value > 0 ? timeSlotSegment.Segment.Value - 1: 0
+                    });
+                }
             }
             return slotSegments;
+
+
+
         }
 
         #endregion
@@ -572,7 +578,7 @@ namespace Capstone_API.Service.Implement
         private List<List<int>> GetSlotDays()
         {
             List<List<int>> slotDays =
-                _unitOfWork.TimeSlotSegmentRepository.GetAll()
+                _unitOfWork.TimeSlotSegmentRepository.GetAll().Where(item => item.SlotId != null)
                 .OrderBy(item => item.SlotId).GroupBy(item => item.SlotId)
                 .Select(gr => gr.Select(item =>
                     item.Segment != 0 ? 1 : 0
@@ -771,11 +777,11 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetInstructorQuota
-        private List<int?> GetInstructorQuota()
+        private List<int> GetInstructorQuota()
         {
-            return _unitOfWork.LecturerQuotaRepository.GetAll()
-                            .OrderBy(item => item.LecturerId)
-                            .Select(item => item.Quota)
+            return _unitOfWork.LecturerRepository.GetAll()
+                            .OrderBy(item => item.Id)
+                            .Select(item => item.Quota ?? 4)
                             .ToList();
         }
         #endregion
@@ -783,11 +789,11 @@ namespace Capstone_API.Service.Implement
         #region GetInstructorMinQuota
 
         // Lecturer must be assign atleast number of quota
-        private List<int?> GetInstructorMinQuota()
+        private List<int> GetInstructorMinQuota()
         {
-            return _unitOfWork.LecturerQuotaRepository.GetAll()
-                           .OrderBy(item => item.LecturerId)
-                           .Select(item => item.MinQuota)
+            return _unitOfWork.LecturerRepository.GetAll()
+                           .OrderBy(item => item.Id)
+                           .Select(item => item.MinQuota ?? 0)
                            .ToList();
         }
 

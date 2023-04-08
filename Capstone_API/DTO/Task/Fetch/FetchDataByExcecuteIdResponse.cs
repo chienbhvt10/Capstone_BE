@@ -4,13 +4,25 @@ namespace Capstone_API.DTO.Task.Fetch
 {
     public class ExecuteData
     {
-        public int instructorID { get; set; }
-        public int taskID { get; set; }
+
+        public string? instructorID { get; set; }
+        public string? taskID { get; set; }
+        public string? slotId { get; set; }
     }
     public class DataFetch
     {
-        public string status { get; set; }
-        public ExecuteData[] data { get; set; }
+        public int status { get; set; }
+        public int numberofsolution { get; set; }
+        public int taskAssigned { get; set; }
+        public int workingDay { get; set; }
+        public int workingTime { get; set; }
+        public int waitingTime { get; set; }
+        public int subjectDiversity { get; set; }
+        public int quotaAvailable { get; set; }
+        public int walkingDistance { get; set; }
+        public int subjectPreference { get; set; }
+        public int slotPreference { get; set; }
+        public ExecuteData[] results { get; set; }
     }
     public class FetchDataByExcecuteIdResponse
     {

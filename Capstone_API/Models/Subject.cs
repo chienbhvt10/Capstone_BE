@@ -7,7 +7,6 @@ namespace Capstone_API.Models
     {
         public Subject()
         {
-            LecturerRegisters = new HashSet<LecturerRegister>();
             SubjectPreferenceLevels = new HashSet<SubjectPreferenceLevel>();
             TaskAssigns = new HashSet<TaskAssign>();
         }
@@ -19,7 +18,6 @@ namespace Capstone_API.Models
         public string? Department { get; set; }
 
         public virtual Semester? Semester { get; set; }
-        public virtual ICollection<LecturerRegister> LecturerRegisters { get; set; }
         public virtual ICollection<SubjectPreferenceLevel> SubjectPreferenceLevels { get; set; }
         public virtual ICollection<TaskAssign> TaskAssigns { get; set; }
     }

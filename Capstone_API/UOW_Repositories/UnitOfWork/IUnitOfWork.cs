@@ -19,7 +19,6 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         IRoomRepository RoomRepository { get; }
         IClassRepository ClassRepository { get; }
         IExecuteInfoRepository ExecuteInfoRepository { get; }
-        ILecturerQuotaRepository LecturerQuotaRepository { get; }
         ITimeSlotSegmentRepository TimeSlotSegmentRepository { get; }
         INumSegmentsRepository NumSegmentsRepository { get; }
         IDayOfWeeksRepository DayOfWeeksRepository { get; }

@@ -26,7 +26,7 @@ namespace Capstone_API.Service.Implement
             {
                 var subjects = _unitOfWork.SubjectRepository.GetAll();
                 var subjectsViewModel = _mapper.Map<IEnumerable<SubjectResponse>>(subjects);
-                return new GenericResult<IEnumerable<SubjectResponse>>(subjectsViewModel, true);
+                return new GenericResult<IEnumerable<SubjectResponse>>(subjectsViewModel.OrderByDescending(item => item.Id), true);
             }
             catch (Exception ex)
             {

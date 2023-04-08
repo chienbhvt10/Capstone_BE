@@ -24,7 +24,7 @@ namespace Capstone_API.Service.Implement
             {
                 var lecturers = _unitOfWork.LecturerRepository.GetAll();
                 var lecturersViewModel = _mapper.Map<IEnumerable<LecturerResponse>>(lecturers);
-                return new GenericResult<IEnumerable<LecturerResponse>>(lecturersViewModel, true);
+                return new GenericResult<IEnumerable<LecturerResponse>>(lecturersViewModel.OrderByDescending(item => item.Id), true);
             }
             catch (Exception ex)
             {
@@ -56,7 +56,7 @@ namespace Capstone_API.Service.Implement
                 {
                     SlotId = item.Id,
                     LecturerId = lecturer.Id,
-                    PreferenceLevel = 0
+                    PreferenceLevel = 5
                 });
             }
             _unitOfWork.SlotPreferenceLevelRepository.AddRange(slotPreferenceLevels);
