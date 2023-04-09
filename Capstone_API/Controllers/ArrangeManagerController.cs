@@ -89,7 +89,7 @@ namespace Capstone_API.Controllers
         #region Schedule Api
 
         [HttpGet("get-schedule/{executeId}")]
-        public async Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId)
+        public async Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(string executeId)
         {
             return await _taskService.GetSchedule(executeId);
         }

@@ -10,7 +10,7 @@ namespace Capstone_API.Service.Interface
         ResponseResult TimeTableModify(TaskModifyDTO request);
         GenericResult<SearchDTO> SearchTask(DTO.Task.Request.GetAllTaskAssignDTO request);
         GenericResult<TimeSlotInfoResponse> GetAllTaskNotAssign();
-        Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId);
+        Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(string executeId);
         GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int TaskId);
         Task<GenericResult<ExecuteResponse>> Execute(SettingRequest request);
         ResponseResult LockAndUnLockTask(LockAndUnLockTaskDTO request);

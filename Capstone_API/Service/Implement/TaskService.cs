@@ -31,7 +31,7 @@ namespace Capstone_API.Service.Implement
             try
             {
                 var query = GetTaskResponses().Where(item => item.TaskId == taskId).FirstOrDefault();
-                query ??= _mapper.Map<QueryDataByLecturerAndTimeSlot>(GetTasksNotAssign2().Where(item => item.TaskId == taskId).FirstOrDefault());
+                query ??= _mapper.Map<QueryDataByLecturerAndTimeSlot>(GetTasksNotAssignForDetail().Where(item => item.TaskId == taskId).FirstOrDefault());
 
                 return new GenericResult<QueryDataByLecturerAndTimeSlot>(query, true);
             }
@@ -236,13 +236,31 @@ namespace Capstone_API.Service.Implement
         }
         #endregion
 
-        #region GetSchedule
-        public async Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(int executeId)
+        #region FetchScheduler
+        public async Task UpdateTaskByExecuteData(List<ExecuteData>? executeData)
+        {
+            var executeSemesterId = 0;
+
+            if (executeData != null)
+            {
+                foreach (var data in executeData)
+                {
+                    var taskAssign = await _unitOfWork.TaskRepository.FindAsync((item) => item.Id == Convert.ToInt32(data.taskId) && item.SemesterId != executeSemesterId);
+                    if (taskAssign != null && data.instructorId != null)
+                    {
+                        taskAssign.LecturerId = Convert.ToInt32(data.instructorId);
+                        _unitOfWork.TaskRepository.Update(taskAssign);
+                        await _unitOfWork.CompleteAsync();
+                    }
+                }
+            }
+        }
+        public async Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(string executeId)
         {
             try
             {
-
-                var jsonRequest = JsonSerializer.Serialize(1);
+                var fetchRequest = new FetchDataByExecuteIdRequest() { sessionHash = executeId, solutionNo = 1, token = "" };
+                var jsonRequest = JsonSerializer.Serialize(fetchRequest);
                 var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync($"https://localhost:7000/ATTASAPI/get", content);
                 var json = await response.Content.ReadAsStringAsync();
@@ -250,29 +268,18 @@ namespace Capstone_API.Service.Implement
                 {
                     return new GenericResult<List<ResponseTaskByLecturerIsKey>>("Fetch fail");
                 }
-                var result = JsonSerializer.Deserialize<FetchDataByExcecuteIdResponse>(json);
+                var dataFetch = JsonSerializer.Deserialize<DataFetch>(json);
 
-                var dataFetch = result?.data;
-                ExecuteData[]? executeData = dataFetch?.results;
-
-                // save executeId and time of semester by executeSemesterId
-                // and get executeSemesterId in database
-                // this code must be get executeSemesterId in database
-                var executeSemesterId = 0;
-
-                if (executeData != null)
+                var fetchDataByExcecuteIdResponse = new FetchDataByExcecuteIdResponse()
                 {
-                    foreach (var data in executeData)
-                    {
-                        var taskAssign = await _unitOfWork.TaskRepository.FindAsync((item) => item.Id == Convert.ToInt32(data.taskID) && item.SemesterId != executeSemesterId);
-                        if (taskAssign != null)
-                        {
-                            taskAssign.LecturerId = Convert.ToInt32(data.instructorID);
-                            _unitOfWork.TaskRepository.Update(taskAssign);
-                            await _unitOfWork.CompleteAsync();
-                        }
-                    }
-                }
+                    data = dataFetch,
+                    code = 200,
+                    message = "success",
+                    success = true
+                };
+                List<ExecuteData>? executeData = dataFetch?.results;
+
+                await UpdateTaskByExecuteData(executeData);
                 var mappingData = ResponseTaskByLecturerIsKey().ToList();
                 return new GenericResult<List<ResponseTaskByLecturerIsKey>>(mappingData, true);
             }
@@ -281,6 +288,7 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<List<ResponseTaskByLecturerIsKey>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+
         #endregion
 
         #region GetTaskAssigned
@@ -377,21 +385,21 @@ namespace Capstone_API.Service.Implement
                         new TimeSlotInfo
                         {
                             TaskId = data.Id,
-                            TimeSlotId = (int)data.TimeSlotId,
-                            TimeSlotName = data.TimeSlot.Name,
-                            ClassId = (int)data.ClassId,
-                            ClassName = data.Class.Name,
-                            SubjectId = (int)data.SubjectId,
-                            SubjectCode = data.Subject.Code,
-                            SubjectName = data.Subject.Name,
-                            RoomId = (int)data.Room1Id,
-                            RoomName = data.Room1.Name,
+                            TimeSlotId = data.TimeSlotId ?? 0,
+                            TimeSlotName = data.TimeSlot?.Name ?? "",
+                            ClassId = data.ClassId ?? 0,
+                            ClassName = data.Class?.Name ?? "",
+                            SubjectId = data.SubjectId ?? 0,
+                            SubjectCode = data.Subject?.Code ?? "",
+                            SubjectName = data.Subject?.Name ?? "",
+                            RoomId = data.Room1Id ?? 0,
+                            RoomName = data.Room1?.Name ?? "",
                             Status = data.Status != null ? "" : "",
                         }).ToList()).ToList();
             return result;
         }
 
-        public List<TimeSlotInfo> GetTasksNotAssign2()
+        public List<TimeSlotInfo> GetTasksNotAssignForDetail()
         {
             var data = _unitOfWork.TaskRepository.MappingTaskData()
                     .Where(item => item.LecturerId == null);
@@ -399,15 +407,15 @@ namespace Capstone_API.Service.Implement
                         new TimeSlotInfo
                         {
                             TaskId = data.Id,
-                            TimeSlotId = (int)data.TimeSlotId,
-                            TimeSlotName = data.TimeSlot.Name,
-                            ClassId = (int)data.ClassId,
-                            ClassName = data.Class.Name,
-                            SubjectId = (int)data.SubjectId,
-                            SubjectCode = data.Subject.Code,
-                            SubjectName = data.Subject.Name,
-                            RoomId = (int)data.Room1Id,
-                            RoomName = data.Room1.Name,
+                            TimeSlotId = data.TimeSlotId ?? 0,
+                            TimeSlotName = data.TimeSlot?.Name ?? "",
+                            ClassId = data.ClassId ?? 0,
+                            ClassName = data.Class?.Name ?? "",
+                            SubjectId = data.SubjectId ?? 0,
+                            SubjectCode = data.Subject?.Code ?? "",
+                            SubjectName = data.Subject?.Name ?? "",
+                            RoomId = data.Room1Id ?? 0,
+                            RoomName = data.Room1?.Name ?? "",
                             Status = data.Status != null ? "" : "",
                         }).ToList();
             return result;
@@ -435,11 +443,24 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region Execute
+
+        public void SaveExecuteId(ExecuteResponse result)
+        {
+
+            var executeInfo = new ExecuteInfo()
+            {
+                ExecuteId = result.sessionId,
+                ExecuteTime = DateTime.Now
+
+            };
+            _unitOfWork.ExecuteInfoRepository.Add(executeInfo);
+            _unitOfWork.Complete();
+        }
+
         public async Task<GenericResult<ExecuteResponse>> Execute(SettingRequest request)
         {
             try
             {
-
                 ExecuteFetchRequest executeFetchRequest = GetExecuteFetchRequest(request);
 
                 var jsonRequest = JsonSerializer.Serialize(executeFetchRequest);
@@ -452,9 +473,12 @@ namespace Capstone_API.Service.Implement
                     return new GenericResult<ExecuteResponse>("Fetch fail");
                 }
                 var result = JsonSerializer.Deserialize<ExecuteResponse>(json);
-                //var result = JsonSerializer.Deserialize<int>(json);
 
-                //var dataFetch = result?.data ?? 0;
+                if (result != null && result.sessionId != null && !result.sessionId.Equals(""))
+                {
+                    SaveExecuteId(result);
+                }
+
                 return new GenericResult<ExecuteResponse>(result, true);
             }
             catch (Exception ex)
@@ -492,15 +516,15 @@ namespace Capstone_API.Service.Implement
                 Token = "",
                 SessionHash = "",
                 BackupInstructor = -1,
-                NumTasks = Tasks.Count(),
-                NumInstructors = Instructors.Count(),
-                NumSlots = Slots.Count(),
+                NumTasks = Tasks.Count,
+                NumInstructors = Instructors.Count,
+                NumSlots = Slots.Count,
                 NumDays = _unitOfWork.DayOfWeeksRepository.GetAll().Count(),
                 NumTimes = 2,
                 NumSegments = slotPerDay != null ? (slotPerDay.NumberOfSlots ?? 0) : 4,
-                NumSegmentRules = SlotSegments.Count(),
-                NumSubjects = Subjects.Count(),
-                NumAreas = Buildings.Count(),
+                NumSegmentRules = SlotSegments.Count,
+                NumSubjects = Subjects.Count,
+                NumAreas = Buildings.Count,
                 Setting = request,
                 SlotConflict = SlotConflict,
                 AreaSlotCoefficient = AreaSlotCoefficient,
@@ -566,9 +590,6 @@ namespace Capstone_API.Service.Implement
                 }
             }
             return slotSegments;
-
-
-
         }
 
         #endregion
