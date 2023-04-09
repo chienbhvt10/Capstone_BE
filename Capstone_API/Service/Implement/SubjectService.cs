@@ -111,11 +111,10 @@ namespace Capstone_API.Service.Implement
 
                 foreach (var item in taskContainThisDeleteSubject)
                 {
-                    item.SubjectId = 0;
+                    item.SubjectId = null;
+                    _unitOfWork.TaskRepository.Update(item);
+                    _unitOfWork.Complete();
                 }
-
-                _unitOfWork.TaskRepository.UpdateRange(taskContainThisDeleteSubject);
-                _unitOfWork.Complete();
 
                 var subject = _unitOfWork.SubjectRepository.Find(id) ?? throw new ArgumentException("Subject does not exist");
                 _unitOfWork.SubjectRepository.Delete(subject, isHardDeleted: true);

@@ -127,11 +127,10 @@ namespace Capstone_API.Service.Implement
 
                 foreach (var item in taskContainThisDeleteLecturer)
                 {
-                    item.LecturerId = 0;
+                    item.LecturerId = null;
+                    _unitOfWork.TaskRepository.Update(item);
+                    _unitOfWork.Complete();
                 }
-
-                _unitOfWork.TaskRepository.UpdateRange(taskContainThisDeleteLecturer);
-                _unitOfWork.Complete();
 
                 var lecturer = _unitOfWork.LecturerRepository.Find(id) ?? throw new ArgumentException("Lecturer does not exist");
                 _unitOfWork.LecturerRepository.Delete(lecturer, isHardDeleted: true);
