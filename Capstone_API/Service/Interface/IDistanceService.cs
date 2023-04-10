@@ -12,5 +12,8 @@ namespace Capstone_API.Service.Interface
         GenericResult<List<DistanceResponse>> GetAllDistance();
         GenericResult<List<BuildingResponse>> GetAllBuilding();
         ResponseResult CreateBuilding(CreateBuildingDTO request);
+        ResponseResult UpdateBuilding(UpdateBuildingDTO request);
+        ResponseResult DeleteBuilding(int id);
+
     }
 }

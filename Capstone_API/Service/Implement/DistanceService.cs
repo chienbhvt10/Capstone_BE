@@ -95,7 +95,39 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        // need create distance between
+        public void CreateDistanceBetweenTwoBuilding(Building building)
+        {
+            List<Distance> buildingDistance = new();
+            foreach (var item in _unitOfWork.BuildingRepository.GetAll())
+            {
+                if (item.Id == building.Id)
+                {
+                    buildingDistance.Add(new Distance()
+                    {
+                        Building1Id = building.Id,
+                        Building2Id = item.Id,
+                        DistanceBetween = 0
+                    });
+                }
+                if (item.Id != building.Id)
+                {
+                    buildingDistance.Add(new Distance()
+                    {
+                        Building1Id = building.Id,
+                        Building2Id = item.Id,
+                        DistanceBetween = 0
+                    });
+                    buildingDistance.Add(new Distance()
+                    {
+                        Building1Id = item.Id,
+                        Building2Id = building.Id,
+                        DistanceBetween = 0
+                    });
+                }
+            }
+            _unitOfWork.DistanceRepository.AddRange(buildingDistance);
+            _unitOfWork.Complete();
+        }
         public ResponseResult CreateBuilding(CreateBuildingDTO request)
         {
             try
@@ -103,6 +135,7 @@ namespace Capstone_API.Service.Implement
                 var building = _mapper.Map<Building>(request);
                 _unitOfWork.BuildingRepository.Add(building);
                 _unitOfWork.Complete();
+                CreateDistanceBetweenTwoBuilding(building);
                 return new ResponseResult("Create successfully", true);
             }
             catch (Exception ex)
@@ -111,9 +144,37 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        // update api
+        public ResponseResult UpdateBuilding(UpdateBuildingDTO request)
+        {
+            try
+            {
+                var building = _mapper.Map<Building>(request);
+                _unitOfWork.BuildingRepository.Update(building);
+                _unitOfWork.Complete();
+                return new ResponseResult("Update successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
 
-        // delete api 
-        // need delete distance between
+        // need delete subject preference level, task assign
+        public ResponseResult DeleteBuilding(int id)
+        {
+            try
+            {
+                _unitOfWork.DistanceRepository.DeleteByCondition(item => item.Building1Id == id || item.Building2Id == id, true);
+
+                var building = _unitOfWork.BuildingRepository.Find(id) ?? throw new ArgumentException("Building does not exist");
+                _unitOfWork.BuildingRepository.Delete(building, isHardDeleted: true);
+                _unitOfWork.Complete();
+                return new ResponseResult("Delete successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
     }
 }

@@ -31,11 +31,6 @@ namespace Capstone_API.Controllers
         {
             return _distanceService.UpdateDistance(request);
         }
-
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
         #endregion
 
         #region Building
@@ -50,6 +45,19 @@ namespace Capstone_API.Controllers
         public ResponseResult CreateBuilding(CreateBuildingDTO request)
         {
             return _distanceService.CreateBuilding(request);
+        }
+
+        [HttpPut("building")]
+        public ResponseResult UpdateBuilding([FromBody] UpdateBuildingDTO request)
+        {
+            return _distanceService.UpdateBuilding(request);
+        }
+
+        [HttpDelete("building/{id}")]
+        public ResponseResult DeleteBuilding(int id)
+        {
+            return _distanceService.DeleteBuilding(id);
+
         }
 
         #endregion

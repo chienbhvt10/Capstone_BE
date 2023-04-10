@@ -287,7 +287,6 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        // need more create areaslotweight, timeslotconflict, timeslot preference level
         public ResponseResult CreateTimeSlot(CreateTimeSlotDTO request)
         {
             try

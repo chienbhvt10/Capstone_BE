@@ -57,6 +57,7 @@ namespace Capstone_API.Config.AutoMapper
 
             // Distance Mapper
             CreateMap<Building, CreateBuildingDTO>().ReverseMap();
+            CreateMap<Building, UpdateBuildingDTO>().ReverseMap();
             CreateMap<Building, BuildingResponse>().ReverseMap();
 
             // TimeSlot Mapper

@@ -70,6 +70,7 @@ namespace Capstone_API.Service.Implement
 
                 var semesterId = 0;
                 _unitOfWork.TaskRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+                _unitOfWork.ExecuteInfoRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
                 _unitOfWork.ClassRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
                 _unitOfWork.RoomRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
                 _unitOfWork.Complete();

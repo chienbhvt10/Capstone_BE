@@ -235,20 +235,28 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region Fetch Scheduler
-        public async Task UpdateTaskByExecuteData(List<ExecuteData>? executeData)
+        public void UpdateTaskByExecuteData(IEnumerable<ExecuteData>? executeData)
         {
-            var executeSemesterId = 0;
 
             if (executeData != null)
             {
                 foreach (var data in executeData)
                 {
-                    var taskAssign = await _unitOfWork.TaskRepository.FindAsync((item) => item.Id == Convert.ToInt32(data.taskId) && item.SemesterId != executeSemesterId);
-                    if (taskAssign != null && data.instructorId != null)
+                    var taskAssign = _unitOfWork.TaskRepository.Find((item) => item.Id == Convert.ToInt32(data.taskId));
+                    if (taskAssign != null)
                     {
-                        taskAssign.LecturerId = Convert.ToInt32(data.instructorId);
-                        _unitOfWork.TaskRepository.Update(taskAssign);
-                        await _unitOfWork.CompleteAsync();
+                        if (data.instructorId != null)
+                        {
+                            taskAssign.LecturerId = Convert.ToInt32(data.instructorId);
+                            _unitOfWork.TaskRepository.Update(taskAssign);
+                            _unitOfWork.Complete();
+                        }
+                        else
+                        {
+                            taskAssign.LecturerId = null;
+                            _unitOfWork.TaskRepository.Update(taskAssign);
+                            _unitOfWork.Complete();
+                        }
                     }
                 }
             }
@@ -275,9 +283,10 @@ namespace Capstone_API.Service.Implement
                     message = "success",
                     success = true
                 };
-                List<ExecuteData>? executeData = dataFetch?.results;
+                IEnumerable<ExecuteData>? executeData = dataFetch?.results;
 
-                await UpdateTaskByExecuteData(executeData);
+                UpdateTaskByExecuteData(executeData);
+
                 return new ResponseResult("Fetch data success", true);
             }
             catch (Exception ex)
