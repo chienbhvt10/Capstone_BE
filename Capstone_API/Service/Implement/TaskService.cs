@@ -162,16 +162,17 @@ namespace Capstone_API.Service.Implement
 
         #region TimeTableModify
 
-        public ResponseResult TimeTableModify(TaskModifyDTO request)
+        public GenericResult<TaskAssignModifyResponse> TimeTableModify(TaskModifyDTO request)
         {
             try
             {
+                // check if request lecturer already have task at the same timeslot, convert two task of lecturer together
                 var taskDupplicate = _unitOfWork.TaskRepository.GetAll()
                     .FirstOrDefault(item => item.LecturerId == request.LecturerId && item.TimeSlotId == request.TimeSlotId);
                 var taskFind = _unitOfWork.TaskRepository.Find(request.TaskId);
                 if (taskDupplicate != null)
                 {
-                    int tmpId = (int)taskDupplicate.LecturerId;
+                    int tmpId = taskDupplicate.LecturerId ?? 0;
                     taskDupplicate.LecturerId = taskFind.LecturerId;
                     taskFind.Room1Id = request.RoomId;
                     taskFind.LecturerId = tmpId;
@@ -187,12 +188,46 @@ namespace Capstone_API.Service.Implement
                 }
                 _unitOfWork.Complete();
 
+                var newTaskAssignResponse = new TaskAssignModifyResponse()
+                {
+                    TaskNeedAssign = new TaskAssignModifyDTO()
+                    {
+                        TaskId = taskFind.Id,
+                        ClassId = taskFind.ClassId,
+                        ClassName = _unitOfWork.ClassRepository.Find(taskFind.ClassId ?? 0).Name ?? "",
+                        SubjectId = taskFind.SubjectId,
+                        SubjectName = _unitOfWork.SubjectRepository.Find(taskFind.SubjectId ?? 0).Code ?? "",
+                        TimeSlotId = taskFind.TimeSlotId,
+                        TimeSlotName = _unitOfWork.TimeSlotRepository.Find(taskFind.TimeSlotId ?? 0).Name ?? "",
+                        LecturerId = taskFind.LecturerId,
+                        LecturerName = _unitOfWork.LecturerRepository.Find(taskFind.LecturerId ?? 0).ShortName ?? "",
+                        RoomId = taskFind.Room1Id,
+                        RoomName = _unitOfWork.RoomRepository.Find(taskFind.Room1Id ?? 0).Name ?? "",
+                        PreAssign = taskFind.PreAssign,
+                    },
+                    TaskSameTimeSlot = taskDupplicate != null ? new TaskAssignModifyDTO()
+                    {
+                        TaskId = taskDupplicate.Id,
+                        ClassId = taskDupplicate.ClassId,
+                        ClassName = _unitOfWork.ClassRepository.Find(taskDupplicate.ClassId ?? 0).Name ?? "",
+                        SubjectId = taskDupplicate.SubjectId,
+                        SubjectName = _unitOfWork.SubjectRepository.Find(taskDupplicate.SubjectId ?? 0).Code ?? "",
+                        TimeSlotId = taskDupplicate.TimeSlotId,
+                        TimeSlotName = _unitOfWork.TimeSlotRepository.Find(taskDupplicate.TimeSlotId ?? 0).Name ?? "",
+                        LecturerId = taskDupplicate.LecturerId,
+                        LecturerName = _unitOfWork.LecturerRepository.Find(taskDupplicate.LecturerId ?? 0).ShortName ?? "",
+                        RoomId = taskDupplicate.Room1Id,
+                        RoomName = _unitOfWork.RoomRepository.Find(taskDupplicate.Room1Id ?? 0).Name ?? "",
+                        PreAssign = taskDupplicate.PreAssign,
 
-                return new ResponseResult();
+                    } : null,
+                };
+
+                return new GenericResult<TaskAssignModifyResponse>(newTaskAssignResponse, true);
             }
             catch (Exception ex)
             {
-                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<TaskAssignModifyResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 

@@ -64,7 +64,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPut("timetable-modify")]
-        public ResponseResult TimeTableModify([FromBody] TaskModifyDTO value)
+        public GenericResult<TaskAssignModifyResponse> TimeTableModify([FromBody] TaskModifyDTO value)
         {
             return _taskService.TimeTableModify(value);
         }
