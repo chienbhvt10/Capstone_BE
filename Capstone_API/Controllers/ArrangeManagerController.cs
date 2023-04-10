@@ -46,9 +46,15 @@ namespace Capstone_API.Controllers
         }
 
         [HttpGet("get-tasks-not-assigned")]
-        public GenericResult<TimeSlotInfoResponse> GetTaskNotAssign()
+        public GenericResult<TimeSlotInfoResponse> GetTaskNotAssigned()
         {
             return _taskService.GetAllTaskNotAssign();
+        }
+
+        [HttpGet("get-tasks-assigned")]
+        public GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned()
+        {
+            return _taskService.GetTaskAssigned();
         }
 
         [HttpPut("lock-and-unlock-task")]
@@ -64,7 +70,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPut("timetable-modify")]
-        public GenericResult<TaskAssignModifyResponse> TimeTableModify([FromBody] TaskModifyDTO value)
+        public ResponseResult TimeTableModify([FromBody] TaskModifyDTO value)
         {
             return _taskService.TimeTableModify(value);
         }
@@ -89,7 +95,7 @@ namespace Capstone_API.Controllers
         #region Schedule Api
 
         [HttpGet("get-schedule/{executeId}")]
-        public async Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(string executeId)
+        public async Task<ResponseResult> GetSchedule(string executeId)
         {
             return await _taskService.GetSchedule(executeId);
         }

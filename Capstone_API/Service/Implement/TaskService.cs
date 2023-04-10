@@ -48,7 +48,7 @@ namespace Capstone_API.Service.Implement
             try
             {
                 List<List<TimeSlotInfo>> querySearchDataNotAssign = GetTasksNotAssign();
-                IEnumerable<ResponseTaskByLecturerIsKey> querySearchDataAssign = ResponseTaskByLecturerIsKey();
+                IEnumerable<ResponseTaskByLecturerIsKey> querySearchDataAssign = GetTaskResponseByLecturerKey();
                 if (request.SemesterId != 0)
                 {
                     querySearchDataAssign = querySearchDataAssign.Where(item => item.SemesterId == request.SemesterId);
@@ -162,7 +162,7 @@ namespace Capstone_API.Service.Implement
 
         #region TimeTableModify
 
-        public GenericResult<TaskAssignModifyResponse> TimeTableModify(TaskModifyDTO request)
+        public ResponseResult TimeTableModify(TaskModifyDTO request)
         {
             try
             {
@@ -178,7 +178,6 @@ namespace Capstone_API.Service.Implement
                     taskFind.LecturerId = tmpId;
                     _unitOfWork.TaskRepository.Update(taskFind);
                     _unitOfWork.TaskRepository.Update(taskDupplicate);
-
                 }
                 else
                 {
@@ -187,47 +186,11 @@ namespace Capstone_API.Service.Implement
                     _unitOfWork.TaskRepository.Update(taskFind);
                 }
                 _unitOfWork.Complete();
-
-                var newTaskAssignResponse = new TaskAssignModifyResponse()
-                {
-                    TaskNeedAssign = new TaskAssignModifyDTO()
-                    {
-                        TaskId = taskFind.Id,
-                        ClassId = taskFind.ClassId,
-                        ClassName = _unitOfWork.ClassRepository.Find(taskFind.ClassId ?? 0).Name ?? "",
-                        SubjectId = taskFind.SubjectId,
-                        SubjectName = _unitOfWork.SubjectRepository.Find(taskFind.SubjectId ?? 0).Code ?? "",
-                        TimeSlotId = taskFind.TimeSlotId,
-                        TimeSlotName = _unitOfWork.TimeSlotRepository.Find(taskFind.TimeSlotId ?? 0).Name ?? "",
-                        LecturerId = taskFind.LecturerId,
-                        LecturerName = _unitOfWork.LecturerRepository.Find(taskFind.LecturerId ?? 0).ShortName ?? "",
-                        RoomId = taskFind.Room1Id,
-                        RoomName = _unitOfWork.RoomRepository.Find(taskFind.Room1Id ?? 0).Name ?? "",
-                        PreAssign = taskFind.PreAssign,
-                    },
-                    TaskSameTimeSlot = taskDupplicate != null ? new TaskAssignModifyDTO()
-                    {
-                        TaskId = taskDupplicate.Id,
-                        ClassId = taskDupplicate.ClassId,
-                        ClassName = _unitOfWork.ClassRepository.Find(taskDupplicate.ClassId ?? 0).Name ?? "",
-                        SubjectId = taskDupplicate.SubjectId,
-                        SubjectName = _unitOfWork.SubjectRepository.Find(taskDupplicate.SubjectId ?? 0).Code ?? "",
-                        TimeSlotId = taskDupplicate.TimeSlotId,
-                        TimeSlotName = _unitOfWork.TimeSlotRepository.Find(taskDupplicate.TimeSlotId ?? 0).Name ?? "",
-                        LecturerId = taskDupplicate.LecturerId,
-                        LecturerName = _unitOfWork.LecturerRepository.Find(taskDupplicate.LecturerId ?? 0).ShortName ?? "",
-                        RoomId = taskDupplicate.Room1Id,
-                        RoomName = _unitOfWork.RoomRepository.Find(taskDupplicate.Room1Id ?? 0).Name ?? "",
-                        PreAssign = taskDupplicate.PreAssign,
-
-                    } : null,
-                };
-
-                return new GenericResult<TaskAssignModifyResponse>(newTaskAssignResponse, true);
+                return new ResponseResult();
             }
             catch (Exception ex)
             {
-                return new GenericResult<TaskAssignModifyResponse>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 
@@ -271,7 +234,7 @@ namespace Capstone_API.Service.Implement
         }
         #endregion
 
-        #region FetchScheduler
+        #region Fetch Scheduler
         public async Task UpdateTaskByExecuteData(List<ExecuteData>? executeData)
         {
             var executeSemesterId = 0;
@@ -290,7 +253,7 @@ namespace Capstone_API.Service.Implement
                 }
             }
         }
-        public async Task<GenericResult<List<ResponseTaskByLecturerIsKey>>> GetSchedule(string executeId)
+        public async Task<ResponseResult> GetSchedule(string executeId)
         {
             try
             {
@@ -301,7 +264,7 @@ namespace Capstone_API.Service.Implement
                 var json = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
                 {
-                    return new GenericResult<List<ResponseTaskByLecturerIsKey>>("Fetch fail");
+                    return new ResponseResult("Fetch fail");
                 }
                 var dataFetch = JsonSerializer.Deserialize<DataFetch>(json);
 
@@ -315,12 +278,11 @@ namespace Capstone_API.Service.Implement
                 List<ExecuteData>? executeData = dataFetch?.results;
 
                 await UpdateTaskByExecuteData(executeData);
-                var mappingData = ResponseTaskByLecturerIsKey().ToList();
-                return new GenericResult<List<ResponseTaskByLecturerIsKey>>(mappingData, true);
+                return new ResponseResult("Fetch data success", true);
             }
             catch (Exception ex)
             {
-                return new GenericResult<List<ResponseTaskByLecturerIsKey>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 
@@ -329,56 +291,51 @@ namespace Capstone_API.Service.Implement
         #region GetTaskAssigned
         public IEnumerable<QueryDataByLecturerAndTimeSlot> GetTaskResponses()
         {
-            try
-            {
-                var context = _unitOfWork.Context;
-                var result = from A in (
-                                    from l in context.Lecturers
-                                    from ts in context.TimeSlots
-                                    select new
-                                    { LecturerId = l.Id, LecturerName = l.ShortName, TimeSlotId = ts.Id, TimeSlotName = ts.Name }
-                                )
-                             join B in context.TaskAssigns
-                                 on new { A.TimeSlotId, A.LecturerId } equals new { TimeSlotId = B.TimeSlotId ?? 0, LecturerId = B.LecturerId ?? 0 } into AB
-                             from B in AB.DefaultIfEmpty()
-                             join C in context.Classes
-                             on B.ClassId equals C.Id into BC
-                             from C in BC.DefaultIfEmpty()
-                             join D in context.Subjects
-                             on B.SubjectId equals D.Id into BD
-                             from D in BD.DefaultIfEmpty()
-                             join E in context.Rooms
-                             on B.Room1Id equals E.Id into BE
-                             from E in BE.DefaultIfEmpty()
-                             select new QueryDataByLecturerAndTimeSlot()
-                             {
-                                 TaskId = B.Id,
-                                 LecturerId = A.LecturerId,
-                                 LecturerName = A.LecturerName,
-                                 TimeSlotId = A.TimeSlotId,
-                                 TimeSlotName = A.TimeSlotName,
-                                 ClassId = C.Id,
-                                 ClassName = C.Name,
-                                 SubjectId = D.Id,
-                                 SubjectCode = D.Code,
-                                 SubjectName = D.Name,
-                                 RoomId = E.Id,
-                                 Status = (bool)B.Status ? "" : "",
-                                 SemesterId = B.SemesterId ?? 0,
-                                 RoomName = E.Name ?? "",
-                                 IsAssign = (B.Id == null) ? 0 : 1,
-                                 PreAssign = (bool)B.PreAssign ? true : false
-                             };
-                return result;
-            }
-            catch (Exception ex)
-            {
-                return null;
 
-            }
+            var context = _unitOfWork.Context;
+            var result = from A in (
+                                from l in context.Lecturers
+                                from ts in context.TimeSlots
+                                select new
+                                { LecturerId = l.Id, LecturerName = l.ShortName, TimeSlotId = ts.Id, TimeSlotName = ts.Name }
+                            )
+                         join B in context.TaskAssigns
+                             on new { A.TimeSlotId, A.LecturerId } equals new { TimeSlotId = B.TimeSlotId ?? 0, LecturerId = B.LecturerId ?? 0 } into AB
+                         from B in AB.DefaultIfEmpty()
+                         join C in context.Classes
+                         on B.ClassId equals C.Id into BC
+                         from C in BC.DefaultIfEmpty()
+                         join D in context.Subjects
+                         on B.SubjectId equals D.Id into BD
+                         from D in BD.DefaultIfEmpty()
+                         join E in context.Rooms
+                         on B.Room1Id equals E.Id into BE
+                         from E in BE.DefaultIfEmpty()
+                         select new QueryDataByLecturerAndTimeSlot()
+                         {
+                             TaskId = B.Id,
+                             LecturerId = A.LecturerId,
+                             LecturerName = A.LecturerName,
+                             TimeSlotId = A.TimeSlotId,
+                             TimeSlotName = A.TimeSlotName,
+                             ClassId = C.Id,
+                             ClassName = C.Name,
+                             SubjectId = D.Id,
+                             SubjectCode = D.Code,
+                             SubjectName = D.Name,
+                             RoomId = E.Id,
+                             Status = (bool)B.Status ? "" : "",
+                             SemesterId = B.SemesterId ?? 0,
+                             RoomName = E.Name ?? "",
+                             IsAssign = (B.Id == null) ? 0 : 1,
+                             PreAssign = (bool)B.PreAssign ? true : false
+                         };
+            return result;
+
         }
-        public IEnumerable<ResponseTaskByLecturerIsKey> ResponseTaskByLecturerIsKey()
+        public List<ResponseTaskByLecturerIsKey> GetTaskResponseByLecturerKey()
         {
+
             var data = GetTaskResponses().OrderBy(item => item.LecturerId).GroupBy(item => item.LecturerId);
             var result = data.Select(group =>
                 new ResponseTaskByLecturerIsKey
@@ -406,6 +363,20 @@ namespace Capstone_API.Service.Implement
                     Total = group.Where(item => item.IsAssign != 0).Count(),
                 }).ToList();
             return result;
+
+        }
+
+        public GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned()
+        {
+            try
+            {
+                var data = GetTaskResponseByLecturerKey();
+                return new GenericResult<List<ResponseTaskByLecturerIsKey>>(data, true);
+            }
+            catch (Exception ex)
+            {
+                return new GenericResult<List<ResponseTaskByLecturerIsKey>>($"{ex.Message}: {ex.InnerException?.Message}");
+            }
         }
         #endregion
 
