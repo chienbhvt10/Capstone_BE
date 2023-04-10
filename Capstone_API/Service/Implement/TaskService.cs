@@ -370,7 +370,7 @@ namespace Capstone_API.Service.Implement
                             PreAssign = (bool)data.PreAssign ? true : false
                         }).ToList(),
                     Total = group.Where(item => item.IsAssign != 0).Count(),
-                }).ToList();
+                }).OrderBy(item => item.LecturerName).ToList();
             return result;
 
         }

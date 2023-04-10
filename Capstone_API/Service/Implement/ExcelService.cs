@@ -31,7 +31,7 @@ namespace Capstone_API.Service.Implement
                     TimeSlot = item.TimeSlot?.Name,
                     Room = item.Room1?.Name,
                     Status = item.Status ?? false ? "" : "",
-                    Lecturer = item.Lecturer?.Name
+                    Lecturer = item.Lecturer?.ShortName
 
                 });
                 string excelName = $"Timetable-{DateTime.Now:yyyyMMddHHmmssfff}.xlsx";

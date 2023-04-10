@@ -22,7 +22,7 @@ namespace Capstone_API.Service.Implement
             try
             {
                 var query = SubjectPreferenceLevelByLecturerIsKey();
-                var subjectsViewModel = _mapper.Map<IEnumerable<GetSlotPreferenceLevelDTO>>(query).ToList();
+                var subjectsViewModel = _mapper.Map<IEnumerable<GetSlotPreferenceLevelDTO>>(query).OrderBy(item => item.LecturerName).ToList();
 
                 return new GenericResult<List<GetSlotPreferenceLevelDTO>>(subjectsViewModel, true);
 

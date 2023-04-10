@@ -21,7 +21,7 @@ namespace Capstone_API.Service.Implement
             {
                 var classes = _unitOfWork.ClassRepository.GetAll();
                 var classesViewModel = _mapper.Map<IEnumerable<ClassResponse>>(classes);
-                return new GenericResult<IEnumerable<ClassResponse>>(classesViewModel, true);
+                return new GenericResult<IEnumerable<ClassResponse>>(classesViewModel.OrderBy(item => item.Name), true);
             }
             catch (Exception ex)
             {

@@ -23,7 +23,7 @@ namespace Capstone_API.Service.Implement
             try
             {
                 var rooms = _unitOfWork.RoomRepository.GetAll();
-                var roomsViewModel = _mapper.Map<List<RoomResponse>>(rooms);
+                var roomsViewModel = _mapper.Map<List<RoomResponse>>(rooms).OrderBy(item => item.Name);
                 return new GenericResult<List<RoomResponse>>(roomsViewModel.ToList(), true);
             }
             catch (Exception ex)
@@ -36,7 +36,7 @@ namespace Capstone_API.Service.Implement
             try
             {
                 var rooms = _unitOfWork.BuildingRepository.GetAll();
-                var roomsViewModel = _mapper.Map<List<BuildingResponse>>(rooms);
+                var roomsViewModel = _mapper.Map<List<BuildingResponse>>(rooms).OrderBy(item => item.Name);
                 return new GenericResult<List<BuildingResponse>>(roomsViewModel.ToList(), true);
             }
             catch (Exception ex)
@@ -49,7 +49,7 @@ namespace Capstone_API.Service.Implement
             try
             {
                 var rooms = DistanceByBuilding1IsKey();
-                var roomsViewModel = _mapper.Map<List<DistanceResponse>>(rooms);
+                var roomsViewModel = _mapper.Map<List<DistanceResponse>>(rooms).OrderBy(item => item.BuildingName);
                 return new GenericResult<List<DistanceResponse>>(roomsViewModel.ToList(), true);
             }
             catch (Exception ex)

@@ -21,7 +21,7 @@ namespace Capstone_API.Service.Implement
             try
             {
                 var executeInfo = _unitOfWork.ExecuteInfoRepository.GetAll();
-                var executeInfoViewModel = _mapper.Map<List<ExecuteInfoResponse>>(executeInfo).ToList();
+                var executeInfoViewModel = _mapper.Map<List<ExecuteInfoResponse>>(executeInfo).OrderByDescending(item => item.ExecuteTime).ToList();
                 return new GenericResult<List<ExecuteInfoResponse>>(executeInfoViewModel, true);
             }
             catch (Exception ex)
