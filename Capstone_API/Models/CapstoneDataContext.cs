@@ -20,6 +20,7 @@ namespace Capstone_API.Models
         public virtual DbSet<Building> Buildings { get; set; } = null!;
         public virtual DbSet<Class> Classes { get; set; } = null!;
         public virtual DbSet<DayOfWeek> DayOfWeeks { get; set; } = null!;
+        public virtual DbSet<Department> Departments { get; set; } = null!;
         public virtual DbSet<Distance> Distances { get; set; } = null!;
         public virtual DbSet<ExecuteInfo> ExecuteInfos { get; set; } = null!;
         public virtual DbSet<Lecturer> Lecturers { get; set; } = null!;
@@ -83,6 +84,15 @@ namespace Capstone_API.Models
                 entity.Property(e => e.Name).HasMaxLength(50);
             });
 
+            modelBuilder.Entity<Department>(entity =>
+            {
+                entity.ToTable("Department");
+
+                entity.Property(e => e.Department1)
+                    .HasMaxLength(50)
+                    .HasColumnName("Department");
+            });
+
             modelBuilder.Entity<Distance>(entity =>
             {
                 entity.ToTable("Distance");
@@ -116,6 +126,11 @@ namespace Capstone_API.Models
                 entity.Property(e => e.Name).HasMaxLength(50);
 
                 entity.Property(e => e.ShortName).HasMaxLength(50);
+
+                entity.HasOne(d => d.Department)
+                    .WithMany(p => p.Lecturers)
+                    .HasForeignKey(d => d.DepartmentId)
+                    .HasConstraintName("FK_Lecturer_Department");
             });
 
             modelBuilder.Entity<Room>(entity =>
@@ -129,7 +144,9 @@ namespace Capstone_API.Models
             {
                 entity.ToTable("Semester");
 
-                entity.Property(e => e.Name).HasMaxLength(50);
+                entity.Property(e => e.Semester1)
+                    .HasMaxLength(50)
+                    .HasColumnName("Semester");
             });
 
             modelBuilder.Entity<SlotPerDay>(entity =>

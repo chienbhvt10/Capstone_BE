@@ -28,6 +28,8 @@ builder.Services.AddScoped<ITimeSlotConflictService, TimeSlotConflictService>();
 builder.Services.AddScoped<ITimeSlotService, TimeSlotService>();
 builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<IExecuteInfoService, ExecuteInfoService>();
+builder.Services.AddScoped<ISemesterService, SemesterService>();
+
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 //add hostingEnvironment service

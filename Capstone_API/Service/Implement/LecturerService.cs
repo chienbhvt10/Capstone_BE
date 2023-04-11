@@ -18,17 +18,25 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
         }
 
-        public GenericResult<IEnumerable<LecturerResponse>> GetAll()
+        public GenericResult<List<LecturerResponse>> GetAll(GetLecturerDTO request)
         {
             try
             {
                 var lecturers = _unitOfWork.LecturerRepository.GetAll();
-                var lecturersViewModel = _mapper.Map<IEnumerable<LecturerResponse>>(lecturers);
-                return new GenericResult<IEnumerable<LecturerResponse>>(lecturersViewModel, true);
+                if (request == null)
+                {
+                    var lecturersViewModel = _mapper.Map<List<LecturerResponse>>(lecturers);
+                    return new GenericResult<List<LecturerResponse>>(lecturersViewModel, true);
+                }
+
+                // write condition
+
+                var lecturersSearchingViewModel = _mapper.Map<List<LecturerResponse>>(lecturers);
+                return new GenericResult<List<LecturerResponse>>(lecturersSearchingViewModel, true);
             }
             catch (Exception ex)
             {
-                return new GenericResult<IEnumerable<LecturerResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<List<LecturerResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 

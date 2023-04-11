@@ -18,8 +18,10 @@ namespace Capstone_API.Models
         public string? Email { get; set; }
         public int? Quota { get; set; }
         public int? MinQuota { get; set; }
+        public int? DepartmentId { get; set; }
         public int? SemesterId { get; set; }
 
+        public virtual Department? Department { get; set; }
         public virtual ICollection<SlotPreferenceLevel> SlotPreferenceLevels { get; set; }
         public virtual ICollection<SubjectPreferenceLevel> SubjectPreferenceLevels { get; set; }
         public virtual ICollection<TaskAssign> TaskAssigns { get; set; }

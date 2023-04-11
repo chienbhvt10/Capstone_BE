@@ -6,6 +6,8 @@ using Capstone_API.DTO.Lecturer.Request;
 using Capstone_API.DTO.Lecturer.Response;
 using Capstone_API.DTO.PreferenceLevel.Request;
 using Capstone_API.DTO.PreferenceLevel.Response;
+using Capstone_API.DTO.Semester.Request;
+using Capstone_API.DTO.Semester.Response;
 using Capstone_API.DTO.Subject.Request;
 using Capstone_API.DTO.Subject.Response;
 using Capstone_API.DTO.Task.Fetch;
@@ -64,7 +66,9 @@ namespace Capstone_API.Config.AutoMapper
             CreateMap<TimeSlot, UpdateTimeSlotDTO>().ReverseMap();
             CreateMap<TimeSlotSegment, TimeSlotSegmentDTO>().ReverseMap();
 
-
+            // Semester Mapper
+            CreateMap<Semester, SemesterRequest>().ReverseMap();
+            CreateMap<Semester, SemesterResponse>().ReverseMap();
         }
     }
 }

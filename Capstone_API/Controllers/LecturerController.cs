@@ -19,9 +19,9 @@ namespace Capstone_API.Controllers
         }
 
         [HttpGet]
-        public GenericResult<IEnumerable<LecturerResponse>> Get()
+        public GenericResult<List<LecturerResponse>> Get([FromBody] GetLecturerDTO request)
         {
-            return _lecturerService.GetAll();
+            return _lecturerService.GetAll(request);
         }
 
         [HttpGet("{id}")]

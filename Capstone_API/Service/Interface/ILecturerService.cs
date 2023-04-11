@@ -6,7 +6,7 @@ namespace Capstone_API.Service.Interface
 {
     public interface ILecturerService
     {
-        GenericResult<IEnumerable<LecturerResponse>> GetAll();
+        GenericResult<List<LecturerResponse>> GetAll(GetLecturerDTO request);
         GenericResult<LecturerResponse> GetOneLecturer(int Id);
         GenericResult<LecturerResponse> CreateLecturer(LecturerRequest request);
         ResponseResult UpdateLecturer(LecturerResponse request);

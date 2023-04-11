@@ -629,10 +629,12 @@ namespace Capstone_API.Service.Implement
         // Timeslot in what day on weeks
         private List<List<int>> GetSlotDays()
         {
+            var slotDays1 =
+                _unitOfWork.TimeSlotSegmentRepository.GetAll();
             List<List<int>> slotDays =
                 _unitOfWork.TimeSlotSegmentRepository.GetAll().Where(item => item.SlotId != null)
                 .OrderBy(item => item.SlotId).GroupBy(item => item.SlotId)
-                .Select(gr => gr.Select(item =>
+                .Select(gr => gr.OrderBy(item => item.DayOfWeek).Select(item =>
                     item.Segment != 0 ? 1 : 0
                 ).ToList()).ToList();
             return slotDays;
