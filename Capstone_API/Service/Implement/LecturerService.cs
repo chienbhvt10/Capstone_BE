@@ -24,7 +24,7 @@ namespace Capstone_API.Service.Implement
             {
                 var lecturers = _unitOfWork.LecturerRepository.GetAll();
                 var lecturersViewModel = _mapper.Map<IEnumerable<LecturerResponse>>(lecturers);
-                return new GenericResult<IEnumerable<LecturerResponse>>(lecturersViewModel.OrderByDescending(item => item.Id), true);
+                return new GenericResult<IEnumerable<LecturerResponse>>(lecturersViewModel, true);
             }
             catch (Exception ex)
             {

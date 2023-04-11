@@ -5,7 +5,7 @@ namespace Capstone_API.Service.Interface
 {
     public interface IExcelService
     {
-        ResponseResult TaskImportExcel();
+        FileStreamResult ExportGroupByLecturers(IHttpContextAccessor _httpContextAccessor);
         Task<ResponseResult> ImportTimetable(IFormFile file, CancellationToken cancellationToken);
         FileStreamResult ExportInImportFormat(IHttpContextAccessor _httpContextAccessor);
 

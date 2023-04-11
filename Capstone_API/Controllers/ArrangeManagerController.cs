@@ -3,7 +3,9 @@ using Capstone_API.DTO.Task.Request;
 using Capstone_API.DTO.Task.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -79,6 +81,36 @@ namespace Capstone_API.Controllers
 
         #region Excel Api
 
+        [HttpGet]
+        [Route("api/export/excel")]
+        public HttpResponseMessage ExportToExcel()
+        {
+            // Create a new workbook and worksheet
+            var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Sheet1");
+
+            // Add some data to the worksheet
+            worksheet.Cell("A1").Value = "Name";
+            worksheet.Cell("B1").Value = "Age";
+            worksheet.Cell("A2").Value = "John";
+            worksheet.Cell("B2").Value = 25;
+            worksheet.Cell("A3").Value = "Jane";
+            worksheet.Cell("B3").Value = 30;
+
+            // Save the workbook to a memory stream
+            var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+
+            // Set the content type and headers for the response
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+            response.Content = new ByteArrayContent(stream.ToArray());
+            response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
+            response.Content.Headers.ContentDisposition.FileName = "Export.xlsx";
+            response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+            return response;
+        }
+
         [HttpGet("export-in-import-format")]
         public FileStreamResult ExportInImportFormat()
         {
@@ -89,6 +121,12 @@ namespace Capstone_API.Controllers
         public async Task<ResponseResult> ImportTimeTable(IFormFile file, CancellationToken cancellationToken)
         {
             return await _excelService.ImportTimetable(file, cancellationToken);
+        }
+
+        [HttpGet("export-groupby-lecturer")]
+        public FileStreamResult ExportGroupByLecturers()
+        {
+            return _excelService.ExportGroupByLecturers(_httpContextAccessor);
         }
         #endregion
 

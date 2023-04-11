@@ -9,8 +9,8 @@
         public string? Slot1 { get; set; } = string.Empty;
         public string? Slot2 { get; set; } = string.Empty;
         public string? Room { get; set; } = string.Empty;
-        public string? Status { get; set; } = string.Empty;
         public string? Lecturer { get; set; } = string.Empty;
+        public string? Status { get; set; } = string.Empty;
 
 
         public ExportInImportFormatDTO(string? className, string? subjectName, string? department, string? timeSlot, string? slot1, string? slot2, string? room, string? status, string? lecturer)

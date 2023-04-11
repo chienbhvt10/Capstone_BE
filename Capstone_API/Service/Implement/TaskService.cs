@@ -166,18 +166,34 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
+                var findLecturerSubject = _unitOfWork.SubjectPreferenceLevelRepository.GetAll()
+                    .Where(item => item.LecturerId == request.LecturerId && item.SubjectId == request.SubjectId).FirstOrDefault()?.PreferenceLevel;
+                if (findLecturerSubject.HasValue && findLecturerSubject.Value == 0)
+                {
+                    return new ResponseResult("Lecturer cannot assign task with this subject");
+                }
+
+                var findLecturerSlot = _unitOfWork.SlotPreferenceLevelRepository.GetAll()
+                    .Where(item => item.LecturerId == request.LecturerId && item.SlotId == request.TimeSlotId).FirstOrDefault()?.PreferenceLevel;
+                if (findLecturerSlot.HasValue && findLecturerSlot.Value == 0)
+                {
+                    return new ResponseResult("Lecturer cannot assign task with this timeslot");
+                }
+
                 // check if request lecturer already have task at the same timeslot, convert two task of lecturer together
-                var taskDupplicate = _unitOfWork.TaskRepository.GetAll()
+                var taskDupplicateTimeslot = _unitOfWork.TaskRepository.GetAll()
                     .FirstOrDefault(item => item.LecturerId == request.LecturerId && item.TimeSlotId == request.TimeSlotId);
                 var taskFind = _unitOfWork.TaskRepository.Find(request.TaskId);
-                if (taskDupplicate != null)
+
+                if (taskDupplicateTimeslot != null)
                 {
-                    int tmpId = taskDupplicate.LecturerId ?? 0;
-                    taskDupplicate.LecturerId = taskFind.LecturerId;
+                    int tmpId = taskDupplicateTimeslot.LecturerId ?? 0;
+                    taskDupplicateTimeslot.LecturerId = taskFind.LecturerId;
+                    taskDupplicateTimeslot.Room1Id = taskFind.Room1Id;
                     taskFind.Room1Id = request.RoomId;
                     taskFind.LecturerId = tmpId;
                     _unitOfWork.TaskRepository.Update(taskFind);
-                    _unitOfWork.TaskRepository.Update(taskDupplicate);
+                    _unitOfWork.TaskRepository.Update(taskDupplicateTimeslot);
                 }
                 else
                 {

@@ -10,13 +10,34 @@ namespace Capstone_API.Service.Implement
 {
     public class ExcelService : IExcelService
     {
-        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IUnitOfWork _unitOfWork;
-
-        public ExcelService(IWebHostEnvironment hostingEnvironment, IUnitOfWork unitOfWork)
+        private readonly ITaskService _taskService;
+        public ExcelService(IUnitOfWork unitOfWork, ITaskService taskService)
         {
-            _hostingEnvironment = hostingEnvironment;
             _unitOfWork = unitOfWork;
+            _taskService = taskService;
+        }
+
+        public FileStreamResult ExportGroupByLecturers(IHttpContextAccessor _httpContextAccessor)
+        {
+            try
+            {
+                var exportItems = _taskService.GetTaskResponseByLecturerKey();
+                string excelName = $"Timetable-{DateTime.Now:yyyyMMddHHmmssfff}.xlsx";
+                var excelPackage = new ExcelPackage();
+                var worksheet = excelPackage.Workbook.Worksheets.Add("Sheet1");
+                worksheet.Cells.LoadFromCollection(exportItems, true);
+                excelPackage.Save();
+                var stream = new MemoryStream(excelPackage.GetAsByteArray());
+                return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                {
+                    FileDownloadName = excelName
+                };
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         public FileStreamResult ExportInImportFormat(IHttpContextAccessor _httpContextAccessor)
@@ -30,8 +51,8 @@ namespace Capstone_API.Service.Implement
                     Dept = item.Subject?.Department,
                     TimeSlot = item.TimeSlot?.Name,
                     Room = item.Room1?.Name,
-                    Status = item.Status ?? false ? "" : "",
-                    Lecturer = item.Lecturer?.ShortName
+                    Status = item.Lecturer?.ShortName != null ? "ASSIGNED" : "NOT_ASSIGNED",
+                    Lecturer = item.Lecturer?.ShortName,
 
                 });
                 string excelName = $"Timetable-{DateTime.Now:yyyyMMddHHmmssfff}.xlsx";
@@ -100,8 +121,8 @@ namespace Capstone_API.Service.Implement
                             var shortNameBuilding = new string(roomName.Take(2).ToArray()).Trim();
                             var clasFind = classes.Find(clas => clas.Name.Equals(className));
                             var roomFind = rooms.Find(room => room.Name.Equals(roomName));
-                            var subjectFind = _unitOfWork.SubjectRepository.GetAll().Where(sub => sub.Code.Equals(subjectCode) && sub.Department.Equals(subjectDepartment)).FirstOrDefault();
-                            var timeSlotFind = _unitOfWork.TimeSlotRepository.GetAll().Where(ts => ts.Name.Equals(timeSlotName)).FirstOrDefault();
+                            var subjectFind = _unitOfWork.SubjectRepository.GetAll().FirstOrDefault(sub => sub.Code.Trim().Equals(subjectCode) && sub.Department.Trim().Equals(subjectDepartment));
+                            var timeSlotFind = _unitOfWork.TimeSlotRepository.GetAll().FirstOrDefault(ts => ts.Name.Trim().Equals(timeSlotName));
 
 
                             if (classes.Count() == 0)
@@ -154,16 +175,6 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public ResponseResult TaskImportExcel()
-        {
-            try
-            {
-                return new ResponseResult();
-            }
-            catch (Exception ex)
-            {
-                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
-            }
-        }
+
     }
 }

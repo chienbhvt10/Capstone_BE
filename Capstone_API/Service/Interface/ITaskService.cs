@@ -16,5 +16,6 @@ namespace Capstone_API.Service.Interface
         ResponseResult LockAndUnLockTask(LockAndUnLockTaskDTO request);
         ResponseResult UnLockAllTask();
         GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned();
+        List<ResponseTaskByLecturerIsKey> GetTaskResponseByLecturerKey();
     }
 }
