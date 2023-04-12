@@ -89,11 +89,11 @@ namespace Capstone_API.Service.Implement
                 // and get executeSemesterId in database
                 // this code must be get executeSemesterId in database
 
-                var semesterId = 0;
-                _unitOfWork.TaskRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-                _unitOfWork.ExecuteInfoRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-                _unitOfWork.ClassRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
-                _unitOfWork.RoomRepository.DeleteByCondition(item => item.SemesterId != semesterId, true);
+                var semesterId = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true)?.Id;
+                _unitOfWork.TaskRepository.DeleteByCondition(item => item.SemesterId == semesterId, true);
+                _unitOfWork.ExecuteInfoRepository.DeleteByCondition(item => item.SemesterId == semesterId, true);
+                _unitOfWork.ClassRepository.DeleteByCondition(item => item.SemesterId == semesterId, true);
+                _unitOfWork.RoomRepository.DeleteByCondition(item => item.SemesterId == semesterId, true);
                 _unitOfWork.Complete();
 
                 var classes = new List<Class>();

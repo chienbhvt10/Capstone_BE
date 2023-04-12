@@ -21,7 +21,8 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var query = AreaSlotWeightByTimeSlotIsKey();
+                var currentSemester = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
+                var query = AreaSlotWeightByTimeSlotIsKey(currentSemester);
                 var areaTimeSlotWeightViewModel = _mapper.Map<IEnumerable<GetAreaSlotWeightDTO>>(query).ToList();
 
                 return new GenericResult<List<GetAreaSlotWeightDTO>>(areaTimeSlotWeightViewModel, true);

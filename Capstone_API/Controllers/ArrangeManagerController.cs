@@ -47,16 +47,16 @@ namespace Capstone_API.Controllers
             return _taskService.SearchTask(request);
         }
 
-        [HttpGet("get-tasks-not-assigned")]
-        public GenericResult<TimeSlotInfoResponse> GetTaskNotAssigned()
+        [HttpPost("get-tasks-not-assigned")]
+        public GenericResult<TimeSlotInfoResponse> GetTaskNotAssigned([FromBody] int semesterId)
         {
-            return _taskService.GetAllTaskNotAssign();
+            return _taskService.GetAllTaskNotAssign(semesterId);
         }
 
-        [HttpGet("get-tasks-assigned")]
-        public GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned()
+        [HttpPost("get-tasks-assigned")]
+        public GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned([FromBody] int semesterId)
         {
-            return _taskService.GetTaskAssigned();
+            return _taskService.GetTaskAssigned(semesterId);
         }
 
         [HttpPut("lock-and-unlock-task")]

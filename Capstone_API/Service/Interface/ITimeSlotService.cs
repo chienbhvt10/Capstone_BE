@@ -6,8 +6,8 @@ namespace Capstone_API.Service.Interface
 {
     public interface ITimeSlotService
     {
-        GenericResult<IEnumerable<TimeSlotResponse>> GetAll();
-        GenericResult<List<GetSegmentResponseDTO>> GetTimeSlotSegment();
+        GenericResult<List<TimeSlotResponse>> GetAll(int semesterId);
+        GenericResult<List<GetSegmentResponseDTO>> GetTimeSlotSegment(int semesterId);
         ResponseResult CreateTimeSlot(CreateTimeSlotDTO request);
         ResponseResult DeleteTimeSlot(int id);
         ResponseResult DeleteTimeSlotSegment(int id);

@@ -69,11 +69,14 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public GenericResult<List<GetSegmentResponseDTO>> GetTimeSlotSegment()
+        public GenericResult<List<GetSegmentResponseDTO>> GetTimeSlotSegment(int semesterId)
         {
             try
             {
-                var data = ResponseTimeSlotSegment().OrderBy(item => item.TimeSlotId).GroupBy(item => item.TimeSlotId);
+                var data = ResponseTimeSlotSegment()
+                    .Where(item => item.SemesterId == semesterId)
+                    .OrderBy(item => item.TimeSlotId)
+                    .GroupBy(item => item.TimeSlotId);
                 var result = data.Select(group => new GetSegmentResponseDTO()
                 {
                     TimeSlotId = group.Key,
@@ -169,17 +172,18 @@ namespace Capstone_API.Service.Implement
 
         #region TimeSlot 
 
-        public GenericResult<IEnumerable<TimeSlotResponse>> GetAll()
+        public GenericResult<List<TimeSlotResponse>> GetAll(int semesterId)
         {
             try
             {
-                var timeSlot = _unitOfWork.TimeSlotRepository.GetAll();
-                var timeSlotsViewModel = _mapper.Map<IEnumerable<TimeSlotResponse>>(timeSlot);
-                return new GenericResult<IEnumerable<TimeSlotResponse>>(timeSlotsViewModel, true);
+                var timeSlot = _unitOfWork.TimeSlotRepository.GetAll()
+                                .Where(item => item.SemesterId == semesterId);
+                var timeSlotsViewModel = _mapper.Map<List<TimeSlotResponse>>(timeSlot);
+                return new GenericResult<List<TimeSlotResponse>>(timeSlotsViewModel, true);
             }
             catch (Exception ex)
             {
-                return new GenericResult<IEnumerable<TimeSlotResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<List<TimeSlotResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
 

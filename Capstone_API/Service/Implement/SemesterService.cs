@@ -68,6 +68,25 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
+                if (request.IsNow == true)
+                {
+
+                    var semesters = _unitOfWork.SemesterInfoRepository.GetAll().ToList();
+                    foreach (var item in semesters)
+                    {
+                        if (item.Id == request.Id)
+                        {
+                            item.IsNow = true;
+                        }
+                        else
+                        {
+                            item.IsNow = false;
+                        }
+                        _unitOfWork.SemesterInfoRepository.Update(item);
+                        _unitOfWork.Complete();
+                    }
+                    return new ResponseResult("Update successfully", true);
+                }
                 var semester = _mapper.Map<SemesterInfo>(request);
                 _unitOfWork.SemesterInfoRepository.Update(semester);
                 _unitOfWork.Complete();

@@ -21,7 +21,8 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var query = TimeSlotConflictByTimeSlotIsKey();
+                var currentSemester = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
+                var query = TimeSlotConflictByTimeSlotIsKey(currentSemester);
                 var timeSlotConflictViewModel = _mapper.Map<IEnumerable<GetTimeSlotConflictDTO>>(query).ToList();
 
                 return new GenericResult<List<GetTimeSlotConflictDTO>>(timeSlotConflictViewModel, true);
@@ -33,9 +34,9 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public IEnumerable<GetTimeSlotConflictDTO> TimeSlotConflictByTimeSlotIsKey()
+        public List<GetTimeSlotConflictDTO> TimeSlotConflictByTimeSlotIsKey(int semesterId)
         {
-            var data = _unitOfWork.TimeSlotConflictRepository.TimeSlotData()
+            var data = _unitOfWork.TimeSlotConflictRepository.TimeSlotData().Where(item => item.SemesterId == semesterId)
                 .OrderBy(item => item.SlotId).GroupBy(item => item.SlotId);
 
             var result = data.Select(group =>
