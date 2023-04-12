@@ -25,7 +25,7 @@ namespace Capstone_API.Models
         public virtual DbSet<ExecuteInfo> ExecuteInfos { get; set; } = null!;
         public virtual DbSet<Lecturer> Lecturers { get; set; } = null!;
         public virtual DbSet<Room> Rooms { get; set; } = null!;
-        public virtual DbSet<Semester> Semesters { get; set; } = null!;
+        public virtual DbSet<SemesterInfo> SemesterInfos { get; set; } = null!;
         public virtual DbSet<SlotPerDay> SlotPerDays { get; set; } = null!;
         public virtual DbSet<SlotPreferenceLevel> SlotPreferenceLevels { get; set; } = null!;
         public virtual DbSet<Subject> Subjects { get; set; } = null!;
@@ -140,13 +140,11 @@ namespace Capstone_API.Models
                 entity.Property(e => e.Name).HasMaxLength(50);
             });
 
-            modelBuilder.Entity<Semester>(entity =>
+            modelBuilder.Entity<SemesterInfo>(entity =>
             {
-                entity.ToTable("Semester");
+                entity.ToTable("SemesterInfo");
 
-                entity.Property(e => e.Semester1)
-                    .HasMaxLength(50)
-                    .HasColumnName("Semester");
+                entity.Property(e => e.Semester).HasMaxLength(50);
             });
 
             modelBuilder.Entity<SlotPerDay>(entity =>
@@ -170,7 +168,8 @@ namespace Capstone_API.Models
                 entity.HasOne(d => d.Semester)
                     .WithMany(p => p.SlotPreferenceLevels)
                     .HasForeignKey(d => d.SemesterId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_SlotPreferenceLevel_Semester_SemesterId");
 
                 entity.HasOne(d => d.Slot)
                     .WithMany(p => p.SlotPreferenceLevels)
@@ -210,7 +209,8 @@ namespace Capstone_API.Models
                 entity.HasOne(d => d.Semester)
                     .WithMany(p => p.SubjectPreferenceLevels)
                     .HasForeignKey(d => d.SemesterId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_SubjectPreferenceLevel_Semester_SemesterId");
 
                 entity.HasOne(d => d.Subject)
                     .WithMany(p => p.SubjectPreferenceLevels)

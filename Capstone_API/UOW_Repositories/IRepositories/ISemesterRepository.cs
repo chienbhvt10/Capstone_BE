@@ -3,14 +3,14 @@ using Capstone_API.UOW_Repositories.Infrastructures;
 
 namespace Capstone_API.UOW_Repositories.IRepositories
 {
-    public interface ISemesterRepository : IGenericRepository<Semester>
+    public interface ISemesterInfoRepository : IGenericRepository<SemesterInfo>
     {
         public void Delete(int entityId, bool isHardDeleted = false);
-        public void Delete(Semester entity, bool isHardDeleted = false);
+        public void Delete(SemesterInfo entity, bool isHardDeleted = false);
         public void Delete(bool isHardDeleted = false, params object[] keyValues);
-        public Task DeleteAsync(Semester entity, bool isHardDeleted = false);
+        public Task DeleteAsync(SemesterInfo entity, bool isHardDeleted = false);
         public Task DeleteAsync(bool isHardDeleted = false, params object[] keyValues);
-        public void DeleteByCondition(Func<Semester, bool> condition, bool isHardDeleted = false);
-        public Task DeleteByConditionAsync(Func<Semester, bool> condition, bool isHardDeleted = false);
+        public void DeleteByCondition(Func<SemesterInfo, bool> condition, bool isHardDeleted = false);
+        public Task DeleteByConditionAsync(Func<SemesterInfo, bool> condition, bool isHardDeleted = false);
     }
 }

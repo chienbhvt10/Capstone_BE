@@ -12,7 +12,7 @@ namespace Capstone_API.Models
         public int? SemesterId { get; set; }
 
         public virtual Lecturer? Lecturer { get; set; }
-        public virtual Semester? Semester { get; set; }
+        public virtual SemesterInfo? Semester { get; set; }
         public virtual TimeSlot? Slot { get; set; }
     }
 }

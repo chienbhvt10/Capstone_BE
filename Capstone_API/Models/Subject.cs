@@ -17,7 +17,7 @@ namespace Capstone_API.Models
         public int? SemesterId { get; set; }
         public string? Department { get; set; }
 
-        public virtual Semester? Semester { get; set; }
+        public virtual SemesterInfo? Semester { get; set; }
         public virtual ICollection<SubjectPreferenceLevel> SubjectPreferenceLevels { get; set; }
         public virtual ICollection<TaskAssign> TaskAssigns { get; set; }
     }

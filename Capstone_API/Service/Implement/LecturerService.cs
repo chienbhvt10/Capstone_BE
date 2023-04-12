@@ -22,14 +22,30 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var lecturers = _unitOfWork.LecturerRepository.GetAll();
-                if (request == null)
+                var lecturers = _unitOfWork.LecturerRepository.MappingLecturerData();
+                if (request.TimeSlotId == null && request.SubjectId == null)
                 {
                     var lecturersViewModel = _mapper.Map<List<LecturerResponse>>(lecturers);
                     return new GenericResult<List<LecturerResponse>>(lecturersViewModel, true);
                 }
 
-                // write condition
+                if (request.LecturerId != null)
+                {
+                    lecturers = lecturers.Where(item => item.Id != request.LecturerId);
+                }
+
+                if (request.SubjectId != null)
+                {
+                    lecturers = lecturers
+                        .Where(item => item.SubjectPreferenceLevels
+                            .Any(item => item.SubjectId == request.SubjectId && item.PreferenceLevel > 0)).ToList();
+                }
+
+                if (request.TimeSlotId != null)
+                {
+                    // Chua nghi ra
+
+                }
 
                 var lecturersSearchingViewModel = _mapper.Map<List<LecturerResponse>>(lecturers);
                 return new GenericResult<List<LecturerResponse>>(lecturersSearchingViewModel, true);

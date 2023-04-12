@@ -18,26 +18,26 @@ namespace Capstone_API.Controllers
             _lecturerService = lecturerService;
         }
 
-        [HttpGet]
-        public GenericResult<List<LecturerResponse>> Get([FromBody] GetLecturerDTO request)
+        [HttpPost("search")]
+        public GenericResult<List<LecturerResponse>> GetAll([FromBody] GetLecturerDTO request)
         {
             return _lecturerService.GetAll(request);
         }
 
         [HttpGet("{id}")]
-        public GenericResult<LecturerResponse> Get(int id)
+        public GenericResult<LecturerResponse> GetOne(int id)
         {
             return _lecturerService.GetOneLecturer(id);
         }
 
         [HttpPost]
-        public GenericResult<LecturerResponse> Post([FromBody] LecturerRequest request)
+        public GenericResult<LecturerResponse> Create([FromBody] LecturerRequest request)
         {
             return _lecturerService.CreateLecturer(request);
         }
 
         [HttpPut]
-        public ResponseResult Put([FromBody] LecturerResponse request)
+        public ResponseResult Update([FromBody] LecturerResponse request)
         {
             return _lecturerService.UpdateLecturer(request);
 

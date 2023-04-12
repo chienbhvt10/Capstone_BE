@@ -22,7 +22,7 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var semester = _unitOfWork.SemesterRepository.GetAll();
+                var semester = _unitOfWork.SemesterInfoRepository.GetAll();
                 var semestersViewModel = _mapper.Map<List<SemesterResponse>>(semester);
                 return new GenericResult<List<SemesterResponse>>(semestersViewModel, true);
             }
@@ -35,7 +35,7 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var semester = _unitOfWork.SemesterRepository.GetById(Id);
+                var semester = _unitOfWork.SemesterInfoRepository.GetById(Id);
                 var semesterViewModel = _mapper.Map<SemesterResponse>(semester);
 
                 return new GenericResult<SemesterResponse>(semesterViewModel, true);
@@ -50,8 +50,8 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var semester = _mapper.Map<Semester>(request);
-                _unitOfWork.SemesterRepository.Add(semester);
+                var semester = _mapper.Map<SemesterInfo>(request);
+                _unitOfWork.SemesterInfoRepository.Add(semester);
                 _unitOfWork.Complete();
 
                 var semesterRes = _mapper.Map<SemesterResponse>(semester);
@@ -68,8 +68,8 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var semester = _mapper.Map<Semester>(request);
-                _unitOfWork.SemesterRepository.Update(semester);
+                var semester = _mapper.Map<SemesterInfo>(request);
+                _unitOfWork.SemesterInfoRepository.Update(semester);
                 _unitOfWork.Complete();
                 return new ResponseResult("Update successfully", true);
             }
@@ -92,8 +92,8 @@ namespace Capstone_API.Service.Implement
                     _unitOfWork.Complete();
                 }
 
-                var semester = _unitOfWork.SemesterRepository.Find(id) ?? throw new ArgumentException("Semester does not exist");
-                _unitOfWork.SemesterRepository.Delete(semester, isHardDeleted: true);
+                var semester = _unitOfWork.SemesterInfoRepository.Find(id) ?? throw new ArgumentException("Semester does not exist");
+                _unitOfWork.SemesterInfoRepository.Delete(semester, isHardDeleted: true);
                 _unitOfWork.Complete();
                 return new ResponseResult("Delete successfully", true);
             }

@@ -18,7 +18,7 @@ namespace Capstone_API.Models
         public virtual Class? Class { get; set; }
         public virtual Lecturer? Lecturer { get; set; }
         public virtual Room? Room1 { get; set; }
-        public virtual Semester? Semester { get; set; }
+        public virtual SemesterInfo? Semester { get; set; }
         public virtual Subject? Subject { get; set; }
         public virtual TimeSlot? TimeSlot { get; set; }
     }

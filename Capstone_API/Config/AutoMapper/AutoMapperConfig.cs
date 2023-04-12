@@ -66,9 +66,9 @@ namespace Capstone_API.Config.AutoMapper
             CreateMap<TimeSlot, UpdateTimeSlotDTO>().ReverseMap();
             CreateMap<TimeSlotSegment, TimeSlotSegmentDTO>().ReverseMap();
 
-            // Semester Mapper
-            CreateMap<Semester, SemesterRequest>().ReverseMap();
-            CreateMap<Semester, SemesterResponse>().ReverseMap();
+            // SemesterInfo Mapper
+            CreateMap<SemesterInfo, SemesterRequest>().ReverseMap();
+            CreateMap<SemesterInfo, SemesterResponse>().ReverseMap();
         }
     }
 }

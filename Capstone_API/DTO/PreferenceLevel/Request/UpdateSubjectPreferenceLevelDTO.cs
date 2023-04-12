@@ -4,6 +4,6 @@
     {
         public int PreferenceId { get; set; }
         public int PreferenceLevel { get; set; }
-
+        public int SemesterId { get; set; }
     }
 }

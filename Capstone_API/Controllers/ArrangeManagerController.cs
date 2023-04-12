@@ -135,13 +135,13 @@ namespace Capstone_API.Controllers
         [HttpGet("get-schedule/{executeId}")]
         public async Task<ResponseResult> GetSchedule(string executeId)
         {
-            return await _taskService.GetSchedule(executeId);
+            return await _executeInfoService.GetSchedule(executeId);
         }
 
-        [HttpGet("execute-info")]
-        public GenericResult<List<ExecuteInfoResponse>> GetExecuteInfo()
+        [HttpGet("execute-info/{semesterId}")]
+        public GenericResult<List<ExecuteInfoResponse>> GetExecuteInfo(int semesterId)
         {
-            return _executeInfoService.GetAll();
+            return _executeInfoService.GetAll(semesterId);
         }
 
         [HttpPost("execute-info")]
@@ -153,7 +153,7 @@ namespace Capstone_API.Controllers
         [HttpPost("execute")]
         public async Task<GenericResult<ExecuteResponse>> Execute(SettingRequest request)
         {
-            return await _taskService.Execute(request);
+            return await _executeInfoService.Execute(request);
         }
         #endregion
 

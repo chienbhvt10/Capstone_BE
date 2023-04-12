@@ -4,6 +4,7 @@
     {
         public int DaySession { get; set; }
         public string? Name { get; set; }
+        public int SemesterId { get; set; }
         public List<CreateSegmentData>? Segments { get; set; }
     }
 

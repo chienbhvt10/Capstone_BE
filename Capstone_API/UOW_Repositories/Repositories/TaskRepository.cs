@@ -21,6 +21,7 @@ namespace Capstone_API.UOW_Repositories.IRepositories
                 .Include(task => task.TimeSlot).Select(item => item);
             return items;
         }
+
         #region Delete
         public virtual void Delete(int entityId, bool isHardDeleted = false)
         {

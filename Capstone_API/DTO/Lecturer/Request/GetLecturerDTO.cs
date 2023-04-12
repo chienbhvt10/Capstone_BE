@@ -4,5 +4,6 @@
     {
         public int? SubjectId { get; set; }
         public int? TimeSlotId { get; set; }
+        public int? LecturerId { get; set; }
     }
 }

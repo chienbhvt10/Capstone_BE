@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Capstone_API.Models
 {
-    public partial class Semester
+    public partial class SemesterInfo
     {
-        public Semester()
+        public SemesterInfo()
         {
             SlotPreferenceLevels = new HashSet<SlotPreferenceLevel>();
             SubjectPreferenceLevels = new HashSet<SubjectPreferenceLevel>();
@@ -15,7 +15,7 @@ namespace Capstone_API.Models
 
         public int Id { get; set; }
         public bool? IsNow { get; set; }
-        public string? Semester1 { get; set; }
+        public string? Semester { get; set; }
         public int? Year { get; set; }
 
         public virtual ICollection<SlotPreferenceLevel> SlotPreferenceLevels { get; set; }
