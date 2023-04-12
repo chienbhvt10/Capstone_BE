@@ -255,7 +255,7 @@ namespace Capstone_API.Service.Implement
                                 from l in context.Lecturers
                                 from ts in context.TimeSlots
                                 select new
-                                { LecturerId = l.Id, LecturerName = l.ShortName, TimeSlotId = ts.Id, TimeSlotName = ts.Name }
+                                { LecturerId = l.Id, LecturerName = l.ShortName, TimeSlotId = ts.Id, TimeSlotName = ts.Name, ts.SemesterId }
                             )
                          join B in context.TaskAssigns
                              on new { A.TimeSlotId, A.LecturerId } equals new { TimeSlotId = B.TimeSlotId ?? 0, LecturerId = B.LecturerId ?? 0 } into AB
@@ -283,7 +283,7 @@ namespace Capstone_API.Service.Implement
                              SubjectName = D.Name,
                              RoomId = E.Id,
                              Status = (bool)B.Status ? "" : "",
-                             SemesterId = B.SemesterId ?? 0,
+                             SemesterId = A.SemesterId ?? 0,
                              RoomName = E.Name ?? "",
                              IsAssign = (B.Id == null) ? 0 : 1,
                              PreAssign = (bool)B.PreAssign ? true : false
@@ -294,7 +294,9 @@ namespace Capstone_API.Service.Implement
         public List<ResponseTaskByLecturerIsKey> GetTaskResponseByLecturerKey(int semesterId)
         {
 
-            var data = GetTaskResponses().OrderBy(item => item.LecturerId).GroupBy(item => item.LecturerId);
+            var data = GetTaskResponses()
+                .Where(item => item.SemesterId == semesterId)
+                .OrderBy(item => item.LecturerId).GroupBy(item => item.LecturerId);
             var result = data.Select(group =>
                 new ResponseTaskByLecturerIsKey
                 {

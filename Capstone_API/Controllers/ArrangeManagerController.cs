@@ -48,15 +48,15 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("get-tasks-not-assigned")]
-        public GenericResult<TimeSlotInfoResponse> GetTaskNotAssigned([FromBody] int semesterId)
+        public GenericResult<TimeSlotInfoResponse> GetTaskNotAssigned([FromBody] GetTaskRequest request)
         {
-            return _taskService.GetAllTaskNotAssign(semesterId);
+            return _taskService.GetAllTaskNotAssign(request.SemesterId);
         }
 
         [HttpPost("get-tasks-assigned")]
-        public GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned([FromBody] int semesterId)
+        public GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned([FromBody] GetTaskRequest request)
         {
-            return _taskService.GetTaskAssigned(semesterId);
+            return _taskService.GetTaskAssigned(request.SemesterId);
         }
 
         [HttpPut("lock-and-unlock-task")]

@@ -27,10 +27,10 @@ namespace Capstone_API.Controllers
 
         #region TimeSlot Api
 
-        [HttpPost]
-        public GenericResult<List<TimeSlotResponse>> GetTimeSlots([FromBody] int semesterId)
+        [HttpPost("get")]
+        public GenericResult<List<TimeSlotResponse>> GetTimeSlots([FromBody] GetTimeslotRequest request)
         {
-            return _timeSlotService.GetAll(semesterId);
+            return _timeSlotService.GetAll(request.SemesterId);
         }
 
         [HttpGet("{id}")]
@@ -61,10 +61,10 @@ namespace Capstone_API.Controllers
 
         #region TimeSlotSegmentApi
 
-        [HttpPost("segment")]
-        public GenericResult<List<GetSegmentResponseDTO>> GetAllTimeSlotSegment([FromBody] int semesterId)
+        [HttpPost("segment/get")]
+        public GenericResult<List<GetSegmentResponseDTO>> GetAllTimeSlotSegment([FromBody] GetTimeslotRequest request)
         {
-            return _timeSlotService.GetTimeSlotSegment(semesterId);
+            return _timeSlotService.GetTimeSlotSegment(request.SemesterId);
         }
 
         [HttpPost("segment")]

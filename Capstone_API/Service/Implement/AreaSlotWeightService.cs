@@ -34,9 +34,10 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public IEnumerable<GetAreaSlotWeightDTO> AreaSlotWeightByTimeSlotIsKey()
+        public IEnumerable<GetAreaSlotWeightDTO> AreaSlotWeightByTimeSlotIsKey(int semesterId)
         {
             var data = _unitOfWork.AreaSlotWeightRepository.TimeSlotData()
+                .Where(item => item.SemesterId == semesterId)
                 .OrderBy(item => item.SlotId).GroupBy(item => item.SlotId);
 
             var result = data.Select(group =>

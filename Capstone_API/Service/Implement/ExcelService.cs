@@ -22,7 +22,8 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var exportItems = _taskService.GetTaskResponseByLecturerKey();
+                var currentSemester = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
+                var exportItems = _taskService.GetTaskResponseByLecturerKey(currentSemester);
                 string excelName = $"Timetable-{DateTime.Now:yyyyMMddHHmmssfff}.xlsx";
                 var excelPackage = new ExcelPackage();
                 var worksheet = excelPackage.Workbook.Worksheets.Add("Sheet1");
