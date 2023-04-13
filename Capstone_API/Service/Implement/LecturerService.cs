@@ -29,7 +29,7 @@ namespace Capstone_API.Service.Implement
                     return new GenericResult<List<LecturerResponse>>(lecturersViewModel, true);
                 }
 
-                if (request.LecturerId != null)
+                if (request.LecturerId == null)
                 {
                     lecturers = lecturers.Where(item => item.Id != request.LecturerId);
                 }

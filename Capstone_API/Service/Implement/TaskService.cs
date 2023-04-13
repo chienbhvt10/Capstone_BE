@@ -206,6 +206,7 @@ namespace Capstone_API.Service.Implement
             }
         }
 
+        #region LockTask
         public ResponseResult LockAndUnLockTask(LockAndUnLockTaskDTO request)
         {
             try
@@ -244,6 +245,8 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+        #endregion
+
         #endregion
 
         #region GetTaskAssigned
@@ -344,24 +347,36 @@ namespace Capstone_API.Service.Implement
         public List<List<TimeSlotInfo>> GetTasksNotAssign(int semesterId)
         {
             var data = _unitOfWork.TaskRepository.MappingTaskData()
-                    .Where(item => item.LecturerId == null && item.SemesterId == semesterId)
-                    .OrderBy(item => item.TimeSlot?.Id)
-                    .GroupBy(item => item.TimeSlotId);
-            var result = data.Select(group => group.Select(data =>
-                        new TimeSlotInfo
+                    .Where(item => item.LecturerId == null && item.SemesterId == semesterId).ToList();
+            List<List<TimeSlotInfo>> result = new();
+
+            foreach (var item in _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == semesterId).ToList())
+            {
+
+                List<TimeSlotInfo> currentTimeSlot = new();
+                foreach (var subItem in data)
+                {
+                    if (subItem.LecturerId == null && subItem.TimeSlotId == item.Id)
+                    {
+                        currentTimeSlot.Add(new TimeSlotInfo
                         {
-                            TaskId = data.Id,
-                            TimeSlotId = data.TimeSlotId ?? 0,
-                            TimeSlotName = data.TimeSlot?.Name ?? "",
-                            ClassId = data.ClassId ?? 0,
-                            ClassName = data.Class?.Name ?? "",
-                            SubjectId = data.SubjectId ?? 0,
-                            SubjectCode = data.Subject?.Code ?? "",
-                            SubjectName = data.Subject?.Name ?? "",
-                            RoomId = data.Room1Id ?? 0,
-                            RoomName = data.Room1?.Name ?? "",
-                            Status = data.Status != null ? "" : "",
-                        }).ToList()).ToList();
+                            TaskId = subItem.Id,
+                            TimeSlotId = subItem.TimeSlotId ?? 0,
+                            TimeSlotName = subItem.TimeSlot?.Name ?? "",
+                            ClassId = subItem.ClassId ?? 0,
+                            ClassName = subItem.Class?.Name ?? "",
+                            SubjectId = subItem.SubjectId ?? 0,
+                            SubjectCode = subItem.Subject?.Code ?? "",
+                            SubjectName = subItem.Subject?.Name ?? "",
+                            RoomId = subItem.Room1Id ?? 0,
+                            RoomName = subItem.Room1?.Name ?? "",
+                            Status = subItem.Status != null ? "" : "",
+                        });
+                    }
+                }
+                result.Add(currentTimeSlot);
+            }
+
             return result;
         }
 
