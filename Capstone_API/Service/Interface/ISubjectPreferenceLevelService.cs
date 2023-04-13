@@ -6,7 +6,7 @@ namespace Capstone_API.Service.Interface
 {
     public interface ISubjectPreferenceLevelService
     {
-        GenericResult<List<GetSubjectPreferenceLevelDTO>> GetAll();
+        GenericResult<List<GetSubjectPreferenceLevelDTO>> GetAll(GetPreferenceRequest request);
         ResponseResult UpdateSubjectPreferenceLevel(UpdateSubjectPreferenceLevelDTO request);
     }
 }

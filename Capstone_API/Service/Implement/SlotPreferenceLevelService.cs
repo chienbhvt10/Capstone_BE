@@ -17,11 +17,11 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
         }
 
-        public GenericResult<List<GetSlotPreferenceLevelDTO>> GetAll()
+        public GenericResult<List<GetSlotPreferenceLevelDTO>> GetAll(GetPreferenceRequest request)
         {
             try
             {
-                var query = SubjectPreferenceLevelByLecturerIsKey();
+                var query = SubjectPreferenceLevelByLecturerIsKey(request.SemesterId);
                 var subjectsViewModel = _mapper.Map<IEnumerable<GetSlotPreferenceLevelDTO>>(query).ToList();
 
                 return new GenericResult<List<GetSlotPreferenceLevelDTO>>(subjectsViewModel, true);
@@ -32,9 +32,10 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<List<GetSlotPreferenceLevelDTO>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
-        public IEnumerable<GetSlotPreferenceLevelDTO> SubjectPreferenceLevelByLecturerIsKey()
+        public IEnumerable<GetSlotPreferenceLevelDTO> SubjectPreferenceLevelByLecturerIsKey(int semesterId)
         {
             var data = _unitOfWork.SlotPreferenceLevelRepository.MappingSlotPreferenceData()
+                .Where(item => item.SemesterId == semesterId)
                 .OrderBy(item => item.LecturerId).GroupBy(item => item.LecturerId);
             var result = data.Select(group =>
                 new GetSlotPreferenceLevelDTO

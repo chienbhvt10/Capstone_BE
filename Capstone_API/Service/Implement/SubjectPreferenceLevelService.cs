@@ -17,11 +17,11 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
         }
 
-        public GenericResult<List<GetSubjectPreferenceLevelDTO>> GetAll()
+        public GenericResult<List<GetSubjectPreferenceLevelDTO>> GetAll(GetPreferenceRequest request)
         {
             try
             {
-                var query = SubjectPreferenceLevelByLecturerIsKey();
+                var query = SubjectPreferenceLevelByLecturerIsKey(request.SemesterId);
                 var subjectsViewModel = _mapper.Map<IEnumerable<GetSubjectPreferenceLevelDTO>>(query).ToList();
 
                 return new GenericResult<List<GetSubjectPreferenceLevelDTO>>(subjectsViewModel, true);
@@ -32,9 +32,10 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<List<GetSubjectPreferenceLevelDTO>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
-        public IEnumerable<GetSubjectPreferenceLevelDTO> SubjectPreferenceLevelByLecturerIsKey()
+        public IEnumerable<GetSubjectPreferenceLevelDTO> SubjectPreferenceLevelByLecturerIsKey(int semesterId)
         {
             var data = _unitOfWork.SubjectPreferenceLevelRepository.MappingSubjectPreferenceData()
+                .Where(item => item.SemesterId == semesterId)
                 .OrderBy(item => item.LecturerId).GroupBy(item => item.LecturerId);
             var result = data.Select(group =>
                 new GetSubjectPreferenceLevelDTO
