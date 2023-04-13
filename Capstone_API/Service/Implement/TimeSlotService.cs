@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.DTO.TimeSlot.Request;
 using Capstone_API.DTO.TimeSlot.Response;
 using Capstone_API.Models;
@@ -366,6 +367,98 @@ namespace Capstone_API.Service.Implement
             }
         }
 
+        #region CopyData
+        public void CopyTimeSlotData(ReUseRequest request)
+        {
+            var fromTimeSlotData = _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+            List<TimeSlot> newTimeSlot = new();
+            foreach (var item in fromTimeSlotData)
+            {
+                newTimeSlot.Add(new TimeSlot()
+                {
+                    Name = item.Name,
+                    AmorPm = item.AmorPm,
+                    SemesterId = request.ToSemesterId
+                });
+            }
+            _unitOfWork.TimeSlotRepository.AddRange(newTimeSlot);
+            _unitOfWork.Complete();
+        }
+
+        public void CopyTimeSlotConflictData(ReUseRequest request)
+        {
+            var fromTimeSlotConflictData = _unitOfWork.TimeSlotConflictRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+            List<TimeSlotConflict> newTimeSlotConflict = new();
+            foreach (var item in fromTimeSlotConflictData)
+            {
+                newTimeSlotConflict.Add(new TimeSlotConflict()
+                {
+                    Conflict = item.Conflict,
+                    SlotId = item.SlotId,
+                    ConflictSlotId = item.ConflictSlotId,
+                    SemesterId = request.ToSemesterId
+                });
+            }
+            _unitOfWork.TimeSlotConflictRepository.AddRange(newTimeSlotConflict);
+            _unitOfWork.Complete();
+        }
+
+        public void CopyTimeSlotWeightData(ReUseRequest request)
+        {
+            var fromTimeSlotWeightData = _unitOfWork.AreaSlotWeightRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+            List<AreaSlotWeight> newAreaSlotWeight = new();
+
+            foreach (var item in fromTimeSlotWeightData)
+            {
+                newAreaSlotWeight.Add(new AreaSlotWeight()
+                {
+                    AreaSlotId = item.AreaSlotId,
+                    SlotId = item.SlotId,
+                    AreaSlotWeight1 = item.AreaSlotWeight1,
+                    SemesterId = request.ToSemesterId
+                });
+            }
+            _unitOfWork.AreaSlotWeightRepository.AddRange(newAreaSlotWeight);
+            _unitOfWork.Complete();
+        }
+
+        public void CopyTimeSlotSegmentData(ReUseRequest request)
+        {
+            var fromTimeSlotSegmentData = _unitOfWork.TimeSlotSegmentRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+            List<TimeSlotSegment> newSlotSegment = new();
+
+            foreach (var item in fromTimeSlotSegmentData)
+            {
+                newSlotSegment.Add(new TimeSlotSegment()
+                {
+                    DayOfWeek = item.DayOfWeek,
+                    SlotId = item.SlotId,
+                    Segment = item.Segment,
+                    SemesterId = request.ToSemesterId
+                });
+            }
+            _unitOfWork.TimeSlotSegmentRepository.AddRange(fromTimeSlotSegmentData);
+            _unitOfWork.Complete();
+        }
+
+
+        public ResponseResult ReUseDataFromASemester(ReUseRequest request)
+        {
+            try
+            {
+
+                CopyTimeSlotData(request);
+                CopyTimeSlotConflictData(request);
+                CopyTimeSlotWeightData(request);
+                CopyTimeSlotSegmentData(request);
+                return new ResponseResult("Reuse data successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+        #endregion
         #endregion
     }
 }

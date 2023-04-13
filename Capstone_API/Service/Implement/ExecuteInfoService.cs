@@ -483,7 +483,7 @@ namespace Capstone_API.Service.Implement
         private List<List<int?>> GetInstructorSlot(int currentSemesterid)
         {
             return _unitOfWork.SlotPreferenceLevelRepository.GetAll()
-                            .Where(item => item.SemesterId == currentSemesterid)
+                            .Where(item => item.SemesterId == currentSemesterid && item.LecturerId != null)
                             .OrderBy(item => item.LecturerId)
                             .GroupBy(item => item.LecturerId)
                             .Select(item => item.Select(item => item.PreferenceLevel)
@@ -495,7 +495,7 @@ namespace Capstone_API.Service.Implement
         private List<List<int?>> GetInstructorSubject(int currentSemesterid)
         {
             return _unitOfWork.SubjectPreferenceLevelRepository.GetAll()
-                            .Where(item => item.SemesterId == currentSemesterid)
+                            .Where(item => item.SemesterId == currentSemesterid && item.LecturerId != null)
                             .OrderBy(item => item.LecturerId)
                             .GroupBy(item => item.LecturerId)
                             .Select(item => item.Select(item => item.PreferenceLevel)

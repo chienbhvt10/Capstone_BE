@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.DTO.PreferenceLevel.Request;
 using Capstone_API.DTO.PreferenceLevel.Response;
+using Capstone_API.Models;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Capstone_API.UOW_Repositories.UnitOfWork;
@@ -21,10 +23,10 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var query = SubjectPreferenceLevelByLecturerIsKey(request.SemesterId);
-                var subjectsViewModel = _mapper.Map<IEnumerable<GetSlotPreferenceLevelDTO>>(query).ToList();
+                var query = SlotPreferenceLevelByLecturerIsKey(request.SemesterId);
+                var slotViewModel = _mapper.Map<IEnumerable<GetSlotPreferenceLevelDTO>>(query).ToList();
 
-                return new GenericResult<List<GetSlotPreferenceLevelDTO>>(subjectsViewModel, true);
+                return new GenericResult<List<GetSlotPreferenceLevelDTO>>(slotViewModel, true);
 
             }
             catch (Exception ex)
@@ -32,7 +34,7 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<List<GetSlotPreferenceLevelDTO>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
-        public IEnumerable<GetSlotPreferenceLevelDTO> SubjectPreferenceLevelByLecturerIsKey(int semesterId)
+        public IEnumerable<GetSlotPreferenceLevelDTO> SlotPreferenceLevelByLecturerIsKey(int semesterId)
         {
             var data = _unitOfWork.SlotPreferenceLevelRepository.MappingSlotPreferenceData()
                 .Where(item => item.SemesterId == semesterId)
@@ -63,6 +65,47 @@ namespace Capstone_API.Service.Implement
                 _unitOfWork.SlotPreferenceLevelRepository.Update(slotPreferenceLevel);
                 _unitOfWork.Complete();
                 return new ResponseResult("Update successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+
+        public ResponseResult ReUseDataFromASemester(ReUseRequest request)
+        {
+            try
+            {
+                var currentSemesterLecturer = _unitOfWork.LecturerRepository.GetAll().Where(item => item.SemesterId == request.ToSemesterId).ToList();
+                if (currentSemesterLecturer.Count == 0)
+                {
+                    return new ResponseResult("Reuse fail, this semester have nodata of lecturers, must be reuse of lecturers first", false);
+                }
+
+                var currentSemesterTimeSlot = _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == request.ToSemesterId).ToList();
+                if (currentSemesterTimeSlot.Count == 0)
+                {
+                    return new ResponseResult("Reuse fail, this semester have nodata of timeslots, must be reuse of timeslots first", false);
+                }
+
+                var fromTimeSlotPreferenceLevelData = _unitOfWork.SlotPreferenceLevelRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+                List<SlotPreferenceLevel> newSlotPreferenceLevel = new();
+
+                foreach (var item in fromTimeSlotPreferenceLevelData)
+                {
+                    newSlotPreferenceLevel.Add(new SlotPreferenceLevel()
+                    {
+                        LecturerId = item.LecturerId,
+                        SlotId = item.SlotId,
+                        PreferenceLevel = item.PreferenceLevel,
+                        SemesterId = request.ToSemesterId
+                    });
+                }
+                _unitOfWork.SlotPreferenceLevelRepository.AddRange(newSlotPreferenceLevel);
+                _unitOfWork.Complete();
+
+                return new ResponseResult("Reuse data successfully", true);
             }
             catch (Exception ex)
             {

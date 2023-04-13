@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.DTO.PreferenceLevel.Request;
 using Capstone_API.DTO.PreferenceLevel.Response;
+using Capstone_API.Models;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Capstone_API.UOW_Repositories.UnitOfWork;
@@ -63,6 +65,46 @@ namespace Capstone_API.Service.Implement
                 _unitOfWork.SubjectPreferenceLevelRepository.Update(subjectPreferenceLevel);
                 _unitOfWork.Complete();
                 return new ResponseResult("Update successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+        public ResponseResult ReUseDataFromASemester(ReUseRequest request)
+        {
+            try
+            {
+                var currentSemesterLecturer = _unitOfWork.LecturerRepository.GetAll().Where(item => item.SemesterId == request.ToSemesterId).ToList();
+                if (currentSemesterLecturer.Count == 0)
+                {
+                    return new ResponseResult("Reuse fail, this semester have nodata of lecturers, must be reuse of lecturers first", false);
+                }
+
+                var currentSemesterSubject = _unitOfWork.SubjectRepository.GetAll().Where(item => item.SemesterId == request.ToSemesterId).ToList();
+                if (currentSemesterSubject.Count == 0)
+                {
+                    return new ResponseResult("Reuse fail, this semester have nodata of subjects, must be reuse of subjects first", false);
+                }
+
+                var fromSubjectPreferenceLevelData = _unitOfWork.SubjectPreferenceLevelRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+                List<SubjectPreferenceLevel> newSubjectPreferenceLevel = new();
+
+                foreach (var item in fromSubjectPreferenceLevelData)
+                {
+                    newSubjectPreferenceLevel.Add(new SubjectPreferenceLevel()
+                    {
+                        LecturerId = item.LecturerId,
+                        SubjectId = item.SubjectId,
+                        PreferenceLevel = item.PreferenceLevel,
+                        SemesterId = request.ToSemesterId
+                    });
+                }
+                _unitOfWork.SubjectPreferenceLevelRepository.AddRange(newSubjectPreferenceLevel);
+                _unitOfWork.Complete();
+
+                return new ResponseResult("Reuse data successfully", true);
             }
             catch (Exception ex)
             {

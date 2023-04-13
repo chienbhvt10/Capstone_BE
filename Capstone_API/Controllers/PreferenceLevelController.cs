@@ -1,4 +1,5 @@
-﻿using Capstone_API.DTO.PreferenceLevel.Request;
+﻿using Capstone_API.DTO.CommonRequest;
+using Capstone_API.DTO.PreferenceLevel.Request;
 using Capstone_API.DTO.PreferenceLevel.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
@@ -37,6 +38,11 @@ namespace Capstone_API.Controllers
             return _slotPreferenceLevelService.UpdateSlotPreferenceLevel(request);
         }
 
+        [HttpPost("slot/reuse")]
+        public ResponseResult ReUseSlotPreferenceDataFromASemester([FromBody] ReUseRequest request)
+        {
+            return _slotPreferenceLevelService.ReUseDataFromASemester(request);
+        }
         #endregion
 
         #region Subject PreferenceLevel Api
@@ -52,6 +58,12 @@ namespace Capstone_API.Controllers
         public ResponseResult UpdateSubjectPreferenceLevels([FromBody] UpdateSubjectPreferenceLevelDTO request)
         {
             return _subjectPreferenceLevelService.UpdateSubjectPreferenceLevel(request);
+        }
+
+        [HttpPost("subject/reuse")]
+        public ResponseResult ReUseSubjectPreferenceDataFromASemester([FromBody] ReUseRequest request)
+        {
+            return _subjectPreferenceLevelService.ReUseDataFromASemester(request);
         }
 
         #endregion

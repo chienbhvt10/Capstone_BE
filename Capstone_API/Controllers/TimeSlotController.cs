@@ -1,4 +1,5 @@
-﻿using Capstone_API.DTO.PreferenceLevel.Request;
+﻿using Capstone_API.DTO.CommonRequest;
+using Capstone_API.DTO.PreferenceLevel.Request;
 using Capstone_API.DTO.TimeSlot.Request;
 using Capstone_API.DTO.TimeSlot.Response;
 using Capstone_API.Results;
@@ -57,6 +58,13 @@ namespace Capstone_API.Controllers
             return _timeSlotService.DeleteTimeSlot(id);
 
         }
+
+        [HttpPost("reuse")]
+        public ResponseResult ReUseDataFromASemester([FromBody] ReUseRequest request)
+        {
+            return _timeSlotService.ReUseDataFromASemester(request);
+        }
+
         #endregion
 
         #region TimeSlotSegmentApi
