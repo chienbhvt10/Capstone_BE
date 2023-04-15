@@ -22,12 +22,12 @@ namespace Capstone_API.Service.Implement
         }
 
         #region GetATask
-        public GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int taskId)
+        public GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(GetATaskDTO request)
         {
             try
             {
-                var query = GetTaskResponses().Where(item => item.TaskId == taskId).FirstOrDefault();
-                query ??= _mapper.Map<QueryDataByLecturerAndTimeSlot>(GetTasksNotAssignForDetail().Where(item => item.TaskId == taskId).FirstOrDefault());
+                var query = GetTaskResponses(request.SemesterId).Where(item => item.TaskId == request.TaskId).FirstOrDefault();
+                query ??= _mapper.Map<QueryDataByLecturerAndTimeSlot>(GetTasksNotAssignForDetail().Where(item => item.TaskId == request.TaskId).FirstOrDefault());
 
                 return new GenericResult<QueryDataByLecturerAndTimeSlot>(query, true);
             }
@@ -250,13 +250,14 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetTaskAssigned
-        public IEnumerable<QueryDataByLecturerAndTimeSlot> GetTaskResponses()
+        public IEnumerable<QueryDataByLecturerAndTimeSlot> GetTaskResponses(int semesterId)
         {
 
             var context = _unitOfWork.Context;
             var result = from A in (
                                 from l in context.Lecturers
                                 from ts in context.TimeSlots
+                                where ts.SemesterId == semesterId && l.SemesterId == semesterId
                                 select new
                                 { LecturerId = l.Id, LecturerName = l.ShortName, TimeSlotId = ts.Id, TimeSlotName = ts.Name, ts.SemesterId }
                             )
@@ -272,6 +273,7 @@ namespace Capstone_API.Service.Implement
                          join E in context.Rooms
                          on B.Room1Id equals E.Id into BE
                          from E in BE.DefaultIfEmpty()
+                         where semesterId == A.SemesterId
                          select new QueryDataByLecturerAndTimeSlot()
                          {
                              TaskId = B.Id,
@@ -292,13 +294,12 @@ namespace Capstone_API.Service.Implement
                              PreAssign = (bool)B.PreAssign ? true : false
                          };
             return result;
-
         }
+
         public List<ResponseTaskByLecturerIsKey> GetTaskResponseByLecturerKey(int semesterId)
         {
 
-            var data = GetTaskResponses()
-                .Where(item => item.SemesterId == semesterId)
+            var data = GetTaskResponses(semesterId)
                 .OrderBy(item => item.LecturerId).GroupBy(item => item.LecturerId);
             var result = data.Select(group =>
                 new ResponseTaskByLecturerIsKey
@@ -411,7 +412,7 @@ namespace Capstone_API.Service.Implement
                 var total = new TimeSlotInfoResponse()
                 {
                     Total = _unitOfWork.TaskRepository.MappingTaskData()
-                    .Where(item => item.LecturerId == null && item.SemesterId == semesterId).Count(),
+                        .Where(item => item.LecturerId == null && item.SemesterId == semesterId).Count(),
                     TimeSlotInfos = result
                 };
                 return new GenericResult<TimeSlotInfoResponse>(total, true);

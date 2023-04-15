@@ -177,8 +177,7 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var timeSlot = _unitOfWork.TimeSlotRepository.GetAll()
-                                .Where(item => item.SemesterId == semesterId);
+                var timeSlot = _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == semesterId).ToList();
                 var timeSlotsViewModel = _mapper.Map<List<TimeSlotResponse>>(timeSlot);
                 return new GenericResult<List<TimeSlotResponse>>(timeSlotsViewModel, true);
             }
@@ -437,7 +436,7 @@ namespace Capstone_API.Service.Implement
                     SemesterId = request.ToSemesterId
                 });
             }
-            _unitOfWork.TimeSlotSegmentRepository.AddRange(fromTimeSlotSegmentData);
+            _unitOfWork.TimeSlotSegmentRepository.AddRange(newSlotSegment);
             _unitOfWork.Complete();
         }
 
@@ -447,10 +446,10 @@ namespace Capstone_API.Service.Implement
             try
             {
 
+                CopyTimeSlotSegmentData(request);
                 CopyTimeSlotData(request);
                 CopyTimeSlotConflictData(request);
                 CopyTimeSlotWeightData(request);
-                CopyTimeSlotSegmentData(request);
                 return new ResponseResult("Reuse data successfully", true);
             }
             catch (Exception ex)

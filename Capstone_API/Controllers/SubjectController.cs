@@ -1,4 +1,5 @@
-﻿using Capstone_API.DTO.Subject.Request;
+﻿using Capstone_API.DTO.CommonRequest;
+using Capstone_API.DTO.Subject.Request;
 using Capstone_API.DTO.Subject.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
@@ -18,10 +19,10 @@ namespace Capstone_API.Controllers
             _subjectService = subjectService;
         }
 
-        [HttpGet]
-        public GenericResult<IEnumerable<SubjectResponse>> Get()
+        [HttpPost("get")]
+        public GenericResult<List<SubjectResponse>> Get([FromBody] GetSubjectRequest request)
         {
-            return _subjectService.GetAll();
+            return _subjectService.GetAll(request);
         }
 
         [HttpGet("{id}")]
@@ -48,6 +49,11 @@ namespace Capstone_API.Controllers
         {
             return _subjectService.DeleteSubject(id);
 
+        }
+        [HttpPost("reuse")]
+        public ResponseResult ReUseSlotPreferenceDataFromASemester([FromBody] ReUseRequest request)
+        {
+            return _subjectService.ReUseDataFromASemester(request);
         }
     }
 }

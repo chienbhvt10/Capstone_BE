@@ -1,4 +1,5 @@
-﻿using Capstone_API.DTO.Lecturer.Request;
+﻿using Capstone_API.DTO.CommonRequest;
+using Capstone_API.DTO.Lecturer.Request;
 using Capstone_API.DTO.Lecturer.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
@@ -48,6 +49,11 @@ namespace Capstone_API.Controllers
         {
             return _lecturerService.DeleteLecturer(id);
 
+        }
+        [HttpPost("reuse")]
+        public ResponseResult ReUseSlotPreferenceDataFromASemester([FromBody] ReUseRequest request)
+        {
+            return _lecturerService.ReUseDataFromASemester(request);
         }
     }
 }

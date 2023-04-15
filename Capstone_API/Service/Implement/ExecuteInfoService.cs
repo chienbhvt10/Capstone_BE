@@ -132,6 +132,22 @@ namespace Capstone_API.Service.Implement
             try
             {
                 ExecuteFetchRequest executeFetchRequest = GetExecuteFetchRequest(request);
+                if (executeFetchRequest.NumTasks == 0)
+                {
+                    return new GenericResult<ExecuteResponse>("Please import tasks/fap-timetable before execute");
+                }
+                if (executeFetchRequest.NumSubjects == 0)
+                {
+                    return new GenericResult<ExecuteResponse>("Please insert more subjects before execute");
+                }
+                if (executeFetchRequest.NumInstructors == 0)
+                {
+                    return new GenericResult<ExecuteResponse>("Please insert more lecturers before execute");
+                }
+                if (executeFetchRequest.NumSlots == 0)
+                {
+                    return new GenericResult<ExecuteResponse>("Please insert more timeslots before execute");
+                }
 
                 var jsonRequest = JsonSerializer.Serialize(executeFetchRequest);
                 var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");

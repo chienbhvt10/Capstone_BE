@@ -23,6 +23,7 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         INumSegmentsRepository _numSegmentsRepository;
         IDayOfWeeksRepository _dayOfWeeksRepository;
         ISemesterInfoRepository _semesterInfoRepository;
+        IDepartmentRepository _departmentRepository;
 
         public UnitOfWork(CapstoneDataContext context)
         {
@@ -49,6 +50,7 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         public INumSegmentsRepository NumSegmentsRepository => _numSegmentsRepository ??= new NumSegmentsRepository(Context);
         public IDayOfWeeksRepository DayOfWeeksRepository => _dayOfWeeksRepository ??= new DayOfWeeksRepository(Context);
         public ISemesterInfoRepository SemesterInfoRepository => _semesterInfoRepository ??= new SemesterInfoRepository(Context);
+        public IDepartmentRepository DepartmentRepository => _departmentRepository ??= new DepartmentRepository(Context);
 
         public void Dispose()
         {

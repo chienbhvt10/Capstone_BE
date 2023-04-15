@@ -23,6 +23,8 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         INumSegmentsRepository NumSegmentsRepository { get; }
         IDayOfWeeksRepository DayOfWeeksRepository { get; }
         ISemesterInfoRepository SemesterInfoRepository { get; }
+        IDepartmentRepository DepartmentRepository { get; }
+
         void Complete();
         Task<int> CompleteAsync();
     }

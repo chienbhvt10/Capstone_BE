@@ -49,7 +49,7 @@ namespace Capstone_API.Service.Implement
                 {
                     Class = item.Class?.Name,
                     Subject = item.Subject?.Code,
-                    Dept = item.Subject?.Department,
+                    Dept = _unitOfWork.DepartmentRepository.GetByCondition(d => d.Id == item.Lecturer?.DepartmentId).FirstOrDefault()?.Department1 ?? "",
                     TimeSlot = item.TimeSlot?.Name,
                     Room = item.Room1?.Name,
                     Status = item.Lecturer?.ShortName != null ? "ASSIGNED" : "NOT_ASSIGNED",
@@ -122,19 +122,21 @@ namespace Capstone_API.Service.Implement
                             var shortNameBuilding = new string(roomName.Take(2).ToArray()).Trim();
                             var clasFind = classes.Find(clas => clas.Name.Equals(className));
                             var roomFind = rooms.Find(room => room.Name.Equals(roomName));
-                            var subjectFind = _unitOfWork.SubjectRepository.GetAll().FirstOrDefault(sub => sub.Code.Trim().Equals(subjectCode) && sub.Department.Trim().Equals(subjectDepartment));
-                            var timeSlotFind = _unitOfWork.TimeSlotRepository.GetAll().FirstOrDefault(ts => ts.Name.Trim().Equals(timeSlotName));
+                            var subjectFind = _unitOfWork.SubjectRepository.GetAll().Where(item => item.SemesterId == semesterId).FirstOrDefault(sub => sub.Code.Trim().Equals(subjectCode));
+                            var timeSlotFind = _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == semesterId).FirstOrDefault(ts => ts.Name.Trim().Equals(timeSlotName));
 
 
                             if (classes.Count() == 0)
                             {
                                 clasTemp.Name = className;
+                                clasTemp.SemesterId = semesterId;
                                 classes.Add(clasTemp);
                                 _unitOfWork.ClassRepository.Add(clasTemp);
                             }
                             else if (classes.Count() > 0 && clasFind == null)
                             {
                                 clasTemp.Name = className;
+                                clasTemp.SemesterId = semesterId;
                                 classes.Add(clasTemp);
                                 _unitOfWork.ClassRepository.Add(clasTemp);
                             }
@@ -142,12 +144,14 @@ namespace Capstone_API.Service.Implement
                             if (rooms.Count() == 0)
                             {
                                 roomTemp.Name = roomName;
+                                roomTemp.SemesterId = semesterId;
                                 rooms.Add(roomTemp);
                                 _unitOfWork.RoomRepository.Add(roomTemp);
                             }
                             else if (rooms.Count() > 0 && roomFind == null)
                             {
                                 roomTemp.Name = roomName;
+                                roomTemp.SemesterId = semesterId;
                                 rooms.Add(roomTemp);
                                 _unitOfWork.RoomRepository.Add(roomTemp);
                             };
@@ -160,6 +164,7 @@ namespace Capstone_API.Service.Implement
                                 SubjectId = subjectFind?.Id == 0 ? 0 : subjectFind?.Id,
                                 TimeSlotId = timeSlotFind?.Id == 0 ? 0 : timeSlotFind?.Id,
                                 Room1Id = roomFind == null ? (roomTemp.Id == 0 ? 0 : roomTemp.Id) : (roomFind?.Id == 0 ? 0 : roomFind?.Id),
+                                SemesterId = semesterId
                             };
 
                             _unitOfWork.TaskRepository.Add(taskAssign);

@@ -35,10 +35,10 @@ namespace Capstone_API.Controllers
         }
 
         #region Task Api
-        [HttpGet("get-a-task/{taskId}")]
-        public GenericResult<QueryDataByLecturerAndTimeSlot> GetATask(int taskId)
+        [HttpPost("get-a-task")]
+        public GenericResult<QueryDataByLecturerAndTimeSlot> GetATask([FromBody] GetATaskDTO request)
         {
-            return _taskService.GetATask(taskId);
+            return _taskService.GetATask(request);
         }
 
         [HttpPost("search-tasks")]

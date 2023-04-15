@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Capstone_API.Models
 {
@@ -177,8 +180,6 @@ namespace Capstone_API.Models
             modelBuilder.Entity<Subject>(entity =>
             {
                 entity.Property(e => e.Code).HasMaxLength(50);
-
-                entity.Property(e => e.Department).HasMaxLength(50);
 
                 entity.Property(e => e.Name).HasMaxLength(50);
 

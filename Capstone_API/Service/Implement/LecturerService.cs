@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.DTO.Lecturer.Request;
 using Capstone_API.DTO.Lecturer.Response;
 using Capstone_API.Models;
@@ -22,7 +23,7 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var lecturers = _unitOfWork.LecturerRepository.MappingLecturerData();
+                var lecturers = _unitOfWork.LecturerRepository.MappingLecturerData().Where(item => item.SemesterId == request.SemesterId);
                 if (request.TimeSlotId == null && request.SubjectId == null)
                 {
                     var lecturersViewModel = _mapper.Map<List<LecturerResponse>>(lecturers);
@@ -167,5 +168,37 @@ namespace Capstone_API.Service.Implement
             }
         }
         #endregion
+
+        public ResponseResult ReUseDataFromASemester(ReUseRequest request)
+        {
+            try
+            {
+
+                var fromLecturerData = _unitOfWork.LecturerRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+                List<Lecturer> newLecturer = new();
+
+                foreach (var item in fromLecturerData)
+                {
+                    newLecturer.Add(new Lecturer()
+                    {
+                        DepartmentId = item.DepartmentId,
+                        Email = item.Email,
+                        MinQuota = item.MinQuota,
+                        Quota = item.Quota,
+                        ShortName = item.ShortName,
+                        Name = item.Name,
+                        SemesterId = request.ToSemesterId
+                    });
+                }
+                _unitOfWork.LecturerRepository.AddRange(newLecturer);
+                _unitOfWork.Complete();
+
+                return new ResponseResult("Reuse data successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
     }
 }

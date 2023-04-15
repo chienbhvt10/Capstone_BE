@@ -1,4 +1,5 @@
-﻿using Capstone_API.DTO.Lecturer.Request;
+﻿using Capstone_API.DTO.CommonRequest;
+using Capstone_API.DTO.Lecturer.Request;
 using Capstone_API.DTO.Lecturer.Response;
 using Capstone_API.Results;
 
@@ -11,6 +12,7 @@ namespace Capstone_API.Service.Interface
         GenericResult<LecturerResponse> CreateLecturer(LecturerRequest request);
         ResponseResult UpdateLecturer(LecturerResponse request);
         ResponseResult DeleteLecturer(int id);
+        ResponseResult ReUseDataFromASemester(ReUseRequest request);
 
     }
 }
