@@ -269,7 +269,17 @@ namespace Capstone_API.Service.Implement
                                 from l in context.Lecturers
                                 from ts in context.TimeSlots
                                 select new
-                                { LecturerId = l.Id, LecturerName = l.ShortName, TimeSlotId = ts.Id, TimeSlotName = ts.Name, ts.SemesterId, ts.DepartmentHeadId }
+                                {
+                                    LecturerId = l.Id,
+                                    LecturerName = l.ShortName,
+                                    TimeSlotId = ts.Id,
+                                    TimeSlotName = ts.Name,
+                                    TimeSlotSemesterId = ts.SemesterId,
+                                    LecturerSemesterId = l.SemesterId,
+                                    TimeSlotDepartmentHeadId = ts.DepartmentHeadId,
+                                    LecturerDepartmentHeadId = l.DepartmentHeadId
+
+                                }
                             )
                          join B in context.TaskAssigns
                              on new { A.TimeSlotId, A.LecturerId } equals new { TimeSlotId = B.TimeSlotId ?? 0, LecturerId = B.LecturerId ?? 0 } into AB
@@ -283,7 +293,11 @@ namespace Capstone_API.Service.Implement
                          join E in context.Rooms
                          on B.Room1Id equals E.Id into BE
                          from E in BE.DefaultIfEmpty()
-                         where A.SemesterId == request.SemesterId && A.DepartmentHeadId == request.DepartmentHeadId
+                         where
+                         A.TimeSlotSemesterId == request.SemesterId
+                         && A.LecturerSemesterId == request.SemesterId
+                         && A.LecturerDepartmentHeadId == request.DepartmentHeadId
+                         && A.TimeSlotDepartmentHeadId == request.DepartmentHeadId
                          select new QueryDataByLecturerAndTimeSlot()
                          {
                              TaskId = B.Id,
@@ -298,7 +312,7 @@ namespace Capstone_API.Service.Implement
                              SubjectName = D.Name,
                              RoomId = E.Id,
                              Status = (bool)B.Status ? "" : "",
-                             SemesterId = A.SemesterId ?? 0,
+                             SemesterId = A.LecturerSemesterId ?? 0,
                              RoomName = E.Name ?? "",
                              IsAssign = (B.Id == null) ? 0 : 1,
                              PreAssign = (bool)B.PreAssign ? true : false

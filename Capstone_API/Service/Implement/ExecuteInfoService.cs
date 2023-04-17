@@ -127,7 +127,9 @@ namespace Capstone_API.Service.Implement
                 ExecuteId = result.sessionId,
                 ExecuteTime = DateTime.Now,
                 DepartmentHeadId = departmentHeadId,
-                SemesterId = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true)?.Id
+                SemesterId = _unitOfWork.SemesterInfoRepository.GetAll()
+                .Where(item => item.DepartmentHeadId == departmentHeadId)
+                .FirstOrDefault(item => item.IsNow == true)?.Id
             };
             _unitOfWork.ExecuteInfoRepository.Add(executeInfo);
             _unitOfWork.Complete();
@@ -182,7 +184,9 @@ namespace Capstone_API.Service.Implement
         #region GetExecuteFetchRequest
         public ExecuteFetchRequest GetExecuteFetchRequest(SettingRequest request)
         {
-            int currentSemesterId = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
+            int currentSemesterId = _unitOfWork.SemesterInfoRepository.GetAll()
+                .Where(item => item.DepartmentHeadId == request.DepartmentHeadId)
+                .FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
             List<int> InstructorQuota = GetInstructorQuota(currentSemesterId, request.DepartmentHeadId);
             List<int> InstructorMinQuota = GetInstructorMinQuota(currentSemesterId, request.DepartmentHeadId);
             List<int?> PatternCost = GetPatternCost(currentSemesterId);
