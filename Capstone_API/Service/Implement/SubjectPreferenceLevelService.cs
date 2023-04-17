@@ -87,7 +87,7 @@ namespace Capstone_API.Service.Implement
                 {
                     return new ResponseResult("Reuse fail, this semester have nodata of subjects, must be reuse of subjects first", false);
                 }
-
+                // copy data cac table timeslot constrain va preference dang loi 
                 var fromSubjectPreferenceLevelData = _unitOfWork.SubjectPreferenceLevelRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
                 List<SubjectPreferenceLevel> newSubjectPreferenceLevel = new();
 

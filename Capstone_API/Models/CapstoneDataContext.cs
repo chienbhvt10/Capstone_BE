@@ -34,6 +34,7 @@ namespace Capstone_API.Models
         public virtual DbSet<TimeSlot> TimeSlots { get; set; } = null!;
         public virtual DbSet<TimeSlotConflict> TimeSlotConflicts { get; set; } = null!;
         public virtual DbSet<TimeSlotSegment> TimeSlotSegments { get; set; } = null!;
+        public virtual DbSet<User> Users { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -288,6 +289,15 @@ namespace Capstone_API.Models
                     .WithMany(p => p.TimeSlotSegments)
                     .HasForeignKey(d => d.SlotId)
                     .HasConstraintName("FK_TimeSlotSegment_TimeSlot1");
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.ToTable("User");
+
+                entity.Property(e => e.Password).HasMaxLength(50);
+
+                entity.Property(e => e.Username).HasMaxLength(50);
             });
 
             OnModelCreatingPartial(modelBuilder);

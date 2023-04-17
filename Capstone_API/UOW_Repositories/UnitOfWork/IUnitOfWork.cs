@@ -24,6 +24,7 @@ namespace Capstone_API.UOW_Repositories.UnitOfWork
         IDayOfWeeksRepository DayOfWeeksRepository { get; }
         ISemesterInfoRepository SemesterInfoRepository { get; }
         IDepartmentRepository DepartmentRepository { get; }
+        IUserRepository UserRepository { get; }
 
         void Complete();
         Task<int> CompleteAsync();

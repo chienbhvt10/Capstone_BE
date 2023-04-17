@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.Auth.Request;
+using Capstone_API.DTO.Auth.Response;
 using Capstone_API.DTO.Class.Response;
 using Capstone_API.DTO.Distance.Request;
 using Capstone_API.DTO.Distance.Response;
@@ -69,6 +71,11 @@ namespace Capstone_API.Config.AutoMapper
             // SemesterInfo Mapper
             CreateMap<SemesterInfo, SemesterRequest>().ReverseMap();
             CreateMap<SemesterInfo, SemesterResponse>().ReverseMap();
+
+            // User Mapper
+            CreateMap<User, LoginRequest>().ReverseMap();
+            CreateMap<User, LoginResponse>().ReverseMap();
+
         }
     }
 }

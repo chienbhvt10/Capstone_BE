@@ -23,7 +23,7 @@ namespace Capstone_API.Service.Implement
 
         #region TimeSlot Segment 
 
-        public List<GetSegmentDTO> ResponseTimeSlotSegment()
+        public List<GetSegmentDTO> ResponseTimeSlotSegment(int semesterId)
         {
             try
             {
@@ -50,6 +50,7 @@ namespace Capstone_API.Service.Implement
                                  }
                              ) on new { A.TimeSlotId, A.DayId } equals new { TimeSlotId = B.TimeSlotId ?? 0, DayId = B.DayId ?? 0 } into AB
                              from B in AB.DefaultIfEmpty()
+                             where A.SemesterId == semesterId
                              select new GetSegmentDTO
                              {
                                  TimeSlotId = A.TimeSlotId,
@@ -74,8 +75,7 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var data = ResponseTimeSlotSegment()
-                    .Where(item => item.SemesterId == semesterId)
+                var data = ResponseTimeSlotSegment(semesterId)
                     .OrderBy(item => item.TimeSlotId)
                     .GroupBy(item => item.TimeSlotId);
                 var result = data.Select(group => new GetSegmentResponseDTO()
@@ -189,10 +189,10 @@ namespace Capstone_API.Service.Implement
 
         #region Create Timeslot
 
-        public void CreateAreaSlotWeightForNewTimeSlot(TimeSlot timeSlot)
+        public void CreateAreaSlotWeightForNewTimeSlot(TimeSlot timeSlot, int semesterId)
         {
             List<AreaSlotWeight> newAreaSlotWeights = new();
-            foreach (var item in _unitOfWork.TimeSlotRepository.GetAll())
+            foreach (var item in _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == semesterId))
             {
                 if (item.Id == timeSlot.Id)
                 {
@@ -223,10 +223,10 @@ namespace Capstone_API.Service.Implement
             _unitOfWork.Complete();
         }
 
-        public void CreateTimeSlotConflictForNewTimeSlot(TimeSlot timeSlot)
+        public void CreateTimeSlotConflictForNewTimeSlot(TimeSlot timeSlot, int semesterId)
         {
             List<TimeSlotConflict> timeSlotConflicts = new();
-            foreach (var item in _unitOfWork.TimeSlotRepository.GetAll())
+            foreach (var item in _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == semesterId))
             {
                 if (item.Id == timeSlot.Id)
                 {
@@ -257,10 +257,10 @@ namespace Capstone_API.Service.Implement
             _unitOfWork.Complete();
         }
 
-        public void CreateSlotPreferenceForNewTimeSlot(TimeSlot timeSlot)
+        public void CreateSlotPreferenceForNewTimeSlot(TimeSlot timeSlot, int semesterId)
         {
             List<SlotPreferenceLevel> slotPreferenceLevels = new();
-            foreach (var item in _unitOfWork.LecturerRepository.GetAll())
+            foreach (var item in _unitOfWork.LecturerRepository.GetAll().Where(item => item.SemesterId == semesterId))
             {
                 slotPreferenceLevels.Add(new SlotPreferenceLevel()
                 {
@@ -273,7 +273,7 @@ namespace Capstone_API.Service.Implement
             _unitOfWork.Complete();
         }
 
-        public void CreateTimeSlotSegment(CreateTimeSlotDTO request, TimeSlot timeSlot)
+        public void CreateTimeSlotSegment(CreateTimeSlotDTO request, TimeSlot timeSlot, int semesterId)
         {
             if (request.Segments?.Count > 0)
             {
@@ -283,7 +283,8 @@ namespace Capstone_API.Service.Implement
                     {
                         SlotId = timeSlot.Id,
                         DayOfWeek = item.Day,
-                        Segment = item.Segment
+                        Segment = item.Segment,
+                        SemesterId = semesterId
                     };
                     _unitOfWork.TimeSlotSegmentRepository.Add(segment);
                     _unitOfWork.Complete();
@@ -299,14 +300,15 @@ namespace Capstone_API.Service.Implement
                 {
                     AmorPm = request.DaySession,
                     Name = request.Name,
+                    SemesterId = request.SemesterId
                 };
                 _unitOfWork.TimeSlotRepository.Add(timeSlot);
                 _unitOfWork.Complete();
 
-                CreateTimeSlotSegment(request, timeSlot);
-                CreateAreaSlotWeightForNewTimeSlot(timeSlot);
-                CreateTimeSlotConflictForNewTimeSlot(timeSlot);
-                CreateSlotPreferenceForNewTimeSlot(timeSlot);
+                CreateTimeSlotSegment(request, timeSlot, request.SemesterId);
+                CreateAreaSlotWeightForNewTimeSlot(timeSlot, request.SemesterId);
+                CreateTimeSlotConflictForNewTimeSlot(timeSlot, request.SemesterId);
+                CreateSlotPreferenceForNewTimeSlot(timeSlot, request.SemesterId);
                 return new ResponseResult();
             }
             catch (Exception ex)
@@ -367,7 +369,7 @@ namespace Capstone_API.Service.Implement
         }
 
         #region CopyData
-        public void CopyTimeSlotData(ReUseRequest request)
+        public List<TimeSlot> CopyTimeSlotData(ReUseRequest request)
         {
             var fromTimeSlotData = _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
             List<TimeSlot> newTimeSlot = new();
@@ -382,6 +384,7 @@ namespace Capstone_API.Service.Implement
             }
             _unitOfWork.TimeSlotRepository.AddRange(newTimeSlot);
             _unitOfWork.Complete();
+            return newTimeSlot;
         }
 
         public void CopyTimeSlotConflictData(ReUseRequest request)
@@ -446,8 +449,8 @@ namespace Capstone_API.Service.Implement
             try
             {
 
-                CopyTimeSlotSegmentData(request);
                 CopyTimeSlotData(request);
+                CopyTimeSlotSegmentData(request);
                 CopyTimeSlotConflictData(request);
                 CopyTimeSlotWeightData(request);
                 return new ResponseResult("Reuse data successfully", true);
