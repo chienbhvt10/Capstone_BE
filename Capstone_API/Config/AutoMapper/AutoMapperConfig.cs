@@ -30,12 +30,12 @@ namespace Capstone_API.Config.AutoMapper
             CreateMap<TaskAssign, SwapRoomDTO>().ReverseMap();
             CreateMap<TaskAssign, TaskModifyDTO>().ReverseMap();
             CreateMap<TaskAssign, DTO.Task.Response.GetAllTaskAssignDTO>().ReverseMap();
-            CreateMap<TaskAssign, DTO.Task.Request.GetAllTaskAssignDTO>().ReverseMap();
+            CreateMap<TaskAssign, DTO.Task.Request.GetAllTaskAssignRequest>().ReverseMap();
             CreateMap<TimeSlotInfo, QueryDataByLecturerAndTimeSlot>().ReverseMap();
 
             // Lecturer Mapper
             CreateMap<Lecturer, LecturerResponse>().ReverseMap();
-            CreateMap<Lecturer, LecturerRequest>().ReverseMap();
+            CreateMap<Lecturer, CreateLecturerRequest>().ReverseMap();
 
             // Subject Mapper
             CreateMap<Subject, SubjectResponse>().ReverseMap();
@@ -54,6 +54,8 @@ namespace Capstone_API.Config.AutoMapper
 
             // Execute Mapper
             CreateMap<ExecuteInfo, ExecuteInfoResponse>().ReverseMap();
+            CreateMap<ExecuteInfo, CreateExecuteInfoRequest>().ReverseMap();
+
 
             // Preference Mapper
             CreateMap<SubjectPreferenceLevel, GetSubjectPreferenceLevelDTO>().ReverseMap();

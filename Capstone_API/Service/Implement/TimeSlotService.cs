@@ -23,7 +23,7 @@ namespace Capstone_API.Service.Implement
 
         #region TimeSlot Segment 
 
-        public List<GetSegmentDTO> ResponseTimeSlotSegment(int semesterId)
+        public List<GetSegmentDTO> ResponseTimeSlotSegment(GetAllRequest request)
         {
             try
             {
@@ -36,8 +36,10 @@ namespace Capstone_API.Service.Implement
                                  t.AmorPm,
                                  t.Name,
                                  t.SemesterId,
+                                 t.DepartmentHeadId,
                                  DayId = d.Id,
-                                 Day = d.Name
+                                 Day = d.Name,
+
                              } into A
                              join B in (
                                  from segment in context.TimeSlotSegments
@@ -46,11 +48,11 @@ namespace Capstone_API.Service.Implement
                                      SegmentId = segment.Id,
                                      TimeSlotId = segment.SlotId,
                                      DayId = segment.DayOfWeek,
-                                     segment.Segment
+                                     segment.Segment,
                                  }
                              ) on new { A.TimeSlotId, A.DayId } equals new { TimeSlotId = B.TimeSlotId ?? 0, DayId = B.DayId ?? 0 } into AB
                              from B in AB.DefaultIfEmpty()
-                             where A.SemesterId == semesterId
+                             where A.DepartmentHeadId == request.SemesterId && A.DepartmentHeadId == request.DepartmentHeadId
                              select new GetSegmentDTO
                              {
                                  TimeSlotId = A.TimeSlotId,
@@ -71,11 +73,11 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public GenericResult<List<GetSegmentResponseDTO>> GetTimeSlotSegment(int semesterId)
+        public GenericResult<List<GetSegmentResponseDTO>> GetTimeSlotSegment(GetAllRequest request)
         {
             try
             {
-                var data = ResponseTimeSlotSegment(semesterId)
+                var data = ResponseTimeSlotSegment(request)
                     .OrderBy(item => item.TimeSlotId)
                     .GroupBy(item => item.TimeSlotId);
                 var result = data.Select(group => new GetSegmentResponseDTO()
@@ -124,7 +126,9 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                if (request.SegmentId != 0 && _unitOfWork.TimeSlotSegmentRepository?.GetByCondition(item => item.SlotId == request.SlotId).Count() > 0)
+                if (request.SegmentId != 0 &&
+                    _unitOfWork.TimeSlotSegmentRepository?
+                    .GetByCondition(item => item.SlotId == request.SlotId).Count() > 0)
                 {
                     return UpdateTimeslotSegment(request);
                 }
@@ -173,11 +177,13 @@ namespace Capstone_API.Service.Implement
 
         #region TimeSlot 
 
-        public GenericResult<List<TimeSlotResponse>> GetAll(int semesterId)
+        public GenericResult<List<TimeSlotResponse>> GetAll(GetAllRequest request)
         {
             try
             {
-                var timeSlot = _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == semesterId).ToList();
+                var timeSlot = _unitOfWork.TimeSlotRepository.GetAll()
+                    .Where(item => item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
                 var timeSlotsViewModel = _mapper.Map<List<TimeSlotResponse>>(timeSlot);
                 return new GenericResult<List<TimeSlotResponse>>(timeSlotsViewModel, true);
             }
@@ -200,7 +206,9 @@ namespace Capstone_API.Service.Implement
                     {
                         AreaSlotId = timeSlot.Id,
                         SlotId = item.Id,
-                        AreaSlotWeight1 = 0
+                        AreaSlotWeight1 = 0,
+                        SemesterId = timeSlot.SemesterId,
+                        DepartmentHeadId = timeSlot.DepartmentHeadId
                     });
                 }
                 if (item.Id != timeSlot.Id)
@@ -209,13 +217,17 @@ namespace Capstone_API.Service.Implement
                     {
                         AreaSlotId = timeSlot.Id,
                         SlotId = item.Id,
-                        AreaSlotWeight1 = 0
+                        AreaSlotWeight1 = 0,
+                        SemesterId = timeSlot.SemesterId,
+                        DepartmentHeadId = timeSlot.DepartmentHeadId
                     });
                     newAreaSlotWeights.Add(new AreaSlotWeight()
                     {
                         AreaSlotId = item.Id,
                         SlotId = timeSlot.Id,
-                        AreaSlotWeight1 = 0
+                        AreaSlotWeight1 = 0,
+                        SemesterId = timeSlot.SemesterId,
+                        DepartmentHeadId = timeSlot.DepartmentHeadId
                     });
                 }
             }
@@ -235,6 +247,8 @@ namespace Capstone_API.Service.Implement
                         SlotId = item.Id,
                         ConflictSlotId = timeSlot.Id,
                         Conflict = true,
+                        SemesterId = timeSlot.SemesterId,
+                        DepartmentHeadId = timeSlot.DepartmentHeadId
                     });
                 }
                 if (item.Id != timeSlot.Id)
@@ -244,12 +258,16 @@ namespace Capstone_API.Service.Implement
                         SlotId = timeSlot.Id,
                         ConflictSlotId = item.Id,
                         Conflict = false,
+                        SemesterId = timeSlot.SemesterId,
+                        DepartmentHeadId = timeSlot.DepartmentHeadId
                     });
                     timeSlotConflicts.Add(new TimeSlotConflict()
                     {
                         SlotId = item.Id,
                         ConflictSlotId = timeSlot.Id,
                         Conflict = false,
+                        SemesterId = timeSlot.SemesterId,
+                        DepartmentHeadId = timeSlot.DepartmentHeadId
                     });
                 }
             }
@@ -266,7 +284,9 @@ namespace Capstone_API.Service.Implement
                 {
                     SlotId = timeSlot.Id,
                     LecturerId = item.Id,
-                    PreferenceLevel = 0
+                    PreferenceLevel = 0,
+                    SemesterId = timeSlot.SemesterId,
+                    DepartmentHeadId = timeSlot.DepartmentHeadId
                 });
             }
             _unitOfWork.SlotPreferenceLevelRepository.AddRange(slotPreferenceLevels);
@@ -284,7 +304,8 @@ namespace Capstone_API.Service.Implement
                         SlotId = timeSlot.Id,
                         DayOfWeek = item.Day,
                         Segment = item.Segment,
-                        SemesterId = semesterId
+                        SemesterId = semesterId,
+                        DepartmentHeadId = timeSlot.DepartmentHeadId
                     };
                     _unitOfWork.TimeSlotSegmentRepository.Add(segment);
                     _unitOfWork.Complete();
@@ -300,7 +321,8 @@ namespace Capstone_API.Service.Implement
                 {
                     AmorPm = request.DaySession,
                     Name = request.Name,
-                    SemesterId = request.SemesterId
+                    SemesterId = request.SemesterId,
+                    DepartmentHeadId = request.DepartmentHeadId
                 };
                 _unitOfWork.TimeSlotRepository.Add(timeSlot);
                 _unitOfWork.Complete();
@@ -368,6 +390,11 @@ namespace Capstone_API.Service.Implement
             }
         }
 
+        /// <summary>
+        ///  Dang loi vcl
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         #region CopyData
         public List<TimeSlot> CopyTimeSlotData(ReUseRequest request)
         {

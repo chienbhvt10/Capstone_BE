@@ -32,7 +32,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost]
-        public GenericResult<LecturerResponse> Create([FromBody] LecturerRequest request)
+        public GenericResult<LecturerResponse> Create([FromBody] CreateLecturerRequest request)
         {
             return _lecturerService.CreateLecturer(request);
         }

@@ -45,6 +45,7 @@
 
     public class SettingRequest
     {
+        public int DepartmentHeadId { get; set; }
         public int MaxSearchingTime { get; set; }
         public int Solver { get; set; }
         public int Strategy { get; set; }

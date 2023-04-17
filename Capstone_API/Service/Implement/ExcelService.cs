@@ -1,4 +1,5 @@
-﻿using Capstone_API.DTO.Excel;
+﻿using Capstone_API.DTO.CommonRequest;
+using Capstone_API.DTO.Excel;
 using Capstone_API.Models;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
@@ -18,12 +19,11 @@ namespace Capstone_API.Service.Implement
             _taskService = taskService;
         }
 
-        public FileStreamResult ExportGroupByLecturers(IHttpContextAccessor _httpContextAccessor)
+        public FileStreamResult ExportGroupByLecturers(GetAllRequest request, IHttpContextAccessor _httpContextAccessor)
         {
             try
             {
-                var currentSemester = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
-                var exportItems = _taskService.GetTaskResponseByLecturerKey(currentSemester);
+                var exportItems = _taskService.GetTaskResponseByLecturerKey(request);
                 string excelName = $"Timetable-{DateTime.Now:yyyyMMddHHmmssfff}.xlsx";
                 var excelPackage = new ExcelPackage();
                 var worksheet = excelPackage.Workbook.Worksheets.Add("Sheet1");
@@ -49,7 +49,6 @@ namespace Capstone_API.Service.Implement
                 {
                     Class = item.Class?.Name,
                     Subject = item.Subject?.Code,
-                    Dept = _unitOfWork.DepartmentRepository.GetByCondition(d => d.Id == item.Lecturer?.DepartmentId).FirstOrDefault()?.Department1 ?? "",
                     TimeSlot = item.TimeSlot?.Name,
                     Room = item.Room1?.Name,
                     Status = item.Lecturer?.ShortName != null ? "ASSIGNED" : "NOT_ASSIGNED",
@@ -73,7 +72,7 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public async Task<ResponseResult> ImportTimetable(IFormFile file, CancellationToken cancellationToken)
+        public async Task<ResponseResult> ImportTimetable(GetAllRequest request, IFormFile file, CancellationToken cancellationToken)
         {
             if (file == null || file.Length <= 0)
             {
@@ -130,6 +129,7 @@ namespace Capstone_API.Service.Implement
                             {
                                 clasTemp.Name = className;
                                 clasTemp.SemesterId = semesterId;
+                                clasTemp.DepartmentHeadId = request.DepartmentHeadId;
                                 classes.Add(clasTemp);
                                 _unitOfWork.ClassRepository.Add(clasTemp);
                             }
@@ -137,6 +137,7 @@ namespace Capstone_API.Service.Implement
                             {
                                 clasTemp.Name = className;
                                 clasTemp.SemesterId = semesterId;
+                                clasTemp.DepartmentHeadId = request.DepartmentHeadId;
                                 classes.Add(clasTemp);
                                 _unitOfWork.ClassRepository.Add(clasTemp);
                             }
@@ -145,6 +146,7 @@ namespace Capstone_API.Service.Implement
                             {
                                 roomTemp.Name = roomName;
                                 roomTemp.SemesterId = semesterId;
+                                roomTemp.DepartmentHeadId = request.DepartmentHeadId;
                                 rooms.Add(roomTemp);
                                 _unitOfWork.RoomRepository.Add(roomTemp);
                             }
@@ -152,6 +154,7 @@ namespace Capstone_API.Service.Implement
                             {
                                 roomTemp.Name = roomName;
                                 roomTemp.SemesterId = semesterId;
+                                roomTemp.DepartmentHeadId = request.DepartmentHeadId;
                                 rooms.Add(roomTemp);
                                 _unitOfWork.RoomRepository.Add(roomTemp);
                             };
@@ -164,7 +167,8 @@ namespace Capstone_API.Service.Implement
                                 SubjectId = subjectFind?.Id == 0 ? 0 : subjectFind?.Id,
                                 TimeSlotId = timeSlotFind?.Id == 0 ? 0 : timeSlotFind?.Id,
                                 Room1Id = roomFind == null ? (roomTemp.Id == 0 ? 0 : roomTemp.Id) : (roomFind?.Id == 0 ? 0 : roomFind?.Id),
-                                SemesterId = semesterId
+                                SemesterId = semesterId,
+                                DepartmentHeadId = request.DepartmentHeadId
                             };
 
                             _unitOfWork.TaskRepository.Add(taskAssign);

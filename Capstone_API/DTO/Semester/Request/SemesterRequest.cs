@@ -5,5 +5,6 @@
         public bool? IsNow { get; set; }
         public string? Year { get; set; }
         public string? Semester { get; set; }
+        public int DepartmentHeadId { get; set; }
     }
 }

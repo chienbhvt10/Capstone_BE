@@ -20,7 +20,6 @@ namespace Capstone_API.UOW_Repositories.Repositories
             var items = _context.Lecturers
                 .Include(item => item.SubjectPreferenceLevels)
                 .Include(item => item.SlotPreferenceLevels)
-                .Include(item => item.Department)
                 .Include(item => item.TaskAssigns)
                     .ThenInclude(item => item.TimeSlot)
                 .ToList();

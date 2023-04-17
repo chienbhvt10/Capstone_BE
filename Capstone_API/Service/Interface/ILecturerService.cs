@@ -9,7 +9,7 @@ namespace Capstone_API.Service.Interface
     {
         GenericResult<List<LecturerResponse>> GetAll(GetLecturerDTO request);
         GenericResult<LecturerResponse> GetOneLecturer(int Id);
-        GenericResult<LecturerResponse> CreateLecturer(LecturerRequest request);
+        GenericResult<LecturerResponse> CreateLecturer(CreateLecturerRequest request);
         ResponseResult UpdateLecturer(LecturerResponse request);
         ResponseResult DeleteLecturer(int id);
         ResponseResult ReUseDataFromASemester(ReUseRequest request);

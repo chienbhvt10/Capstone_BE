@@ -9,6 +9,7 @@ namespace Capstone_API.Models
         public int? LecturerId { get; set; }
         public int? SlotId { get; set; }
         public int? PreferenceLevel { get; set; }
+        public int? DepartmentHeadId { get; set; }
         public int? SemesterId { get; set; }
 
         public virtual Lecturer? Lecturer { get; set; }

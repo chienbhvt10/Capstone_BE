@@ -23,7 +23,9 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var lecturers = _unitOfWork.LecturerRepository.MappingLecturerData().Where(item => item.SemesterId == request.SemesterId);
+                var lecturers = _unitOfWork.LecturerRepository.MappingLecturerData()
+                    .Where(item => item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId);
                 if (request.TimeSlotId == null && request.SubjectId == null)
                 {
                     var lecturersViewModel = _mapper.Map<List<LecturerResponse>>(lecturers);
@@ -71,6 +73,7 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<LecturerResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+
         #region Create Lecturer
         public void CreateSlotPreferenceForNewLecturer(Lecturer lecturer)
         {
@@ -81,7 +84,9 @@ namespace Capstone_API.Service.Implement
                 {
                     SlotId = item.Id,
                     LecturerId = lecturer.Id,
-                    PreferenceLevel = 5
+                    PreferenceLevel = 5,
+                    SemesterId = lecturer.SemesterId,
+                    DepartmentHeadId = lecturer.DepartmentHeadId
                 });
             }
             _unitOfWork.SlotPreferenceLevelRepository.AddRange(slotPreferenceLevels);
@@ -97,7 +102,9 @@ namespace Capstone_API.Service.Implement
                 {
                     SubjectId = item.Id,
                     LecturerId = lecturer.Id,
-                    PreferenceLevel = 0
+                    PreferenceLevel = 0,
+                    SemesterId = lecturer.SemesterId,
+                    DepartmentHeadId = lecturer.DepartmentHeadId
                 });
             }
             _unitOfWork.SubjectPreferenceLevelRepository.AddRange(slotPreferenceLevels);
@@ -105,7 +112,7 @@ namespace Capstone_API.Service.Implement
         }
 
         // need create subject preferencelevel, slot preference level
-        public GenericResult<LecturerResponse> CreateLecturer(LecturerRequest request)
+        public GenericResult<LecturerResponse> CreateLecturer(CreateLecturerRequest request)
         {
             try
             {
@@ -124,6 +131,7 @@ namespace Capstone_API.Service.Implement
             }
         }
         #endregion
+
         public ResponseResult UpdateLecturer(LecturerResponse request)
         {
             try
@@ -174,20 +182,21 @@ namespace Capstone_API.Service.Implement
             try
             {
 
-                var fromLecturerData = _unitOfWork.LecturerRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+                var fromLecturerData = _unitOfWork.LecturerRepository.GetAll()
+                    .Where(item => item.SemesterId == request.FromSemesterId && item.DepartmentHeadId == request.DepartmentHeadId);
                 List<Lecturer> newLecturer = new();
 
                 foreach (var item in fromLecturerData)
                 {
                     newLecturer.Add(new Lecturer()
                     {
-                        DepartmentId = item.DepartmentId,
                         Email = item.Email,
                         MinQuota = item.MinQuota,
                         Quota = item.Quota,
                         ShortName = item.ShortName,
                         Name = item.Name,
-                        SemesterId = request.ToSemesterId
+                        SemesterId = request.ToSemesterId,
+                        DepartmentHeadId = request.DepartmentHeadId
                     });
                 }
                 _unitOfWork.LecturerRepository.AddRange(newLecturer);

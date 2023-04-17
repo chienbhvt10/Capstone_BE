@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Capstone_API.DTO.Class.Response;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Capstone_API.UOW_Repositories.UnitOfWork;
@@ -15,11 +16,14 @@ namespace Capstone_API.Service.Implement
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public GenericResult<IEnumerable<ClassResponse>> GetAll()
+        public GenericResult<IEnumerable<ClassResponse>> GetAll(GetAllRequest request)
         {
             try
             {
                 var classes = _unitOfWork.ClassRepository.GetAll();
+                //.Where(item =>
+                //item.SemesterId == request.SemesterId
+                //&& item.DepartmentHeadId == request.DepartmentHeadId);
                 var classesViewModel = _mapper.Map<IEnumerable<ClassResponse>>(classes);
                 return new GenericResult<IEnumerable<ClassResponse>>(classesViewModel, true);
             }

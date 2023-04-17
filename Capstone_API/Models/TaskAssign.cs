@@ -13,9 +13,11 @@ namespace Capstone_API.Models
         public int? Room1Id { get; set; }
         public bool? PreAssign { get; set; }
         public bool? Status { get; set; }
+        public int? DepartmentHeadId { get; set; }
         public int? SemesterId { get; set; }
 
         public virtual Class? Class { get; set; }
+        public virtual User? DepartmentHead { get; set; }
         public virtual Lecturer? Lecturer { get; set; }
         public virtual Room? Room1 { get; set; }
         public virtual SemesterInfo? Semester { get; set; }

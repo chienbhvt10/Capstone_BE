@@ -9,6 +9,7 @@ namespace Capstone_API.Models
         public int? SlotId { get; set; }
         public int? ConflictSlotId { get; set; }
         public bool? Conflict { get; set; }
+        public int? DepartmentHeadId { get; set; }
         public int? SemesterId { get; set; }
 
         public virtual TimeSlot? ConflictSlot { get; set; }

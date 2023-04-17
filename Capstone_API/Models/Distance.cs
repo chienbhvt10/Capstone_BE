@@ -9,6 +9,7 @@ namespace Capstone_API.Models
         public int? Building1Id { get; set; }
         public int? Building2Id { get; set; }
         public int? DistanceBetween { get; set; }
+        public int? DepartmentHeadId { get; set; }
         public int? SemesterId { get; set; }
 
         public virtual Building? Building1 { get; set; }

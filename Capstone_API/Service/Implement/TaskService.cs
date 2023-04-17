@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.DTO.Task.Request;
 using Capstone_API.DTO.Task.Response;
 using Capstone_API.Results;
@@ -26,7 +27,12 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var query = GetTaskResponses(request.SemesterId).Where(item => item.TaskId == request.TaskId).FirstOrDefault();
+                var getAllRequest = new GetAllRequest()
+                {
+                    DepartmentHeadId = request.DepartmentHeadId,
+                    SemesterId = request.SemesterId
+                };
+                var query = GetTaskResponses(getAllRequest).Where(item => item.TaskId == request.TaskId).FirstOrDefault();
                 query ??= _mapper.Map<QueryDataByLecturerAndTimeSlot>(GetTasksNotAssignForDetail().Where(item => item.TaskId == request.TaskId).FirstOrDefault());
 
                 return new GenericResult<QueryDataByLecturerAndTimeSlot>(query, true);
@@ -39,12 +45,17 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region SearchTask
-        public GenericResult<SearchDTO> SearchTask(DTO.Task.Request.GetAllTaskAssignDTO request)
+        public GenericResult<SearchDTO> SearchTask(GetAllTaskAssignRequest request)
         {
             try
             {
-                List<List<TimeSlotInfo>> querySearchDataNotAssign = GetTasksNotAssign(request.SemesterId);
-                IEnumerable<ResponseTaskByLecturerIsKey> querySearchDataAssign = GetTaskResponseByLecturerKey(request.SemesterId);
+                var getAllRequest = new GetAllRequest()
+                {
+                    DepartmentHeadId = request.DepartmentHeadId,
+                    SemesterId = request.SemesterId
+                };
+                List<List<TimeSlotInfo>> querySearchDataNotAssign = GetTasksNotAssign(getAllRequest);
+                IEnumerable<ResponseTaskByLecturerIsKey> querySearchDataAssign = GetTaskResponseByLecturerKey(getAllRequest);
                 if (request.SemesterId != 0)
                 {
                     querySearchDataAssign = querySearchDataAssign.Where(item => item.SemesterId == request.SemesterId);
@@ -250,16 +261,15 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetTaskAssigned
-        public IEnumerable<QueryDataByLecturerAndTimeSlot> GetTaskResponses(int semesterId)
+        public IEnumerable<QueryDataByLecturerAndTimeSlot> GetTaskResponses(GetAllRequest request)
         {
 
             var context = _unitOfWork.Context;
             var result = from A in (
                                 from l in context.Lecturers
                                 from ts in context.TimeSlots
-                                where ts.SemesterId == semesterId && l.SemesterId == semesterId
                                 select new
-                                { LecturerId = l.Id, LecturerName = l.ShortName, TimeSlotId = ts.Id, TimeSlotName = ts.Name, ts.SemesterId }
+                                { LecturerId = l.Id, LecturerName = l.ShortName, TimeSlotId = ts.Id, TimeSlotName = ts.Name, ts.SemesterId, ts.DepartmentHeadId }
                             )
                          join B in context.TaskAssigns
                              on new { A.TimeSlotId, A.LecturerId } equals new { TimeSlotId = B.TimeSlotId ?? 0, LecturerId = B.LecturerId ?? 0 } into AB
@@ -273,7 +283,7 @@ namespace Capstone_API.Service.Implement
                          join E in context.Rooms
                          on B.Room1Id equals E.Id into BE
                          from E in BE.DefaultIfEmpty()
-                         where semesterId == A.SemesterId
+                         where A.SemesterId == request.SemesterId && A.DepartmentHeadId == request.DepartmentHeadId
                          select new QueryDataByLecturerAndTimeSlot()
                          {
                              TaskId = B.Id,
@@ -296,10 +306,10 @@ namespace Capstone_API.Service.Implement
             return result;
         }
 
-        public List<ResponseTaskByLecturerIsKey> GetTaskResponseByLecturerKey(int semesterId)
+        public List<ResponseTaskByLecturerIsKey> GetTaskResponseByLecturerKey(GetAllRequest request)
         {
 
-            var data = GetTaskResponses(semesterId)
+            var data = GetTaskResponses(request)
                 .OrderBy(item => item.LecturerId).GroupBy(item => item.LecturerId);
             var result = data.Select(group =>
                 new ResponseTaskByLecturerIsKey
@@ -330,11 +340,11 @@ namespace Capstone_API.Service.Implement
 
         }
 
-        public GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned(int semesterId)
+        public GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned(GetAllRequest request)
         {
             try
             {
-                var data = GetTaskResponseByLecturerKey(semesterId);
+                var data = GetTaskResponseByLecturerKey(request);
                 return new GenericResult<List<ResponseTaskByLecturerIsKey>>(data, true);
             }
             catch (Exception ex)
@@ -345,13 +355,18 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetTasksNotAssigned
-        public List<List<TimeSlotInfo>> GetTasksNotAssign(int semesterId)
+        public List<List<TimeSlotInfo>> GetTasksNotAssign(GetAllRequest request)
         {
             var data = _unitOfWork.TaskRepository.MappingTaskData()
-                    .Where(item => item.LecturerId == null && item.SemesterId == semesterId).ToList();
+                    .Where(item =>
+                    item.LecturerId == null
+                    && item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
             List<List<TimeSlotInfo>> result = new();
 
-            foreach (var item in _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == semesterId).ToList())
+            var currentTimeSlots = _unitOfWork.TimeSlotRepository.GetAll()
+                .Where(item => item.SemesterId == request.SemesterId && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
+            foreach (var item in currentTimeSlots)
             {
 
                 List<TimeSlotInfo> currentTimeSlot = new();
@@ -403,16 +418,19 @@ namespace Capstone_API.Service.Implement
             return result;
         }
 
-        public GenericResult<TimeSlotInfoResponse> GetAllTaskNotAssign(int semesterId)
+        public GenericResult<TimeSlotInfoResponse> GetAllTaskNotAssign(GetAllRequest request)
         {
             try
             {
-                var result = GetTasksNotAssign(semesterId);
+                var result = GetTasksNotAssign(request);
 
                 var total = new TimeSlotInfoResponse()
                 {
                     Total = _unitOfWork.TaskRepository.MappingTaskData()
-                        .Where(item => item.LecturerId == null && item.SemesterId == semesterId).Count(),
+                        .Where(item =>
+                        item.LecturerId == null
+                        && item.SemesterId == request.SemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId).Count(),
                     TimeSlotInfos = result
                 };
                 return new GenericResult<TimeSlotInfoResponse>(total, true);

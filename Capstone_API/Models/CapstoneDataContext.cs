@@ -71,6 +71,16 @@ namespace Capstone_API.Models
                 entity.Property(e => e.Name).HasMaxLength(50);
 
                 entity.Property(e => e.ShortName).HasMaxLength(50);
+
+                entity.HasOne(d => d.DepartmentHead)
+                    .WithMany(p => p.Buildings)
+                    .HasForeignKey(d => d.DepartmentHeadId)
+                    .HasConstraintName("FK_Building_User");
+
+                entity.HasOne(d => d.Semester)
+                    .WithMany(p => p.Buildings)
+                    .HasForeignKey(d => d.SemesterId)
+                    .HasConstraintName("FK_Building_SemesterInfo");
             });
 
             modelBuilder.Entity<Class>(entity =>
@@ -116,6 +126,11 @@ namespace Capstone_API.Models
                 entity.ToTable("ExecuteInfo");
 
                 entity.Property(e => e.ExecuteTime).HasColumnType("datetime");
+
+                entity.HasOne(d => d.DepartmentHead)
+                    .WithMany(p => p.ExecuteInfos)
+                    .HasForeignKey(d => d.DepartmentHeadId)
+                    .HasConstraintName("FK_ExecuteInfo_User");
             });
 
             modelBuilder.Entity<Lecturer>(entity =>
@@ -128,10 +143,10 @@ namespace Capstone_API.Models
 
                 entity.Property(e => e.ShortName).HasMaxLength(50);
 
-                entity.HasOne(d => d.Department)
+                entity.HasOne(d => d.DepartmentHead)
                     .WithMany(p => p.Lecturers)
-                    .HasForeignKey(d => d.DepartmentId)
-                    .HasConstraintName("FK_Lecturer_Department");
+                    .HasForeignKey(d => d.DepartmentHeadId)
+                    .HasConstraintName("FK_Lecturer_User");
             });
 
             modelBuilder.Entity<Room>(entity =>
@@ -146,6 +161,11 @@ namespace Capstone_API.Models
                 entity.ToTable("SemesterInfo");
 
                 entity.Property(e => e.Semester).HasMaxLength(50);
+
+                entity.HasOne(d => d.DepartmentHead)
+                    .WithMany(p => p.SemesterInfos)
+                    .HasForeignKey(d => d.DepartmentHeadId)
+                    .HasConstraintName("FK_SemesterInfo_User");
             });
 
             modelBuilder.Entity<SlotPerDay>(entity =>
@@ -226,6 +246,11 @@ namespace Capstone_API.Models
                     .HasForeignKey(d => d.ClassId)
                     .HasConstraintName("FK_TaskAssign_Classes");
 
+                entity.HasOne(d => d.DepartmentHead)
+                    .WithMany(p => p.TaskAssigns)
+                    .HasForeignKey(d => d.DepartmentHeadId)
+                    .HasConstraintName("FK_TaskAssign_User");
+
                 entity.HasOne(d => d.Lecturer)
                     .WithMany(p => p.TaskAssigns)
                     .HasForeignKey(d => d.LecturerId)
@@ -259,6 +284,11 @@ namespace Capstone_API.Models
                 entity.Property(e => e.AmorPm).HasColumnName("AMorPM");
 
                 entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.HasOne(d => d.DepartmentHead)
+                    .WithMany(p => p.TimeSlots)
+                    .HasForeignKey(d => d.DepartmentHeadId)
+                    .HasConstraintName("FK_TimeSlot_User");
             });
 
             modelBuilder.Entity<TimeSlotConflict>(entity =>
@@ -298,6 +328,11 @@ namespace Capstone_API.Models
                 entity.Property(e => e.Password).HasMaxLength(50);
 
                 entity.Property(e => e.Username).HasMaxLength(50);
+
+                entity.HasOne(d => d.Department)
+                    .WithMany(p => p.Users)
+                    .HasForeignKey(d => d.DepartmentId)
+                    .HasConstraintName("FK_User_Department");
             });
 
             OnModelCreatingPartial(modelBuilder);

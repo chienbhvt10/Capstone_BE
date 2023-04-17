@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.DTO.Distance;
 using Capstone_API.DTO.Distance.Request;
 using Capstone_API.DTO.Distance.Response;
@@ -18,11 +19,14 @@ namespace Capstone_API.Service.Implement
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public GenericResult<List<RoomResponse>> GetAllRoom()
+        public GenericResult<List<RoomResponse>> GetAllRoom(GetAllRequest request)
         {
             try
             {
                 var rooms = _unitOfWork.RoomRepository.GetAll();
+                //.Where(item =>
+                //item.SemesterId == request.SemesterId
+                //&& item.DepartmentHeadId == request.DepartmentHeadId);
                 var roomsViewModel = _mapper.Map<List<RoomResponse>>(rooms);
                 return new GenericResult<List<RoomResponse>>(roomsViewModel.ToList(), true);
             }
@@ -31,11 +35,14 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<List<RoomResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
-        public GenericResult<List<BuildingResponse>> GetAllBuilding()
+        public GenericResult<List<BuildingResponse>> GetAllBuilding(GetAllRequest request)
         {
             try
             {
-                var rooms = _unitOfWork.BuildingRepository.GetAll();
+                var rooms = _unitOfWork.BuildingRepository
+                    .GetAll().Where(item =>
+                    item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId);
                 var roomsViewModel = _mapper.Map<List<BuildingResponse>>(rooms);
                 return new GenericResult<List<BuildingResponse>>(roomsViewModel.ToList(), true);
             }
@@ -44,11 +51,11 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<List<BuildingResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
-        public GenericResult<List<DistanceResponse>> GetAllDistance()
+        public GenericResult<List<DistanceResponse>> GetAllDistance(GetAllRequest request)
         {
             try
             {
-                var rooms = DistanceByBuilding1IsKey();
+                var rooms = DistanceByBuilding1IsKey(request);
                 var roomsViewModel = _mapper.Map<List<DistanceResponse>>(rooms);
                 return new GenericResult<List<DistanceResponse>>(roomsViewModel.ToList(), true);
             }
@@ -57,9 +64,10 @@ namespace Capstone_API.Service.Implement
                 return new GenericResult<List<DistanceResponse>>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
-        public IEnumerable<DistanceResponse> DistanceByBuilding1IsKey()
+        public IEnumerable<DistanceResponse> DistanceByBuilding1IsKey(GetAllRequest request)
         {
             var data = _unitOfWork.DistanceRepository.MappingDistanceData()
+                .Where(item => item.SemesterId == request.SemesterId && item.DepartmentHeadId == request.DepartmentHeadId)
                 .OrderBy(item => item.Building1Id).GroupBy(item => item.Building1Id);
 
             var result = data.Select(group =>
@@ -106,7 +114,9 @@ namespace Capstone_API.Service.Implement
                     {
                         Building1Id = building.Id,
                         Building2Id = item.Id,
-                        DistanceBetween = 0
+                        DistanceBetween = 0,
+                        DepartmentHeadId = building.DepartmentHeadId,
+                        SemesterId = building.SemesterId
                     });
                 }
                 if (item.Id != building.Id)
@@ -115,13 +125,17 @@ namespace Capstone_API.Service.Implement
                     {
                         Building1Id = building.Id,
                         Building2Id = item.Id,
-                        DistanceBetween = 0
+                        DistanceBetween = 0,
+                        DepartmentHeadId = building.DepartmentHeadId,
+                        SemesterId = building.SemesterId
                     });
                     buildingDistance.Add(new Distance()
                     {
                         Building1Id = item.Id,
                         Building2Id = building.Id,
-                        DistanceBetween = 0
+                        DistanceBetween = 0,
+                        DepartmentHeadId = building.DepartmentHeadId,
+                        SemesterId = building.SemesterId
                     });
                 }
             }

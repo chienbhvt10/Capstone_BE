@@ -1,4 +1,5 @@
-﻿using Capstone_API.DTO.Distance;
+﻿using Capstone_API.DTO.CommonRequest;
+using Capstone_API.DTO.Distance;
 using Capstone_API.DTO.Distance.Request;
 using Capstone_API.DTO.Distance.Response;
 using Capstone_API.Results;
@@ -20,10 +21,10 @@ namespace Capstone_API.Controllers
         }
 
         #region Distance
-        [HttpGet]
-        public GenericResult<List<DistanceResponse>> GetAllDistance()
+        [HttpPost("get")]
+        public GenericResult<List<DistanceResponse>> GetAllDistance([FromBody] GetAllRequest request)
         {
-            return _distanceService.GetAllDistance();
+            return _distanceService.GetAllDistance(request);
         }
 
         [HttpPut]
@@ -35,10 +36,10 @@ namespace Capstone_API.Controllers
 
         #region Building
 
-        [HttpGet("building")]
-        public GenericResult<List<BuildingResponse>> GetAllBuilding()
+        [HttpPost("building/get")]
+        public GenericResult<List<BuildingResponse>> GetAllBuilding([FromBody] GetAllRequest request)
         {
-            return _distanceService.GetAllBuilding();
+            return _distanceService.GetAllBuilding(request);
         }
 
         [HttpPost("building")]
@@ -63,10 +64,10 @@ namespace Capstone_API.Controllers
         #endregion
 
         #region Room
-        [HttpGet("room")]
-        public GenericResult<List<RoomResponse>> GetRooms()
+        [HttpPost("room")]
+        public GenericResult<List<RoomResponse>> GetRooms([FromBody] GetAllRequest request)
         {
-            return _distanceService.GetAllRoom();
+            return _distanceService.GetAllRoom(request);
         }
         #endregion
     }

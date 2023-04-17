@@ -19,8 +19,10 @@ namespace Capstone_API.Models
         public int Id { get; set; }
         public string? Name { get; set; }
         public int? AmorPm { get; set; }
+        public int? DepartmentHeadId { get; set; }
         public int? SemesterId { get; set; }
 
+        public virtual User? DepartmentHead { get; set; }
         public virtual ICollection<AreaSlotWeight> AreaSlotWeightAreaSlots { get; set; }
         public virtual ICollection<AreaSlotWeight> AreaSlotWeightSlots { get; set; }
         public virtual ICollection<SlotPreferenceLevel> SlotPreferenceLevels { get; set; }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.DTO.Task.Fetch;
 using Capstone_API.Models;
 using Capstone_API.Results;
@@ -20,11 +21,15 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
             _httpClient = httpClient;
         }
-        public GenericResult<List<ExecuteInfoResponse>> GetAll(int semesterId)
+
+        public GenericResult<List<ExecuteInfoResponse>> GetAll(GetAllRequest request)
         {
             try
             {
-                var executeInfo = _unitOfWork.ExecuteInfoRepository.GetAll().Where(item => item.SemesterId == semesterId);
+                var executeInfo = _unitOfWork.ExecuteInfoRepository.GetAll()
+                    .Where(item =>
+                    item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId);
                 var executeInfoViewModel = _mapper.Map<List<ExecuteInfoResponse>>(executeInfo).OrderByDescending(item => item.ExecuteTime).ToList();
                 return new GenericResult<List<ExecuteInfoResponse>>(executeInfoViewModel, true);
             }
@@ -34,7 +39,7 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public ResponseResult CreateExecuteInfo(ExecuteInfoResponse request)
+        public ResponseResult CreateExecuteInfo(CreateExecuteInfoRequest request)
         {
             try
             {
@@ -114,13 +119,14 @@ namespace Capstone_API.Service.Implement
 
         #region Execute
 
-        public void SaveExecuteId(ExecuteResponse result)
+        public void SaveExecuteId(ExecuteResponse result, int departmentHeadId)
         {
 
             var executeInfo = new ExecuteInfo()
             {
                 ExecuteId = result.sessionId,
                 ExecuteTime = DateTime.Now,
+                DepartmentHeadId = departmentHeadId,
                 SemesterId = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true)?.Id
             };
             _unitOfWork.ExecuteInfoRepository.Add(executeInfo);
@@ -162,7 +168,7 @@ namespace Capstone_API.Service.Implement
 
                 if (result != null && result.sessionId != null && !result.sessionId.Equals(""))
                 {
-                    SaveExecuteId(result);
+                    SaveExecuteId(result, request.DepartmentHeadId);
                 }
 
                 return new GenericResult<ExecuteResponse>(result, true);
@@ -177,25 +183,28 @@ namespace Capstone_API.Service.Implement
         public ExecuteFetchRequest GetExecuteFetchRequest(SettingRequest request)
         {
             int currentSemesterId = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
-            List<int> InstructorQuota = GetInstructorQuota(currentSemesterId);
-            List<int> InstructorMinQuota = GetInstructorMinQuota(currentSemesterId);
+            List<int> InstructorQuota = GetInstructorQuota(currentSemesterId, request.DepartmentHeadId);
+            List<int> InstructorMinQuota = GetInstructorMinQuota(currentSemesterId, request.DepartmentHeadId);
             List<int?> PatternCost = GetPatternCost(currentSemesterId);
-            List<List<int>>? SlotConflict = GetSlotConflict(currentSemesterId);
-            List<List<int?>>? AreaSlotCoefficient = GetAreaSlotCoefficient(currentSemesterId);
-            List<List<int?>>? InstructorSubject = GetInstructorSubject(currentSemesterId);
-            List<List<int?>>? InstructorSlot = GetInstructorSlot(currentSemesterId);
-            List<List<int?>>? AreaDistance = GetAreaDistance();
-            List<List<int>>? Slotday = GetSlotDays(currentSemesterId);
-            List<List<int>>? SlotTimes = GetSlotTimes(currentSemesterId);
+            List<List<int>>? SlotConflict = GetSlotConflict(currentSemesterId, request.DepartmentHeadId);
+            List<List<int?>>? AreaSlotCoefficient = GetAreaSlotCoefficient(currentSemesterId, request.DepartmentHeadId);
+            List<List<int?>>? InstructorSubject = GetInstructorSubject(currentSemesterId, request.DepartmentHeadId);
+            List<List<int?>>? InstructorSlot = GetInstructorSlot(currentSemesterId, request.DepartmentHeadId);
+            List<List<int?>>? AreaDistance = GetAreaDistance(currentSemesterId, request.DepartmentHeadId);
+            List<List<int>>? Slotday = GetSlotDays(currentSemesterId, request.DepartmentHeadId);
+            List<List<int>>? SlotTimes = GetSlotTimes(currentSemesterId, request.DepartmentHeadId);
 
-            List<Building> Buildings = _unitOfWork.BuildingRepository.GetAll().ToList();
-            List<SlotFetchRequest> Slots = GetSlotFetchRequest(currentSemesterId);
+            List<Building> Buildings = _unitOfWork.BuildingRepository.GetAll()
+                .Where(item => item.SemesterId == currentSemesterId
+                && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
+
+            List<SlotFetchRequest> Slots = GetSlotFetchRequest(currentSemesterId, request.DepartmentHeadId);
             List<DayOfWeekFetchRequest> DayOfWeeks = GetDayOfWeekFetchRequest();
-            List<SubjectFetchRequest> Subjects = GetSubjectFetchRequest(currentSemesterId);
-            List<InstructorFetchRequest> Instructors = GetInstructorFetchRequest(currentSemesterId);
-            List<TaskFetchRequest> Tasks = GetTaskFetchRequest(Slots, Subjects, currentSemesterId);
-            List<List<int>>? SlotSegments = GetSlotSegments(Slots, DayOfWeeks, currentSemesterId);
-            List<TaskPreAssignFetchRequest> PreAssign = GetTaskPreAssignFetchRequest(Instructors, Tasks, currentSemesterId);
+            List<SubjectFetchRequest> Subjects = GetSubjectFetchRequest(currentSemesterId, request.DepartmentHeadId);
+            List<InstructorFetchRequest> Instructors = GetInstructorFetchRequest(currentSemesterId, request.DepartmentHeadId);
+            List<TaskFetchRequest> Tasks = GetTaskFetchRequest(Slots, Subjects, currentSemesterId, request.DepartmentHeadId);
+            List<List<int>>? SlotSegments = GetSlotSegments(Slots, DayOfWeeks, currentSemesterId, request.DepartmentHeadId);
+            List<TaskPreAssignFetchRequest> PreAssign = GetTaskPreAssignFetchRequest(Instructors, Tasks, currentSemesterId, request.DepartmentHeadId);
 
             var slotPerDay = _unitOfWork.NumSegmentsRepository.GetAll().Where(item => item.SemesterId == currentSemesterId).FirstOrDefault();
 
@@ -238,12 +247,12 @@ namespace Capstone_API.Service.Implement
 
         #region GetSlotTimes
         // Timeslot AM or PM
-        private List<List<int>> GetSlotTimes(int currentSemesterid)
+        private List<List<int>> GetSlotTimes(int currentSemesterid, int departmentHeadId)
         {
             List<List<int>> slotTimes = new();
             List<TimeSlot> timeSlots =
                 _unitOfWork.TimeSlotRepository.GetAll()
-                    .Where(item => item.SemesterId == currentSemesterid)
+                    .Where(item => item.SemesterId == currentSemesterid && item.DepartmentHeadId == departmentHeadId)
                     .OrderBy(item => item.Id)
                     .ToList();
             foreach (var item in timeSlots)
@@ -264,12 +273,16 @@ namespace Capstone_API.Service.Implement
 
         #region GetSlotSegments
         // slotsegment info with slot order, day order, segment order
-        private List<List<int>> GetSlotSegments(List<SlotFetchRequest> Slots, List<DayOfWeekFetchRequest> dayOfWeeks, int currentSemesterid)
+        private List<List<int>> GetSlotSegments(
+            List<SlotFetchRequest> Slots,
+            List<DayOfWeekFetchRequest> dayOfWeeks,
+            int currentSemesterid,
+            int departmentHeadId)
         {
             List<List<int>> slotSegments = new();
             List<TimeSlotSegment> timeSlotSegments =
                 _unitOfWork.TimeSlotSegmentRepository.GetAll()
-                    .Where(item => item.SemesterId == currentSemesterid)
+                    .Where(item => item.SemesterId == currentSemesterid && item.DepartmentHeadId == departmentHeadId)
                     .OrderBy(item => item.Id)
                     .ToList();
 
@@ -292,11 +305,14 @@ namespace Capstone_API.Service.Implement
 
         #region GetSlotDays
         // Timeslot in what day on weeks
-        private List<List<int>> GetSlotDays(int currentSemesterid)
+        private List<List<int>> GetSlotDays(int currentSemesterid, int departmentHeadId)
         {
             List<List<int>> slotDays =
                 _unitOfWork.TimeSlotSegmentRepository.GetAll()
-                .Where(item => item.SlotId != null && item.SemesterId == currentSemesterid)
+                .Where(item =>
+                        item.SlotId != null
+                        && item.SemesterId == currentSemesterid
+                        && item.DepartmentHeadId == departmentHeadId)
                 .OrderBy(item => item.SlotId).GroupBy(item => item.SlotId)
                 .Select(gr => gr.OrderBy(item => item.DayOfWeek)
                                 .Select(item => item.Segment != 0 ? 1 : 0)
@@ -308,7 +324,7 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetPatternCost
-        private int CountZerosBetweenOnes(int n)
+        public int CountZerosBetweenOnes(int n)
         {
             string binaryN = Convert.ToString(n, 2);
             int count = 0;
@@ -342,24 +358,25 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetAreaDistance
-        private List<List<int?>> GetAreaDistance()
+        private List<List<int?>> GetAreaDistance(int currentSemesterid, int departmentHeadId)
         {
             return _unitOfWork.DistanceRepository.GetAll()
-                                        .OrderBy(item => item.Building1Id)
-                                        .GroupBy(item => item.Building1Id)
-                                        .Select(item => item.Select(item => item.DistanceBetween)
-                                        .ToList()).ToList();
+            .Where(item => item.SemesterId == currentSemesterid && item.DepartmentHeadId == departmentHeadId)
+            .OrderBy(item => item.Building1Id)
+            .GroupBy(item => item.Building1Id)
+            .Select(item => item.Select(item => item.DistanceBetween)
+            .ToList()).ToList();
         }
         #endregion
 
         #region GetTaskFetchRequest
-        private List<TaskFetchRequest> GetTaskFetchRequest(List<SlotFetchRequest> Slots, List<SubjectFetchRequest> Subjects, int currentSemesterid)
+        private List<TaskFetchRequest> GetTaskFetchRequest(List<SlotFetchRequest> Slots, List<SubjectFetchRequest> Subjects, int currentSemesterid, int departmentHeadId)
         {
             List<TaskFetchRequest>? Tasks = new();
 
             int count = 0;
             List<TaskAssign> taskAssigns = _unitOfWork.TaskRepository.GetAll()
-                .Where(item => item.SemesterId == currentSemesterid)
+                .Where(item => item.SemesterId == currentSemesterid && item.DepartmentHeadId == departmentHeadId)
                 .OrderBy(item => item.Id)
                 .ToList();
 
@@ -380,12 +397,17 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetTaskPreAssignFetchRequest
-        private List<TaskPreAssignFetchRequest> GetTaskPreAssignFetchRequest(List<InstructorFetchRequest> Instructors, List<TaskFetchRequest> Tasks, int currentSemesterid)
+        private List<TaskPreAssignFetchRequest> GetTaskPreAssignFetchRequest(
+            List<InstructorFetchRequest> Instructors,
+            List<TaskFetchRequest> Tasks,
+            int currentSemesterid,
+            int departmentHeadId)
         {
             List<TaskPreAssignFetchRequest>? PreAssign = _unitOfWork.TaskRepository.GetAll()
                 .Where(item => item.LecturerId != null
                                 && (item.PreAssign ?? false)
-                                && item.SemesterId == currentSemesterid)
+                && item.SemesterId == currentSemesterid
+                                && item.DepartmentHeadId == departmentHeadId)
                 .Select(item => new TaskPreAssignFetchRequest()
                 {
                     InstructorOrder =
@@ -403,14 +425,14 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetSubjectFetchRequest
-        private List<SubjectFetchRequest> GetSubjectFetchRequest(int currentSemesterid)
+        private List<SubjectFetchRequest> GetSubjectFetchRequest(int currentSemesterid, int departmentHeadId)
         {
             List<SubjectFetchRequest>? Subjects = new();
 
             int count = 0;
             List<Subject> subjects =
                 _unitOfWork.SubjectRepository.GetAll()
-                .Where(item => item.SemesterId == currentSemesterid)
+                .Where(item => item.SemesterId == currentSemesterid && item.DepartmentHeadId == departmentHeadId)
                 .OrderBy(item => item.Id)
                 .ToList();
             foreach (var lecturer in subjects)
@@ -449,13 +471,13 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetInstructorFetchRequest
-        private List<InstructorFetchRequest> GetInstructorFetchRequest(int currentSemesterid)
+        private List<InstructorFetchRequest> GetInstructorFetchRequest(int currentSemesterid, int departmentHeadId)
         {
             List<InstructorFetchRequest>? Instructors = new();
 
             int count = 0;
             List<Lecturer> lecturers = _unitOfWork.LecturerRepository.GetAll()
-                                        .Where(item => item.SemesterId == currentSemesterid)
+                                        .Where(item => item.SemesterId == currentSemesterid && item.DepartmentHeadId == departmentHeadId)
                                         .OrderBy(item => item.Id)
                                         .ToList();
             foreach (var lecturer in lecturers)
@@ -473,12 +495,12 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetSlotFetchRequest
-        private List<SlotFetchRequest> GetSlotFetchRequest(int currentSemesterid)
+        private List<SlotFetchRequest> GetSlotFetchRequest(int currentSemesterid, int departmentHeadId)
         {
             List<SlotFetchRequest>? Slots = new();
             int count = 0;
             List<TimeSlot> timeSlots = _unitOfWork.TimeSlotRepository.GetAll()
-                                        .Where(item => item.SemesterId == currentSemesterid)
+                                        .Where(item => item.SemesterId == currentSemesterid && item.DepartmentHeadId == departmentHeadId)
                                         .OrderBy(item => item.Id)
                                         .ToList();
             foreach (var slot in timeSlots)
@@ -496,10 +518,13 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetInstructorSlot
-        private List<List<int?>> GetInstructorSlot(int currentSemesterid)
+        private List<List<int?>> GetInstructorSlot(int currentSemesterid, int departmentHeadId)
         {
             return _unitOfWork.SlotPreferenceLevelRepository.GetAll()
-                            .Where(item => item.SemesterId == currentSemesterid && item.LecturerId != null)
+                            .Where(item =>
+                            item.DepartmentHeadId == departmentHeadId
+                            && item.SemesterId == currentSemesterid
+                            && item.LecturerId != null)
                             .OrderBy(item => item.LecturerId)
                             .GroupBy(item => item.LecturerId)
                             .Select(item => item.Select(item => item.PreferenceLevel)
@@ -508,10 +533,13 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetInstructorSubject
-        private List<List<int?>> GetInstructorSubject(int currentSemesterid)
+        private List<List<int?>> GetInstructorSubject(int currentSemesterid, int departmentHeadId)
         {
             return _unitOfWork.SubjectPreferenceLevelRepository.GetAll()
-                            .Where(item => item.SemesterId == currentSemesterid && item.LecturerId != null)
+                            .Where(item =>
+                            item.DepartmentHeadId == departmentHeadId
+                            && item.SemesterId == currentSemesterid
+                            && item.LecturerId != null)
                             .OrderBy(item => item.LecturerId)
                             .GroupBy(item => item.LecturerId)
                             .Select(item => item.Select(item => item.PreferenceLevel)
@@ -520,10 +548,11 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetInstructorQuota
-        private List<int> GetInstructorQuota(int currentSemesterid)
+        private List<int> GetInstructorQuota(int currentSemesterid, int departmentHeadId)
         {
             return _unitOfWork.LecturerRepository.GetAll()
-                            .Where(item => item.SemesterId == currentSemesterid)
+                            .Where(item => item.SemesterId == currentSemesterid
+                            && item.DepartmentHeadId == departmentHeadId)
                             .OrderBy(item => item.Id)
                             .Select(item => item.Quota ?? 4)
                             .ToList();
@@ -533,10 +562,10 @@ namespace Capstone_API.Service.Implement
         #region GetInstructorMinQuota
 
         // Lecturer must be assign atleast number of quota
-        private List<int> GetInstructorMinQuota(int currentSemesterid)
+        private List<int> GetInstructorMinQuota(int currentSemesterid, int departmentHeadId)
         {
             return _unitOfWork.LecturerRepository.GetAll()
-                            .Where(item => item.SemesterId == currentSemesterid)
+                            .Where(item => item.SemesterId == currentSemesterid && item.DepartmentHeadId == departmentHeadId)
                            .OrderBy(item => item.Id)
                            .Select(item => item.MinQuota ?? 0)
                            .ToList();
@@ -545,10 +574,10 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetAreaSlotCoefficient
-        private List<List<int?>> GetAreaSlotCoefficient(int currentSemesterid)
+        private List<List<int?>> GetAreaSlotCoefficient(int currentSemesterid, int departmentHeadId)
         {
             return _unitOfWork.AreaSlotWeightRepository.GetAll()
-                            .Where(item => item.SemesterId == currentSemesterid)
+                            .Where(item => item.SemesterId == currentSemesterid && item.DepartmentHeadId == departmentHeadId)
                             .OrderBy(item => item.SlotId)
                             .GroupBy(item => item.SlotId)
                             .Select(item => item.Select(item => item.AreaSlotWeight1)
@@ -557,10 +586,10 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetSlotConflict
-        private List<List<int>> GetSlotConflict(int currentSemesterid)
+        private List<List<int>> GetSlotConflict(int currentSemesterid, int departmentHeadId)
         {
             return _unitOfWork.TimeSlotConflictRepository.GetAll()
-                            .Where(item => item.SemesterId == currentSemesterid)
+                            .Where(item => item.SemesterId == currentSemesterid && item.DepartmentHeadId == departmentHeadId)
                             .OrderBy(item => item.SlotId)
                             .GroupBy(item => item.SlotId)
                             .Select(item => item.Select(item => (bool)item.Conflict ? 1 : 0)

@@ -1,11 +1,10 @@
-﻿using Capstone_API.DTO.Task.Fetch;
+﻿using Capstone_API.DTO.CommonRequest;
+using Capstone_API.DTO.Task.Fetch;
 using Capstone_API.DTO.Task.Request;
 using Capstone_API.DTO.Task.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
-using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -42,21 +41,21 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("search-tasks")]
-        public GenericResult<SearchDTO> GetTaskAssign([FromBody] DTO.Task.Request.GetAllTaskAssignDTO request)
+        public GenericResult<SearchDTO> GetTaskAssign([FromBody] DTO.Task.Request.GetAllTaskAssignRequest request)
         {
             return _taskService.SearchTask(request);
         }
 
         [HttpPost("get-tasks-not-assigned")]
-        public GenericResult<TimeSlotInfoResponse> GetTaskNotAssigned([FromBody] GetTaskRequest request)
+        public GenericResult<TimeSlotInfoResponse> GetTaskNotAssigned([FromBody] GetAllRequest request)
         {
-            return _taskService.GetAllTaskNotAssign(request.SemesterId);
+            return _taskService.GetAllTaskNotAssign(request);
         }
 
         [HttpPost("get-tasks-assigned")]
-        public GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned([FromBody] GetTaskRequest request)
+        public GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned([FromBody] GetAllRequest request)
         {
-            return _taskService.GetTaskAssigned(request.SemesterId);
+            return _taskService.GetTaskAssigned(request);
         }
 
         [HttpPut("lock-and-unlock-task")]
@@ -81,35 +80,6 @@ namespace Capstone_API.Controllers
 
         #region Excel Api
 
-        [HttpGet]
-        [Route("api/export/excel")]
-        public HttpResponseMessage ExportToExcel()
-        {
-            // Create a new workbook and worksheet
-            var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("Sheet1");
-
-            // Add some data to the worksheet
-            worksheet.Cell("A1").Value = "Name";
-            worksheet.Cell("B1").Value = "Age";
-            worksheet.Cell("A2").Value = "John";
-            worksheet.Cell("B2").Value = 25;
-            worksheet.Cell("A3").Value = "Jane";
-            worksheet.Cell("B3").Value = 30;
-
-            // Save the workbook to a memory stream
-            var stream = new MemoryStream();
-            workbook.SaveAs(stream);
-
-            // Set the content type and headers for the response
-            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Content = new ByteArrayContent(stream.ToArray());
-            response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
-            response.Content.Headers.ContentDisposition.FileName = "Export.xlsx";
-            response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-            return response;
-        }
 
         [HttpGet("export-in-import-format")]
         public FileStreamResult ExportInImportFormat()
@@ -117,16 +87,18 @@ namespace Capstone_API.Controllers
             return _excelService.ExportInImportFormat(_httpContextAccessor);
         }
 
+        // need import with who user
         [HttpPost("import-time-table")]
         public async Task<ResponseResult> ImportTimeTable(IFormFile file, CancellationToken cancellationToken)
         {
-            return await _excelService.ImportTimetable(file, cancellationToken);
+            GetAllRequest requet = new GetAllRequest();
+            return await _excelService.ImportTimetable(requet, file, cancellationToken);
         }
 
-        [HttpGet("export-groupby-lecturer")]
-        public FileStreamResult ExportGroupByLecturers()
+        [HttpPost("export-groupby-lecturer")]
+        public FileStreamResult ExportGroupByLecturers([FromBody] GetAllRequest request)
         {
-            return _excelService.ExportGroupByLecturers(_httpContextAccessor);
+            return _excelService.ExportGroupByLecturers(request, _httpContextAccessor);
         }
         #endregion
 
@@ -138,14 +110,14 @@ namespace Capstone_API.Controllers
             return await _executeInfoService.GetSchedule(executeId);
         }
 
-        [HttpGet("execute-info/{semesterId}")]
-        public GenericResult<List<ExecuteInfoResponse>> GetExecuteInfo(int semesterId)
+        [HttpPost("execute-info/get")]
+        public GenericResult<List<ExecuteInfoResponse>> GetExecuteInfo([FromBody] GetAllRequest request)
         {
-            return _executeInfoService.GetAll(semesterId);
+            return _executeInfoService.GetAll(request);
         }
 
         [HttpPost("execute-info")]
-        public ResponseResult CreateExecuteInfo([FromBody] ExecuteInfoResponse request)
+        public ResponseResult CreateExecuteInfo([FromBody] CreateExecuteInfoRequest request)
         {
             return _executeInfoService.CreateExecuteInfo(request);
         }

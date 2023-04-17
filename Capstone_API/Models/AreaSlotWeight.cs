@@ -9,6 +9,7 @@ namespace Capstone_API.Models
         public int? SlotId { get; set; }
         public int? AreaSlotId { get; set; }
         public int? AreaSlotWeight1 { get; set; }
+        public int? DepartmentHeadId { get; set; }
         public int? SemesterId { get; set; }
 
         public virtual TimeSlot? AreaSlot { get; set; }

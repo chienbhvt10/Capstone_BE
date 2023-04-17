@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.DTO.TimeSlot.Request;
 using Capstone_API.DTO.TimeSlot.Response;
 using Capstone_API.Results;
@@ -17,12 +18,12 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
         }
 
-        public GenericResult<List<GetTimeSlotConflictDTO>> GetAll()
+        public GenericResult<List<GetTimeSlotConflictDTO>> GetAll(GetAllRequest request)
         {
             try
             {
                 var currentSemester = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
-                var query = TimeSlotConflictByTimeSlotIsKey(currentSemester);
+                var query = TimeSlotConflictByTimeSlotIsKey(currentSemester, request.DepartmentHeadId);
                 var timeSlotConflictViewModel = _mapper.Map<IEnumerable<GetTimeSlotConflictDTO>>(query).ToList();
 
                 return new GenericResult<List<GetTimeSlotConflictDTO>>(timeSlotConflictViewModel, true);
@@ -34,9 +35,10 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public List<GetTimeSlotConflictDTO> TimeSlotConflictByTimeSlotIsKey(int semesterId)
+        public List<GetTimeSlotConflictDTO> TimeSlotConflictByTimeSlotIsKey(int semesterId, int departmentHeadId)
         {
-            var data = _unitOfWork.TimeSlotConflictRepository.TimeSlotData().Where(item => item.SemesterId == semesterId)
+            var data = _unitOfWork.TimeSlotConflictRepository.TimeSlotData()
+                .Where(item => item.SemesterId == semesterId && item.DepartmentHeadId == departmentHeadId)
                 .OrderBy(item => item.SlotId).GroupBy(item => item.SlotId);
 
             var result = data.Select(group =>

@@ -29,9 +29,9 @@ namespace Capstone_API.Controllers
         #region TimeSlot Api
 
         [HttpPost("get")]
-        public GenericResult<List<TimeSlotResponse>> GetTimeSlots([FromBody] GetTimeslotRequest request)
+        public GenericResult<List<TimeSlotResponse>> GetTimeSlots([FromBody] GetAllRequest request)
         {
-            return _timeSlotService.GetAll(request.SemesterId);
+            return _timeSlotService.GetAll(request);
         }
 
         [HttpGet("{id}")]
@@ -70,9 +70,9 @@ namespace Capstone_API.Controllers
         #region TimeSlotSegmentApi
 
         [HttpPost("segment/get")]
-        public GenericResult<List<GetSegmentResponseDTO>> GetAllTimeSlotSegment([FromBody] GetTimeslotRequest request)
+        public GenericResult<List<GetSegmentResponseDTO>> GetAllTimeSlotSegment([FromBody] GetAllRequest request)
         {
-            return _timeSlotService.GetTimeSlotSegment(request.SemesterId);
+            return _timeSlotService.GetTimeSlotSegment(request);
         }
 
         [HttpPost("segment")]
@@ -97,10 +97,10 @@ namespace Capstone_API.Controllers
 
         #region TimeSlotConflict Api
 
-        [HttpGet("conflict")]
-        public GenericResult<List<GetTimeSlotConflictDTO>> GetAllTimeSlotConflict()
+        [HttpPost("conflict")]
+        public GenericResult<List<GetTimeSlotConflictDTO>> GetAllTimeSlotConflict([FromBody] GetAllRequest request)
         {
-            return _timeSlotConflictService.GetAll();
+            return _timeSlotConflictService.GetAll(request);
         }
 
 
@@ -114,10 +114,10 @@ namespace Capstone_API.Controllers
 
         #region AreaSlotWeight Api
 
-        [HttpGet("slot-weight")]
-        public GenericResult<List<GetAreaSlotWeightDTO>> GetAllAreaTimeSlotWeight()
+        [HttpPost("slot-weight")]
+        public GenericResult<List<GetAreaSlotWeightDTO>> GetAllAreaTimeSlotWeight([FromBody] GetAllRequest request)
         {
-            return _areaSlotWeightService.GetAll();
+            return _areaSlotWeightService.GetAll(request);
         }
 
 

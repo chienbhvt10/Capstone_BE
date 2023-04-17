@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.DTO.Semester.Request;
 using Capstone_API.DTO.Semester.Response;
 using Capstone_API.Models;
@@ -18,11 +19,12 @@ namespace Capstone_API.Service.Implement
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public GenericResult<List<SemesterResponse>> GetAll()
+        public GenericResult<List<SemesterResponse>> GetAll(GetAllRequest request)
         {
             try
             {
-                var semester = _unitOfWork.SemesterInfoRepository.GetAll();
+                var semester = _unitOfWork.SemesterInfoRepository.GetAll()
+                    .Where(item => item.DepartmentHeadId == request.DepartmentHeadId);
                 var semestersViewModel = _mapper.Map<List<SemesterResponse>>(semester);
                 return new GenericResult<List<SemesterResponse>>(semestersViewModel, true);
             }
@@ -102,7 +104,8 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var taskContainThisDeleteSemester = _unitOfWork.TaskRepository.GetAll().Where(item => item.SemesterId == id).ToList();
+                var taskContainThisDeleteSemester = _unitOfWork.TaskRepository.GetAll()
+                    .Where(item => item.SemesterId == id).ToList();
 
                 foreach (var item in taskContainThisDeleteSemester)
                 {

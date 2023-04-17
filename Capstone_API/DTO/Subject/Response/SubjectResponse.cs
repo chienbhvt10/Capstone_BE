@@ -6,7 +6,6 @@
         public string? Code { get; set; }
         public string? Name { get; set; }
         public int? SemesterId { get; set; }
-        public string? Department { get; set; }
 
     }
 }

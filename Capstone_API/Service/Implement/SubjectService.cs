@@ -25,7 +25,8 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var subjects = _unitOfWork.SubjectRepository.GetAll().Where(item => item.SemesterId == request.SemesterId);
+                var subjects = _unitOfWork.SubjectRepository.GetAll()
+                    .Where(item => item.SemesterId == request.SemesterId && item.DepartmentHeadId == request.DepartmentHeadId);
                 var subjectsViewModel = _mapper.Map<List<SubjectResponse>>(subjects);
                 return new GenericResult<List<SubjectResponse>>(subjectsViewModel, true);
             }
@@ -60,7 +61,9 @@ namespace Capstone_API.Service.Implement
                 {
                     SubjectId = subject.Id,
                     LecturerId = item.Id,
-                    PreferenceLevel = 0
+                    PreferenceLevel = 0,
+                    SemesterId = subject.SemesterId,
+                    DepartmentHeadId = subject.DepartmentHeadId
                 });
             }
             _unitOfWork.SubjectPreferenceLevelRepository.AddRange(slotPreferenceLevels);
@@ -87,6 +90,7 @@ namespace Capstone_API.Service.Implement
             }
         }
         #endregion
+
         public ResponseResult UpdateSubject(SubjectResponse request)
         {
             try
@@ -133,7 +137,9 @@ namespace Capstone_API.Service.Implement
             try
             {
 
-                var fromSubjectData = _unitOfWork.SubjectRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+                var fromSubjectData = _unitOfWork.SubjectRepository.GetAll()
+                    .Where(item => item.SemesterId == request.FromSemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId);
                 List<Subject> newSubjects = new();
 
                 foreach (var item in fromSubjectData)
@@ -142,7 +148,9 @@ namespace Capstone_API.Service.Implement
                     {
                         Code = item.Code,
                         Name = item.Name,
-                        SemesterId = request.ToSemesterId
+                        SemesterId = request.ToSemesterId,
+                        DepartmentHeadId = request.DepartmentHeadId
+
                     });
                 }
                 _unitOfWork.SubjectRepository.AddRange(newSubjects);

@@ -1,4 +1,5 @@
-﻿using Capstone_API.DTO.Semester.Request;
+﻿using Capstone_API.DTO.CommonRequest;
+using Capstone_API.DTO.Semester.Request;
 using Capstone_API.DTO.Semester.Response;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
@@ -18,10 +19,10 @@ namespace Capstone_API.Controllers
             _semesterService = semesterService;
         }
 
-        [HttpGet]
-        public GenericResult<List<SemesterResponse>> Get()
+        [HttpPost("get")]
+        public GenericResult<List<SemesterResponse>> Get([FromBody] GetAllRequest request)
         {
-            return _semesterService.GetAll();
+            return _semesterService.GetAll(request);
         }
 
         [HttpGet("{id}")]

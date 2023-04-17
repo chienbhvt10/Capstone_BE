@@ -1,4 +1,5 @@
 ﻿using Capstone_API.DTO.Class.Response;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.Results;
 using Capstone_API.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -17,31 +18,11 @@ namespace Capstone_API.Controllers
             _classService = classService;
         }
 
-        [HttpGet]
-        public GenericResult<IEnumerable<ClassResponse>> Get()
-        {
-            return _classService.GetAll();
-        }
-
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
         [HttpPost]
-        public void Post([FromBody] string value)
+        public GenericResult<IEnumerable<ClassResponse>> Get([FromBody] GetAllRequest request)
         {
+            return _classService.GetAll(request);
         }
 
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }

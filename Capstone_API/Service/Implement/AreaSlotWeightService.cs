@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Capstone_API.DTO.CommonRequest;
 using Capstone_API.DTO.PreferenceLevel.Request;
 using Capstone_API.DTO.TimeSlot.Response;
 using Capstone_API.Results;
@@ -17,12 +18,14 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
         }
 
-        public GenericResult<List<GetAreaSlotWeightDTO>> GetAll()
+        public GenericResult<List<GetAreaSlotWeightDTO>> GetAll(GetAllRequest request)
         {
             try
             {
-                var currentSemester = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
-                var query = AreaSlotWeightByTimeSlotIsKey(currentSemester);
+                var currentSemester = _unitOfWork.SemesterInfoRepository
+                    .GetAll().FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
+
+                var query = AreaSlotWeightByTimeSlotIsKey(currentSemester, request.DepartmentHeadId);
                 var areaTimeSlotWeightViewModel = _mapper.Map<IEnumerable<GetAreaSlotWeightDTO>>(query).ToList();
 
                 return new GenericResult<List<GetAreaSlotWeightDTO>>(areaTimeSlotWeightViewModel, true);
@@ -34,10 +37,10 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public IEnumerable<GetAreaSlotWeightDTO> AreaSlotWeightByTimeSlotIsKey(int semesterId)
+        public IEnumerable<GetAreaSlotWeightDTO> AreaSlotWeightByTimeSlotIsKey(int semesterId, int departmentHeadId)
         {
             var data = _unitOfWork.AreaSlotWeightRepository.TimeSlotData()
-                .Where(item => item.SemesterId == semesterId)
+                .Where(item => item.SemesterId == semesterId && item.DepartmentHeadId == departmentHeadId)
                 .OrderBy(item => item.SlotId).GroupBy(item => item.SlotId);
 
             var result = data.Select(group =>

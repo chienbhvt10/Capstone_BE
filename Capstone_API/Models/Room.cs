@@ -12,6 +12,7 @@ namespace Capstone_API.Models
 
         public int Id { get; set; }
         public string? Name { get; set; }
+        public int? DepartmentHeadId { get; set; }
         public int? SemesterId { get; set; }
 
         public virtual ICollection<TaskAssign> TaskAssigns { get; set; }

@@ -7,5 +7,6 @@
         public int? DayOfWeek { get; set; }
         public int? Segment { get; set; }
         public int? SemesterId { get; set; }
+        public int DepartmentHeadId { get; set; }
     }
 }
