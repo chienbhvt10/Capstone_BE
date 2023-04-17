@@ -103,10 +103,12 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public void CreateDistanceBetweenTwoBuilding(Building building)
+        public void CreateDistanceBetweenTwoBuilding(Building building, CreateBuildingDTO request)
         {
             List<Distance> buildingDistance = new();
-            foreach (var item in _unitOfWork.BuildingRepository.GetAll())
+            var currentBuilding = _unitOfWork.BuildingRepository.GetAll()
+                .Where(item => item.SemesterId == request.SemesterId && item.DepartmentHeadId == request.DepartmentHeadId);
+            foreach (var item in currentBuilding)
             {
                 if (item.Id == building.Id)
                 {
@@ -149,7 +151,7 @@ namespace Capstone_API.Service.Implement
                 var building = _mapper.Map<Building>(request);
                 _unitOfWork.BuildingRepository.Add(building);
                 _unitOfWork.Complete();
-                CreateDistanceBetweenTwoBuilding(building);
+                CreateDistanceBetweenTwoBuilding(building, request);
                 return new ResponseResult("Create successfully", true);
             }
             catch (Exception ex)

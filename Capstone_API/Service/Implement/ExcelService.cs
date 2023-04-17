@@ -90,9 +90,20 @@ namespace Capstone_API.Service.Implement
                 // this code must be get executeSemesterId in database
 
                 var semesterId = _unitOfWork.SemesterInfoRepository.GetAll().FirstOrDefault(item => item.IsNow == true && item.DepartmentHeadId == request.DepartmentHeadId)?.Id;
+
                 if (semesterId == null)
                 {
-                    return new ResponseResult("Please insert current semester");
+                    return new ResponseResult("Please insert current semester first");
+                }
+                var timeSlots = _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.DepartmentHeadId == request.DepartmentHeadId && item.SemesterId == semesterId).ToList();
+                if (timeSlots.Count == 0)
+                {
+                    return new ResponseResult("Please insert timeslot data first");
+                }
+                var subjects = _unitOfWork.SubjectRepository.GetAll().Where(item => item.DepartmentHeadId == request.DepartmentHeadId && item.SemesterId == semesterId).ToList();
+                if (subjects.Count == 0)
+                {
+                    return new ResponseResult("Please insert subject data first");
                 }
                 _unitOfWork.TaskRepository.DeleteByCondition(item => item.SemesterId == semesterId && item.DepartmentHeadId == request.DepartmentHeadId, true);
                 _unitOfWork.ExecuteInfoRepository.DeleteByCondition(item => item.SemesterId == semesterId && item.DepartmentHeadId == request.DepartmentHeadId, true);
@@ -125,8 +136,8 @@ namespace Capstone_API.Service.Implement
                             var shortNameBuilding = new string(roomName.Take(2).ToArray()).Trim();
                             var clasFind = classes.Find(clas => clas.Name.Equals(className));
                             var roomFind = rooms.Find(room => room.Name.Equals(roomName));
-                            var subjectFind = _unitOfWork.SubjectRepository.GetAll().Where(item => item.SemesterId == semesterId && item.DepartmentHeadId == request.DepartmentHeadId).FirstOrDefault(sub => sub.Code.Trim().Equals(subjectCode));
-                            var timeSlotFind = _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == semesterId && item.DepartmentHeadId == request.DepartmentHeadId).FirstOrDefault(ts => ts.Name.Trim().Equals(timeSlotName));
+                            var subjectFind = subjects.FirstOrDefault(sub => sub.Code.Trim().Equals(subjectCode));
+                            var timeSlotFind = timeSlots.FirstOrDefault(ts => ts.Name.Trim().Equals(timeSlotName));
 
 
                             if (classes.Count() == 0)
