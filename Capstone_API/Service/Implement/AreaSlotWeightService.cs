@@ -23,7 +23,8 @@ namespace Capstone_API.Service.Implement
             try
             {
                 var currentSemester = _unitOfWork.SemesterInfoRepository
-                    .GetAll().FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
+                    .GetAll().Where(item => item.DepartmentHeadId == request.DepartmentHeadId)
+                    .FirstOrDefault(item => item.IsNow == true)?.Id ?? 0;
 
                 var query = AreaSlotWeightByTimeSlotIsKey(currentSemester, request.DepartmentHeadId);
                 var areaTimeSlotWeightViewModel = _mapper.Map<IEnumerable<GetAreaSlotWeightDTO>>(query).ToList();

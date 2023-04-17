@@ -55,7 +55,9 @@ namespace Capstone_API.Service.Implement
         public void CreateSubjectPreferenceForNewSubject(Subject subject)
         {
             List<SubjectPreferenceLevel> slotPreferenceLevels = new();
-            foreach (var item in _unitOfWork.LecturerRepository.GetAll())
+            var lecturers = _unitOfWork.LecturerRepository.GetAll()
+                .Where(item => item.SemesterId == subject.SemesterId && item.DepartmentHeadId == subject.DepartmentHeadId);
+            foreach (var item in lecturers)
             {
                 slotPreferenceLevels.Add(new SubjectPreferenceLevel()
                 {
@@ -95,7 +97,13 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var subject = _mapper.Map<Subject>(request);
+                var subject = _unitOfWork.SubjectRepository.GetById(request.Id);
+                if (subject == null)
+                {
+                    return new ResponseResult("Cannot find subject");
+                }
+                subject.Code = request.Code;
+                subject.Name = request.Name;
                 _unitOfWork.SubjectRepository.Update(subject);
                 _unitOfWork.Complete();
                 return new ResponseResult("Update successfully", true);

@@ -78,7 +78,9 @@ namespace Capstone_API.Service.Implement
         public void CreateSlotPreferenceForNewLecturer(Lecturer lecturer)
         {
             List<SlotPreferenceLevel> slotPreferenceLevels = new();
-            foreach (var item in _unitOfWork.TimeSlotRepository.GetAll())
+            var timeSlot = _unitOfWork.TimeSlotRepository.GetAll()
+                .Where(item => item.SemesterId == lecturer.SemesterId && item.DepartmentHeadId == lecturer.DepartmentHeadId);
+            foreach (var item in timeSlot)
             {
                 slotPreferenceLevels.Add(new SlotPreferenceLevel()
                 {
@@ -96,7 +98,9 @@ namespace Capstone_API.Service.Implement
         public void CreateSubjectPreferenceForNewLecturer(Lecturer lecturer)
         {
             List<SubjectPreferenceLevel> slotPreferenceLevels = new();
-            foreach (var item in _unitOfWork.SubjectRepository.GetAll())
+            var subject = _unitOfWork.SubjectRepository.GetAll()
+                .Where(item => item.SemesterId == lecturer.SemesterId && item.DepartmentHeadId == lecturer.DepartmentHeadId);
+            foreach (var item in subject)
             {
                 slotPreferenceLevels.Add(new SubjectPreferenceLevel()
                 {
@@ -111,7 +115,6 @@ namespace Capstone_API.Service.Implement
             _unitOfWork.Complete();
         }
 
-        // need create subject preferencelevel, slot preference level
         public GenericResult<LecturerResponse> CreateLecturer(CreateLecturerRequest request)
         {
             try
@@ -136,7 +139,16 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var lecturer = _mapper.Map<Lecturer>(request);
+                var lecturer = _unitOfWork.LecturerRepository.GetById(request.Id);
+                if (lecturer == null)
+                {
+                    return new ResponseResult("Cannot find lecturer");
+                }
+                lecturer.MinQuota = request.MinQuota;
+                lecturer.Quota = request.Quota;
+                lecturer.Email = request.Email;
+                lecturer.ShortName = request.ShortName;
+                lecturer.Name = request.Name;
                 _unitOfWork.LecturerRepository.Update(lecturer);
                 _unitOfWork.Complete();
                 return new ResponseResult("Update successfully", true);

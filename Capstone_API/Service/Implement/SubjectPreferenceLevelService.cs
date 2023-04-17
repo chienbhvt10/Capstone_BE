@@ -37,7 +37,7 @@ namespace Capstone_API.Service.Implement
         public IEnumerable<GetSubjectPreferenceLevelDTO> SubjectPreferenceLevelByLecturerIsKey(GetAllRequest request)
         {
             var data = _unitOfWork.SubjectPreferenceLevelRepository.MappingSubjectPreferenceData()
-                .Where(item => item.SemesterId == request.SemesterId && item.DepartmentHeadId == request.SemesterId)
+                .Where(item => item.SemesterId == request.SemesterId && item.DepartmentHeadId == request.DepartmentHeadId)
                 .OrderBy(item => item.LecturerId).GroupBy(item => item.LecturerId);
             var result = data.Select(group =>
                 new GetSubjectPreferenceLevelDTO

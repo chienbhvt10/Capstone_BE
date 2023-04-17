@@ -52,7 +52,7 @@ namespace Capstone_API.Service.Implement
                                  }
                              ) on new { A.TimeSlotId, A.DayId } equals new { TimeSlotId = B.TimeSlotId ?? 0, DayId = B.DayId ?? 0 } into AB
                              from B in AB.DefaultIfEmpty()
-                             where A.DepartmentHeadId == request.SemesterId && A.DepartmentHeadId == request.DepartmentHeadId
+                             where A.SemesterId == request.SemesterId && A.DepartmentHeadId == request.DepartmentHeadId
                              select new GetSegmentDTO
                              {
                                  TimeSlotId = A.TimeSlotId,
