@@ -23,10 +23,14 @@ namespace Capstone_API.Service.Implement
             {
                 var userLogin = _unitOfWork.UserRepository.GetAll()
                     .Where(item =>
-                    (item.Username != null && item.Username.Trim().Equals(request.UserName))
-                    && (item.Password != null && item.Password.Trim().Equals(request.Password)));
+                    (item.Username != null && item.Username.Trim().Equals(request.Username))
+                    && (item.Password != null && item.Password.Trim().Equals(request.Password))).FirstOrDefault();
 
-                var response = _mapper.Map<LoginResponse>(userLogin);
+                if (userLogin == null)
+                {
+                    return new GenericResult<LoginResponse>("Username or password wrong");
+                }
+                LoginResponse response = _mapper.Map<LoginResponse>(userLogin);
                 return new GenericResult<LoginResponse>(response, true);
 
             }
