@@ -20,10 +20,10 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var classes = _unitOfWork.ClassRepository.GetAll();
-                //.Where(item =>
-                //item.SemesterId == request.SemesterId
-                //&& item.DepartmentHeadId == request.DepartmentHeadId);
+                var classes = _unitOfWork.ClassRepository.GetAll()
+                .Where(item =>
+                    item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId);
                 var classesViewModel = _mapper.Map<IEnumerable<ClassResponse>>(classes);
                 return new GenericResult<IEnumerable<ClassResponse>>(classesViewModel, true);
             }

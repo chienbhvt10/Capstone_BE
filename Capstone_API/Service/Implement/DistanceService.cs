@@ -23,10 +23,10 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var rooms = _unitOfWork.RoomRepository.GetAll();
-                //.Where(item =>
-                //item.SemesterId == request.SemesterId
-                //&& item.DepartmentHeadId == request.DepartmentHeadId);
+                var rooms = _unitOfWork.RoomRepository.GetAll()
+                .Where(item =>
+                    item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId);
                 var roomsViewModel = _mapper.Map<List<RoomResponse>>(rooms);
                 return new GenericResult<List<RoomResponse>>(roomsViewModel.ToList(), true);
             }

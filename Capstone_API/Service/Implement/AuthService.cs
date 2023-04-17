@@ -30,7 +30,12 @@ namespace Capstone_API.Service.Implement
                 {
                     return new GenericResult<LoginResponse>("Username or password wrong");
                 }
-                LoginResponse response = _mapper.Map<LoginResponse>(userLogin);
+                LoginResponse response = new()
+                {
+                    Id = userLogin.Id,
+                    Username = userLogin.Username,
+                    Department = _unitOfWork.DepartmentRepository.GetByCondition(item => item.Id == userLogin.DepartmentId).FirstOrDefault()?.Department1
+                };
                 return new GenericResult<LoginResponse>(response, true);
 
             }

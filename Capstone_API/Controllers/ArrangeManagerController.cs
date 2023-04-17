@@ -41,7 +41,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("search-tasks")]
-        public GenericResult<SearchDTO> GetTaskAssign([FromBody] DTO.Task.Request.GetAllTaskAssignRequest request)
+        public GenericResult<SearchDTO> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
         {
             return _taskService.SearchTask(request);
         }
@@ -89,10 +89,14 @@ namespace Capstone_API.Controllers
 
         // need import with who user
         [HttpPost("import-time-table")]
-        public async Task<ResponseResult> ImportTimeTable(IFormFile file, CancellationToken cancellationToken)
+        public async Task<ResponseResult> ImportTimeTable([FromForm] IFormFile file, [FromForm] int semesterId, [FromForm] int departmentHeadId, CancellationToken cancellationToken)
         {
-            GetAllRequest requet = new GetAllRequest();
-            return await _excelService.ImportTimetable(requet, file, cancellationToken);
+            var request = new GetAllRequest()
+            {
+                DepartmentHeadId = departmentHeadId,
+                SemesterId = semesterId
+            };
+            return await _excelService.ImportTimetable(request, file, cancellationToken);
         }
 
         [HttpPost("export-groupby-lecturer")]

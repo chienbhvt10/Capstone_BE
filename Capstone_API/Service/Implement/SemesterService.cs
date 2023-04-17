@@ -52,7 +52,13 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
+                var currentSemesters = _unitOfWork.SemesterInfoRepository.GetAll()
+                    .Where(item => item.DepartmentHeadId == request.DepartmentHeadId).ToList();
                 var semester = _mapper.Map<SemesterInfo>(request);
+                if (currentSemesters.Count == 0)
+                {
+                    semester.IsNow = true;
+                }
                 _unitOfWork.SemesterInfoRepository.Add(semester);
                 _unitOfWork.Complete();
 
