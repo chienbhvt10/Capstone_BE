@@ -77,29 +77,59 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var currentSemesterLecturer = _unitOfWork.LecturerRepository.GetAll().Where(item => item.SemesterId == request.ToSemesterId).ToList();
+                var currentSemesterLecturer = _unitOfWork.LecturerRepository
+                    .GetAll()
+                    .Where(item =>
+                        item.SemesterId == request.ToSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId)
+                    .ToList();
                 if (currentSemesterLecturer.Count == 0)
                 {
                     return new ResponseResult("Reuse fail, this semester have nodata of lecturers, must be reuse of lecturers first", false);
                 }
 
-                var currentSemesterTimeSlot = _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == request.ToSemesterId).ToList();
+                var currentSemesterTimeSlot = _unitOfWork.TimeSlotRepository
+                    .GetAll()
+                    .Where(item =>
+                        item.SemesterId == request.ToSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId)
+                    .ToList();
                 if (currentSemesterTimeSlot.Count == 0)
                 {
                     return new ResponseResult("Reuse fail, this semester have nodata of timeslots, must be reuse of timeslots first", false);
                 }
 
-                var fromTimeSlotPreferenceLevelData = _unitOfWork.SlotPreferenceLevelRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+                var fromTimeSlotPreferenceLevelData = _unitOfWork.SlotPreferenceLevelRepository
+                    .GetAll()
+                    .Where(item =>
+                        item.SemesterId == request.FromSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId)
+                    .ToList();
                 List<SlotPreferenceLevel> newSlotPreferenceLevel = new();
 
                 foreach (var item in fromTimeSlotPreferenceLevelData)
                 {
+                    var lecturerNameInOldSemester = _unitOfWork.LecturerRepository.GetById(item.LecturerId ?? 0)?.ShortName;
+                    var lecturerInCurrentSemester = _unitOfWork.LecturerRepository
+                        .GetByCondition(item =>
+                            item.SemesterId == request.ToSemesterId
+                            && item.DepartmentHeadId == request.DepartmentHeadId
+                            && item.ShortName == lecturerNameInOldSemester).FirstOrDefault();
+
+                    var timeslotNameInOldSemester = _unitOfWork.TimeSlotRepository.GetById(item.SlotId ?? 0)?.Name;
+                    var timeslotInCurrentSemester = _unitOfWork.TimeSlotRepository
+                        .GetByCondition(item =>
+                            item.SemesterId == request.ToSemesterId
+                            && item.DepartmentHeadId == request.DepartmentHeadId
+                            && item.Name == timeslotNameInOldSemester).FirstOrDefault();
+
                     newSlotPreferenceLevel.Add(new SlotPreferenceLevel()
                     {
-                        LecturerId = item.LecturerId,
-                        SlotId = item.SlotId,
+                        LecturerId = lecturerInCurrentSemester?.Id,
+                        SlotId = timeslotInCurrentSemester?.Id,
                         PreferenceLevel = item.PreferenceLevel,
-                        SemesterId = request.ToSemesterId
+                        SemesterId = request.ToSemesterId,
+                        DepartmentHeadId = request.DepartmentHeadId
                     });
                 }
                 _unitOfWork.SlotPreferenceLevelRepository.AddRange(newSlotPreferenceLevel);

@@ -76,29 +76,58 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var currentSemesterLecturer = _unitOfWork.LecturerRepository.GetAll().Where(item => item.SemesterId == request.ToSemesterId).ToList();
+                var currentSemesterLecturer = _unitOfWork.LecturerRepository
+                    .GetAll()
+                    .Where(item =>
+                        item.SemesterId == request.ToSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId)
+                    .ToList();
                 if (currentSemesterLecturer.Count == 0)
                 {
                     return new ResponseResult("Reuse fail, this semester have nodata of lecturers, must be reuse of lecturers first", false);
                 }
 
-                var currentSemesterSubject = _unitOfWork.SubjectRepository.GetAll().Where(item => item.SemesterId == request.ToSemesterId).ToList();
+                var currentSemesterSubject = _unitOfWork.SubjectRepository
+                    .GetAll()
+                    .Where(item =>
+                        item.SemesterId == request.ToSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId)
+                    .ToList();
                 if (currentSemesterSubject.Count == 0)
                 {
                     return new ResponseResult("Reuse fail, this semester have nodata of subjects, must be reuse of subjects first", false);
                 }
-                // copy data cac table timeslot constrain va preference dang loi 
-                var fromSubjectPreferenceLevelData = _unitOfWork.SubjectPreferenceLevelRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+
+                var fromSubjectPreferenceLevelData = _unitOfWork.SubjectPreferenceLevelRepository
+                    .GetAll()
+                    .Where(item =>
+                        item.SemesterId == request.FromSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
                 List<SubjectPreferenceLevel> newSubjectPreferenceLevel = new();
 
                 foreach (var item in fromSubjectPreferenceLevelData)
                 {
+                    var lecturerNameInOldSemester = _unitOfWork.LecturerRepository.GetById(item.LecturerId ?? 0)?.ShortName;
+                    var lecturerInCurrentSemester = _unitOfWork.LecturerRepository
+                        .GetByCondition(item =>
+                            item.SemesterId == request.ToSemesterId
+                            && item.DepartmentHeadId == request.DepartmentHeadId
+                            && item.ShortName == lecturerNameInOldSemester).FirstOrDefault();
+
+                    var subjectCodeInOldSemester = _unitOfWork.SubjectRepository.GetById(item.SubjectId ?? 0)?.Code;
+                    var subjectInCurrentSemester = _unitOfWork.SubjectRepository
+                        .GetByCondition(item =>
+                            item.SemesterId == request.ToSemesterId
+                            && item.DepartmentHeadId == request.DepartmentHeadId
+                            && item.Code == subjectCodeInOldSemester).FirstOrDefault();
+
                     newSubjectPreferenceLevel.Add(new SubjectPreferenceLevel()
                     {
-                        LecturerId = item.LecturerId,
-                        SubjectId = item.SubjectId,
+                        LecturerId = lecturerInCurrentSemester?.Id,
+                        SubjectId = subjectInCurrentSemester?.Id,
                         PreferenceLevel = item.PreferenceLevel,
-                        SemesterId = request.ToSemesterId
+                        SemesterId = request.ToSemesterId,
+                        DepartmentHeadId = request.DepartmentHeadId
                     });
                 }
                 _unitOfWork.SubjectPreferenceLevelRepository.AddRange(newSubjectPreferenceLevel);

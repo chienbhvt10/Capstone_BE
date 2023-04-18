@@ -402,9 +402,15 @@ namespace Capstone_API.Service.Implement
         }
 
         #region CopyData
-        public List<TimeSlot> CopyTimeSlotData(ReUseRequest request)
+
+        public void CopyTimeSlotData(ReUseRequest request)
         {
-            var fromTimeSlotData = _unitOfWork.TimeSlotRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+            var fromTimeSlotData = _unitOfWork.TimeSlotRepository
+                .GetAll()
+                .Where(item =>
+                    item.SemesterId == request.FromSemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId)
+                .ToList();
             List<TimeSlot> newTimeSlot = new();
             foreach (var item in fromTimeSlotData)
             {
@@ -412,26 +418,46 @@ namespace Capstone_API.Service.Implement
                 {
                     Name = item.Name,
                     AmorPm = item.AmorPm,
-                    SemesterId = request.ToSemesterId
+                    SemesterId = request.ToSemesterId,
+                    DepartmentHeadId = request.DepartmentHeadId
                 });
             }
             _unitOfWork.TimeSlotRepository.AddRange(newTimeSlot);
             _unitOfWork.Complete();
-            return newTimeSlot;
         }
 
         public void CopyTimeSlotConflictData(ReUseRequest request)
         {
-            var fromTimeSlotConflictData = _unitOfWork.TimeSlotConflictRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+            var fromTimeSlotConflictData = _unitOfWork.TimeSlotConflictRepository
+                .GetAll()
+                .Where(item =>
+                    item.SemesterId == request.FromSemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId)
+                .ToList();
             List<TimeSlotConflict> newTimeSlotConflict = new();
             foreach (var item in fromTimeSlotConflictData)
             {
+                var timeslotNameInOldSemester = _unitOfWork.TimeSlotRepository.GetById(item.SlotId ?? 0)?.Name;
+                var timeslotInCurrentSemester = _unitOfWork.TimeSlotRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == request.ToSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId
+                        && item.Name == timeslotNameInOldSemester).FirstOrDefault();
+
+                var conflictTimeslotNameInOldSemester = _unitOfWork.TimeSlotRepository.GetById(item.ConflictSlotId ?? 0)?.Name;
+                var conflictTimeslotInCurrentSemester = _unitOfWork.TimeSlotRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == request.ToSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId
+                        && item.Name == conflictTimeslotNameInOldSemester).FirstOrDefault();
+
                 newTimeSlotConflict.Add(new TimeSlotConflict()
                 {
+                    SlotId = timeslotInCurrentSemester?.Id,
+                    ConflictSlotId = conflictTimeslotInCurrentSemester?.Id,
                     Conflict = item.Conflict,
-                    SlotId = item.SlotId,
-                    ConflictSlotId = item.ConflictSlotId,
-                    SemesterId = request.ToSemesterId
+                    SemesterId = request.ToSemesterId,
+                    DepartmentHeadId = request.DepartmentHeadId
                 });
             }
             _unitOfWork.TimeSlotConflictRepository.AddRange(newTimeSlotConflict);
@@ -440,17 +466,37 @@ namespace Capstone_API.Service.Implement
 
         public void CopyTimeSlotWeightData(ReUseRequest request)
         {
-            var fromTimeSlotWeightData = _unitOfWork.AreaSlotWeightRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+            var fromTimeSlotWeightData = _unitOfWork.AreaSlotWeightRepository
+                .GetAll()
+                .Where(item =>
+                    item.SemesterId == request.FromSemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId)
+                .ToList();
             List<AreaSlotWeight> newAreaSlotWeight = new();
 
             foreach (var item in fromTimeSlotWeightData)
             {
+                var timeslotNameInOldSemester = _unitOfWork.TimeSlotRepository.GetById(item.SlotId ?? 0)?.Name;
+                var timeslotInCurrentSemester = _unitOfWork.TimeSlotRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == request.ToSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId
+                        && item.Name == timeslotNameInOldSemester).FirstOrDefault();
+
+                var areaTimeslotNameInOldSemester = _unitOfWork.TimeSlotRepository.GetById(item.AreaSlotId ?? 0)?.Name;
+                var areaTimeslotInCurrentSemester = _unitOfWork.TimeSlotRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == request.ToSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId
+                        && item.Name == areaTimeslotNameInOldSemester).FirstOrDefault();
+
                 newAreaSlotWeight.Add(new AreaSlotWeight()
                 {
-                    AreaSlotId = item.AreaSlotId,
-                    SlotId = item.SlotId,
+                    SlotId = timeslotInCurrentSemester?.Id,
+                    AreaSlotId = areaTimeslotInCurrentSemester?.Id,
                     AreaSlotWeight1 = item.AreaSlotWeight1,
-                    SemesterId = request.ToSemesterId
+                    SemesterId = request.ToSemesterId,
+                    DepartmentHeadId = request.DepartmentHeadId
                 });
             }
             _unitOfWork.AreaSlotWeightRepository.AddRange(newAreaSlotWeight);
@@ -459,17 +505,30 @@ namespace Capstone_API.Service.Implement
 
         public void CopyTimeSlotSegmentData(ReUseRequest request)
         {
-            var fromTimeSlotSegmentData = _unitOfWork.TimeSlotSegmentRepository.GetAll().Where(item => item.SemesterId == request.FromSemesterId);
+            var fromTimeSlotSegmentData = _unitOfWork.TimeSlotSegmentRepository
+                .GetAll()
+                .Where(item =>
+                    item.SemesterId == request.FromSemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId)
+                .ToList();
             List<TimeSlotSegment> newSlotSegment = new();
 
             foreach (var item in fromTimeSlotSegmentData)
             {
+                var timeslotNameInOldSemester = _unitOfWork.TimeSlotRepository.GetById(item.SlotId ?? 0)?.Name;
+                var timeslotInCurrentSemester = _unitOfWork.TimeSlotRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == request.ToSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId
+                        && item.Name == timeslotNameInOldSemester).FirstOrDefault();
+
                 newSlotSegment.Add(new TimeSlotSegment()
                 {
+                    SlotId = timeslotInCurrentSemester?.Id,
                     DayOfWeek = item.DayOfWeek,
-                    SlotId = item.SlotId,
                     Segment = item.Segment,
-                    SemesterId = request.ToSemesterId
+                    SemesterId = request.ToSemesterId,
+                    DepartmentHeadId = request.DepartmentHeadId
                 });
             }
             _unitOfWork.TimeSlotSegmentRepository.AddRange(newSlotSegment);
@@ -483,6 +542,14 @@ namespace Capstone_API.Service.Implement
             {
 
                 CopyTimeSlotData(request);
+                var timeslotCurrentSemesterData = _unitOfWork.TimeSlotRepository
+                    .GetByCondition(item =>
+                    item.SemesterId == request.ToSemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
+                if (timeslotCurrentSemesterData == null)
+                {
+                    return new ResponseResult("Cannot find timeslot data in current semester");
+                }
                 CopyTimeSlotSegmentData(request);
                 CopyTimeSlotConflictData(request);
                 CopyTimeSlotWeightData(request);
@@ -493,6 +560,7 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+
         #endregion
         #endregion
     }
