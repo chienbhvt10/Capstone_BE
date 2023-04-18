@@ -119,6 +119,16 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
+                var lecturerFind = _unitOfWork.LecturerRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == request.SemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId
+                        && item.ShortName == request.ShortName
+                    ).FirstOrDefault();
+                if (lecturerFind != null)
+                {
+                    return new GenericResult<LecturerResponse>("Lecturer with shortname already exist");
+                }
                 var lecturer = _mapper.Map<Lecturer>(request);
                 _unitOfWork.LecturerRepository.Add(lecturer);
                 _unitOfWork.Complete();

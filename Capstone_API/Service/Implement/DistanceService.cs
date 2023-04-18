@@ -148,6 +148,16 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
+                var buildingFind = _unitOfWork.BuildingRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == request.SemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId
+                        && item.ShortName == request.ShortName
+                    ).FirstOrDefault();
+                if (buildingFind != null)
+                {
+                    return new ResponseResult("Building with short name already exist");
+                }
                 var building = _mapper.Map<Building>(request);
                 _unitOfWork.BuildingRepository.Add(building);
                 _unitOfWork.Complete();

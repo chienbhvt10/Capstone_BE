@@ -317,6 +317,17 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
+                var timeSlotFind = _unitOfWork.TimeSlotRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == request.SemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId
+                        && item.Name == request.Name
+                    ).FirstOrDefault();
+                if (timeSlotFind != null)
+                {
+                    return new ResponseResult("Timeslot with timeslot name already exist");
+                }
+
                 var timeSlot = new TimeSlot()
                 {
                     AmorPm = request.DaySession,
@@ -390,11 +401,6 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        /// <summary>
-        ///  Dang loi vcl
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
         #region CopyData
         public List<TimeSlot> CopyTimeSlotData(ReUseRequest request)
         {

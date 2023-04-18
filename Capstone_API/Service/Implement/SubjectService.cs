@@ -77,6 +77,17 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
+                var subjectFind = _unitOfWork.SubjectRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == request.SemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId
+                        && item.Code == request.Code
+                    ).FirstOrDefault();
+                if (subjectFind != null)
+                {
+                    return new GenericResult<SubjectResponse>("Subject with subject code already exist");
+                }
+
                 var subject = _mapper.Map<Subject>(request);
                 _unitOfWork.SubjectRepository.Add(subject);
                 _unitOfWork.Complete();
