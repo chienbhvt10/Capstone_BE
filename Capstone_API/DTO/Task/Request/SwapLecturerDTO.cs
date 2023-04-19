@@ -2,18 +2,10 @@
 {
     public class SwapLecturerDTO
     {
-        public int Id { get; set; }
         public int LecturerId { get; set; }
-
-        public SwapLecturerDTO()
-        {
-
-        }
-
-        public SwapLecturerDTO(int id, int lecturerId)
-        {
-            Id = id;
-            LecturerId = lecturerId;
-        }
+        public int TaskId { get; set; }
+        public int TimeSlotId { get; set; }
+        public int SemesterId { get; set; }
+        public int DepartmentHeadId { get; set; }
     }
 }

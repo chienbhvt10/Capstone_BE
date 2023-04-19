@@ -15,5 +15,7 @@ namespace Capstone_API.Service.Interface
         ResponseResult UnLockAllTask();
         GenericResult<List<ResponseTaskByLecturerIsKey>> GetTaskAssigned(GetAllRequest request);
         List<ResponseTaskByLecturerIsKey> GetTaskResponseByLecturerKey(GetAllRequest request);
+        ResponseResult SwapLecturer(SwapLecturerDTO request);
+        ResponseResult SwapRoom(SwapRoomDTO request);
     }
 }

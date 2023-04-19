@@ -178,43 +178,94 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var findLecturerSubject = _unitOfWork.SubjectPreferenceLevelRepository.GetAll()
-                    .Where(item => item.LecturerId == request.LecturerId && item.SubjectId == request.SubjectId).FirstOrDefault()?.PreferenceLevel;
-                if (findLecturerSubject.HasValue && findLecturerSubject.Value == 0)
-                {
-                    return new ResponseResult("Lecturer cannot assign task with this subject");
-                }
-
-                var findLecturerSlot = _unitOfWork.SlotPreferenceLevelRepository.GetAll()
-                    .Where(item => item.LecturerId == request.LecturerId && item.SlotId == request.TimeSlotId).FirstOrDefault()?.PreferenceLevel;
-                if (findLecturerSlot.HasValue && findLecturerSlot.Value == 0)
-                {
-                    return new ResponseResult("Lecturer cannot assign task with this timeslot");
-                }
-
-                // check if request lecturer already have task at the same timeslot, convert two task of lecturer together
-                var taskDupplicateTimeslot = _unitOfWork.TaskRepository.GetAll()
-                    .FirstOrDefault(item => item.LecturerId == request.LecturerId && item.TimeSlotId == request.TimeSlotId);
                 var taskFind = _unitOfWork.TaskRepository.Find(request.TaskId);
+                if (taskFind == null)
+                {
+                    return new ResponseResult("Cannot find task");
+                }
+                taskFind.LecturerId = request.LecturerId;
+                _unitOfWork.TaskRepository.Update(taskFind);
+                _unitOfWork.Complete();
+                return new ResponseResult("Assign task successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+        public ResponseResult SwapLecturer(SwapLecturerDTO request)
+        {
+            try
+            {
+                var taskDupplicateTimeslot = _unitOfWork.TaskRepository.GetAll()
+                    .FirstOrDefault(item =>
+                    item.LecturerId == request.LecturerId
+                    && item.TimeSlotId == request.TimeSlotId
+                    && item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId);
+
+                var taskFind = _unitOfWork.TaskRepository.Find(request.TaskId);
+
+                if (taskFind == null)
+                {
+                    return new ResponseResult("Cannot find task");
+                }
 
                 if (taskDupplicateTimeslot != null)
                 {
                     int tmpId = taskDupplicateTimeslot.LecturerId ?? 0;
                     taskDupplicateTimeslot.LecturerId = taskFind.LecturerId;
-                    taskDupplicateTimeslot.Room1Id = taskFind.Room1Id;
-                    taskFind.Room1Id = request.RoomId;
                     taskFind.LecturerId = tmpId;
                     _unitOfWork.TaskRepository.Update(taskFind);
                     _unitOfWork.TaskRepository.Update(taskDupplicateTimeslot);
                 }
                 else
                 {
-                    taskFind.Room1Id = request.RoomId;
                     taskFind.LecturerId = request.LecturerId;
                     _unitOfWork.TaskRepository.Update(taskFind);
                 }
                 _unitOfWork.Complete();
-                return new ResponseResult();
+                return new ResponseResult("Swap lecturer successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+        public ResponseResult SwapRoom(SwapRoomDTO request)
+        {
+            try
+            {
+                var taskDupplicateRoom = _unitOfWork.TaskRepository.GetAll()
+                    .FirstOrDefault(item =>
+                    item.Room1Id == request.RoomId
+                    && item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId);
+
+                var taskFind = _unitOfWork.TaskRepository.Find(request.TaskId);
+
+                if (taskFind == null)
+                {
+                    return new ResponseResult("Cannot find task");
+                }
+
+                if (taskDupplicateRoom != null)
+                {
+                    int tmpId = taskDupplicateRoom.Room1Id ?? 0;
+                    taskDupplicateRoom.Room1Id = taskFind.Room1Id;
+                    taskFind.Room1Id = tmpId;
+                    _unitOfWork.TaskRepository.Update(taskFind);
+                    _unitOfWork.TaskRepository.Update(taskDupplicateRoom);
+                }
+                else
+                {
+                    taskFind.Room1Id = request.RoomId;
+                    _unitOfWork.TaskRepository.Update(taskFind);
+                }
+                _unitOfWork.Complete();
+                return new ResponseResult("Swap room successfully", true);
             }
             catch (Exception ex)
             {

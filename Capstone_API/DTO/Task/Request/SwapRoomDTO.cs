@@ -2,18 +2,9 @@
 {
     public class SwapRoomDTO
     {
-        public int Id { get; set; }
         public int RoomId { get; set; }
-
-        public SwapRoomDTO()
-        {
-
-        }
-
-        public SwapRoomDTO(int id, int roomId)
-        {
-            Id = id;
-            RoomId = roomId;
-        }
+        public int TaskId { get; set; }
+        public int SemesterId { get; set; }
+        public int DepartmentHeadId { get; set; }
     }
 }

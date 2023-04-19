@@ -76,6 +76,18 @@ namespace Capstone_API.Controllers
             return _taskService.TimeTableModify(value);
         }
 
+        [HttpPut("swap-lecturer")]
+        public ResponseResult SwapLecturer([FromBody] SwapLecturerDTO request)
+        {
+            return _taskService.SwapLecturer(request);
+        }
+
+        [HttpPut("swap-room")]
+        public ResponseResult SwapRoom([FromBody] SwapRoomDTO request)
+        {
+            return _taskService.SwapRoom(request);
+        }
+
         #endregion
 
         #region Excel Api
