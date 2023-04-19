@@ -185,7 +185,6 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        // need delete subject preference level, task assign
         public ResponseResult DeleteBuilding(int id)
         {
             try
@@ -196,6 +195,90 @@ namespace Capstone_API.Service.Implement
                 _unitOfWork.BuildingRepository.Delete(building, isHardDeleted: true);
                 _unitOfWork.Complete();
                 return new ResponseResult("Delete successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+
+        public void CopyBuildingData(ReUseRequest request)
+        {
+            var fromBuildingData = _unitOfWork.BuildingRepository
+                .GetAll()
+                .Where(item =>
+                    item.SemesterId == request.FromSemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId)
+                .ToList();
+            List<Building> newBuilding = new();
+            foreach (var item in fromBuildingData)
+            {
+                newBuilding.Add(new Building()
+                {
+                    ShortName = item.ShortName,
+                    Name = item.Name,
+                    SemesterId = request.ToSemesterId,
+                    DepartmentHeadId = request.DepartmentHeadId
+                });
+            }
+            _unitOfWork.BuildingRepository.AddRange(newBuilding);
+            _unitOfWork.Complete();
+        }
+
+        public void CopyDistanceData(ReUseRequest request)
+        {
+            var fromDistanceData = _unitOfWork.DistanceRepository
+                .GetAll()
+                .Where(item =>
+                    item.SemesterId == request.FromSemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId)
+                .ToList();
+            List<Distance> newDistance = new();
+            foreach (var item in fromDistanceData)
+            {
+                var building1ShortNameInOldSemester = _unitOfWork.BuildingRepository.GetById(item.Building1Id ?? 0)?.Name;
+                var building1tInCurrentSemester = _unitOfWork.BuildingRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == request.ToSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId
+                        && item.Name == building1ShortNameInOldSemester).FirstOrDefault();
+
+                var building2ShortNameInOldSemester = _unitOfWork.BuildingRepository.GetById(item.Building2Id ?? 0)?.Name;
+                var building2tInCurrentSemester = _unitOfWork.BuildingRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == request.ToSemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId
+                        && item.Name == building2ShortNameInOldSemester).FirstOrDefault();
+
+                newDistance.Add(new Distance()
+                {
+                    Building1Id = building1tInCurrentSemester?.Id,
+                    Building2Id = building2tInCurrentSemester?.Id,
+                    DistanceBetween = item.DistanceBetween,
+                    SemesterId = request.ToSemesterId,
+                    DepartmentHeadId = request.DepartmentHeadId
+                });
+            }
+            _unitOfWork.DistanceRepository.AddRange(newDistance);
+            _unitOfWork.Complete();
+        }
+
+        public ResponseResult ReUseDataFromASemester(ReUseRequest request)
+        {
+            try
+            {
+                CopyBuildingData(request);
+                var buildingCurrentSemesterData = _unitOfWork.BuildingRepository
+                    .GetByCondition(item =>
+                    item.SemesterId == request.ToSemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
+                if (buildingCurrentSemesterData == null)
+                {
+                    return new ResponseResult("Cannot find building data in current semester");
+                }
+                CopyDistanceData(request);
+                return new ResponseResult("Reuse data successfully", true);
             }
             catch (Exception ex)
             {

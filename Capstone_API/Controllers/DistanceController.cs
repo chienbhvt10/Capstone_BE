@@ -61,6 +61,12 @@ namespace Capstone_API.Controllers
 
         }
 
+        [HttpPost("building/reuse")]
+        public ResponseResult ReUseDataFromASemester(ReUseRequest request)
+        {
+            return _distanceService.ReUseDataFromASemester(request);
+        }
+
         #endregion
 
         #region Room

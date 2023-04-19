@@ -156,7 +156,20 @@ namespace Capstone_API.Service.Implement
                 {
                     return new GenericResult<ExecuteResponse>("Please insert more timeslots before execute");
                 }
+                if (executeFetchRequest.NumAreas == 0)
+                {
+                    return new GenericResult<ExecuteResponse>("Please insert more buildings distance before execute");
+                }
+                if (executeFetchRequest.InstructorSubject?.Count == 0)
+                {
+                    return new GenericResult<ExecuteResponse>("Please insert more subject preference of lecturers before execute");
 
+                }
+                if (executeFetchRequest.InstructorSlot?.Count == 0)
+                {
+                    return new GenericResult<ExecuteResponse>("Please insert more slot preference of lecturers before execute");
+
+                }
                 var jsonRequest = JsonSerializer.Serialize(executeFetchRequest);
                 var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync($"https://localhost:7000/ATTASAPI/excecute", content);

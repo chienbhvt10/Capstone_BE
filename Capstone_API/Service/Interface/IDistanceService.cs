@@ -15,6 +15,7 @@ namespace Capstone_API.Service.Interface
         ResponseResult CreateBuilding(CreateBuildingDTO request);
         ResponseResult UpdateBuilding(UpdateBuildingDTO request);
         ResponseResult DeleteBuilding(int id);
+        ResponseResult ReUseDataFromASemester(ReUseRequest request);
 
     }
 }
