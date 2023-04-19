@@ -6,6 +6,8 @@ using Capstone_API.Service.Interface;
 using Capstone_API.UOW_Repositories.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System.Drawing;
 
 namespace Capstone_API.Service.Implement
 {
@@ -87,6 +89,14 @@ namespace Capstone_API.Service.Implement
                 var excelPackage = new ExcelPackage();
                 var worksheet = excelPackage.Workbook.Worksheets.Add("Sheet1");
                 worksheet.Cells.LoadFromCollection(listExport, true);
+                for (int i = 1; i <= new ExportInImportFormatDTO().GetType().GetProperties().Length; i++)
+                {
+                    worksheet.Cells[1, i].Style.Font.Color.SetColor(Color.White);
+                    worksheet.Cells[1, i].Style.Font.Bold = true;
+                    worksheet.Cells[1, i].Style.Font.Size = 11;
+                    worksheet.Cells[1, i].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[1, i].Style.Fill.BackgroundColor.SetColor(Color.Blue);
+                }
                 excelPackage.Save();
                 var stream = new MemoryStream(excelPackage.GetAsByteArray());
                 return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
