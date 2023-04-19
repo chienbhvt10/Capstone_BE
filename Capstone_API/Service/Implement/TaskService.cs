@@ -152,7 +152,12 @@ namespace Capstone_API.Service.Implement
                     DataAssign = querySearchDataAssign.ToList(),
                     DataNotAssign = new TimeSlotInfoResponse()
                     {
-                        Total = _unitOfWork.TaskRepository.MappingTaskData().Where(item => item.LecturerId == null).Count(),
+                        Total = _unitOfWork.TaskRepository.MappingTaskData()
+                        .Where(item =>
+                            item.LecturerId == null
+                            && item.SemesterId == request.SemesterId
+                            && item.DepartmentHeadId == request.DepartmentHeadId)
+                        .Count(),
                         TimeSlotInfos = querySearchDataNotAssign
                     }
 
@@ -379,7 +384,10 @@ namespace Capstone_API.Service.Implement
             List<List<TimeSlotInfo>> result = new();
 
             var currentTimeSlots = _unitOfWork.TimeSlotRepository.GetAll()
-                .Where(item => item.SemesterId == request.SemesterId && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
+                .Where(item =>
+                    item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId)
+                .ToList();
             foreach (var item in currentTimeSlots)
             {
 
@@ -455,7 +463,6 @@ namespace Capstone_API.Service.Implement
             }
         }
         #endregion
-
 
 
     }
