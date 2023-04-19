@@ -25,7 +25,7 @@ namespace Capstone_API.Service.Implement
             {
                 var lecturers = _unitOfWork.LecturerRepository.MappingLecturerData()
                     .Where(item => item.SemesterId == request.SemesterId
-                    && item.DepartmentHeadId == request.DepartmentHeadId);
+                    && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
                 if (request.TimeSlotId == null && request.SubjectId == null)
                 {
                     var lecturersViewModel = _mapper.Map<List<LecturerResponse>>(lecturers);
@@ -34,7 +34,7 @@ namespace Capstone_API.Service.Implement
 
                 if (request.LecturerId == null)
                 {
-                    lecturers = lecturers.Where(item => item.Id != request.LecturerId);
+                    lecturers = lecturers.Where(item => item.Id != request.LecturerId).ToList();
                 }
 
                 if (request.SubjectId != null)
@@ -46,8 +46,41 @@ namespace Capstone_API.Service.Implement
 
                 if (request.TimeSlotId != null)
                 {
-                    // Chua nghi ra
+                    var timeslotconflict = _unitOfWork.TimeSlotConflictRepository.GetAll()
+                                .Where(item => item.SemesterId == request.SemesterId
+                                    && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
 
+                    var timeslotOfTaskAssign = lecturers.Select(l => l.TaskAssigns.Select(item => item.TimeSlot).ToList()).ToList();
+
+                    List<int> ints = new();
+                    foreach (var item in timeslotOfTaskAssign)
+                    {
+                        List<TimeSlotConflict> conflicts = new();
+                        foreach (var subItem in item)
+                        {
+                            var checkConflict = timeslotconflict.Where(item =>
+                                    item.SlotId != request.TimeSlotId
+                                    && item.SlotId == subItem?.Id
+                                    && item.ConflictSlotId == request.TimeSlotId
+                                    && item.Conflict == true).FirstOrDefault();
+                            if (checkConflict != null)
+                            {
+                                conflicts.Add(checkConflict);
+                            }
+                        }
+                        ints.Add(conflicts.Count);
+                    }
+
+                    var lecturerResponse = new List<Lecturer>();
+                    for (int i = 0; i < ints.Count; i++)
+                    {
+                        if (ints[i] == 0)
+                        {
+                            lecturerResponse.Add(lecturers[i]);
+                        }
+                    }
+                    var lecturersViewModel = _mapper.Map<List<LecturerResponse>>(lecturerResponse);
+                    return new GenericResult<List<LecturerResponse>>(lecturersViewModel, true);
                 }
 
                 var lecturersSearchingViewModel = _mapper.Map<List<LecturerResponse>>(lecturers);

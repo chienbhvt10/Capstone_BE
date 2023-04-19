@@ -172,7 +172,7 @@ namespace Capstone_API.Service.Implement
         }
         #endregion
 
-        #region TimeTableModify
+        #region TimeTable Modify - Swap
 
         public ResponseResult TimeTableModify(TaskModifyDTO request)
         {
