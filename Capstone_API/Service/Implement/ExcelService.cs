@@ -19,10 +19,16 @@ namespace Capstone_API.Service.Implement
             _taskService = taskService;
         }
 
-        public FileStreamResult ExportGroupByLecturers(GetAllRequest request, IHttpContextAccessor _httpContextAccessor)
+        public FileStreamResult ExportGroupByLecturers(int userId, IHttpContextAccessor _httpContextAccessor)
         {
             try
             {
+                var currentSemester = _unitOfWork.SemesterInfoRepository.GetByCondition(item => item.DepartmentHeadId == userId && item.IsNow == true).FirstOrDefault();
+                var request = new GetAllRequest()
+                {
+                    DepartmentHeadId = userId,
+                    SemesterId = currentSemester?.Id
+                };
                 var exportItems = _taskService.GetTaskResponseByLecturerKey(request);
                 string excelName = $"Timetable-{DateTime.Now:yyyyMMddHHmmssfff}.xlsx";
                 var excelPackage = new ExcelPackage();
@@ -41,24 +47,46 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public FileStreamResult ExportInImportFormat(IHttpContextAccessor _httpContextAccessor)
+        public FileStreamResult ExportInImportFormat(int userId, IHttpContextAccessor _httpContextAccessor)
         {
             try
             {
-                var exportItems = _unitOfWork.TaskRepository.MappingTaskData().Select(item => new ExportInImportFormatDTO()
-                {
-                    Class = item.Class?.Name,
-                    Subject = item.Subject?.Code,
-                    TimeSlot = item.TimeSlot?.Name,
-                    Room = item.Room1?.Name,
-                    Status = item.Lecturer?.ShortName != null ? "ASSIGNED" : "NOT_ASSIGNED",
-                    Lecturer = item.Lecturer?.ShortName,
+                var currentSemester = _unitOfWork.SemesterInfoRepository.GetByCondition(item => item.DepartmentHeadId == userId && item.IsNow == true).FirstOrDefault();
+                var currentUser = _unitOfWork.UserRepository.GetById(userId);
+                var department = _unitOfWork.DepartmentRepository.GetByCondition(
+                            item => item.Id == currentUser?.DepartmentId).FirstOrDefault()?.Department1 ?? "";
 
-                });
+                var exportItems = _unitOfWork.TaskRepository.MappingTaskData()
+                    .Where(item => item.DepartmentHeadId == userId && item.SemesterId == currentSemester?.Id).ToList();
+                List<ExportInImportFormatDTO> listExport = new();
+                foreach (var item in exportItems)
+                {
+                    var Segments = _unitOfWork.TimeSlotSegmentRepository
+                        .GetByCondition(tss => tss.SlotId == item.TimeSlot?.Id && tss.Segment > 0)
+                        .OrderBy(item => item.Segment);
+                    var DaySlot1Id = Segments.Take(1).ToList().FirstOrDefault()?.DayOfWeek ?? 0;
+                    var DaySlot1Name = _unitOfWork.DayOfWeeksRepository.GetById(DaySlot1Id).Name;
+                    var DaySlot2Id = Segments.Skip(1).Take(1).ToList().FirstOrDefault()?.DayOfWeek ?? 0;
+                    var DaySlot2Name = _unitOfWork.DayOfWeeksRepository.GetById(DaySlot2Id).Name;
+
+                    listExport.Add(new ExportInImportFormatDTO()
+                    {
+                        Dept = department,
+                        Class = item.Class?.Name,
+                        Subject = item.Subject?.Code,
+                        TimeSlot = item.TimeSlot?.Name,
+                        Slot1 = DaySlot1Name,
+                        Slot2 = DaySlot2Name,
+                        Room = item.Room1?.Name,
+                        Status = item.Lecturer?.ShortName != null ? "" : "NOT_ASSIGNED",
+                        Lecturer = item.Lecturer?.ShortName,
+
+                    });
+                }
                 string excelName = $"Timetable-{DateTime.Now:yyyyMMddHHmmssfff}.xlsx";
                 var excelPackage = new ExcelPackage();
                 var worksheet = excelPackage.Workbook.Worksheets.Add("Sheet1");
-                worksheet.Cells.LoadFromCollection(exportItems, true);
+                worksheet.Cells.LoadFromCollection(listExport, true);
                 excelPackage.Save();
                 var stream = new MemoryStream(excelPackage.GetAsByteArray());
                 return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

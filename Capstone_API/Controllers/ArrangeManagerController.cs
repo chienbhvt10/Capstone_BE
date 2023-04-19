@@ -81,10 +81,10 @@ namespace Capstone_API.Controllers
         #region Excel Api
 
 
-        [HttpGet("export-in-import-format")]
-        public FileStreamResult ExportInImportFormat()
+        [HttpGet("export-in-import-format/{userId}")]
+        public FileStreamResult ExportInImportFormat(int userId)
         {
-            return _excelService.ExportInImportFormat(_httpContextAccessor);
+            return _excelService.ExportInImportFormat(userId, _httpContextAccessor);
         }
 
         // need import with who user
@@ -99,10 +99,10 @@ namespace Capstone_API.Controllers
             return await _excelService.ImportTimetable(request, file, cancellationToken);
         }
 
-        [HttpPost("export-groupby-lecturer")]
-        public FileStreamResult ExportGroupByLecturers([FromBody] GetAllRequest request)
+        [HttpGet("export-groupby-lecturer/{userId}")]
+        public FileStreamResult ExportGroupByLecturers(int userId)
         {
-            return _excelService.ExportGroupByLecturers(request, _httpContextAccessor);
+            return _excelService.ExportGroupByLecturers(userId, _httpContextAccessor);
         }
         #endregion
 

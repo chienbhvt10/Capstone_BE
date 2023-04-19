@@ -43,9 +43,13 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:3000")
+                          //policy.WithOrigins("http://localhost:3000")
+                          policy.AllowAnyOrigin()
                            .AllowAnyMethod()
-                   .AllowAnyHeader();
+                   .AllowAnyHeader()
+                   .WithExposedHeaders("Access-Control-Allow-Origin", "Access-Control-Expose-Headers", "Access-Control-Request-Headers",
+                                        "Cache-Control", "Content-Disposition", "Content-Length", "Content-Type",
+                                        "Date", "Expires", "Pragma", "Server", "X-AspNet-Version", "X-Powered-By", "X-SourceFiles");
                       });
 });
 
