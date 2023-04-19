@@ -174,6 +174,7 @@ namespace Capstone_API.Service.Implement
 
         #region TimeTable Modify - Swap
 
+        // check neu assign task moi cho giang vien thi giang vien k dc co task trong slot do
         public ResponseResult TimeTableModify(TaskModifyDTO request)
         {
             try
