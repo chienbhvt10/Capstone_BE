@@ -31,11 +31,74 @@ namespace Capstone_API.Service.Implement
                     DepartmentHeadId = userId,
                     SemesterId = currentSemester?.Id
                 };
-                var exportItems = _taskService.GetTaskResponseByLecturerKey(request);
+                var exportItems = _taskService.GetTaskResponseByLecturerKey(request).ToList();
                 string excelName = $"Timetable-{DateTime.Now:yyyyMMddHHmmssfff}.xlsx";
                 var excelPackage = new ExcelPackage();
                 var worksheet = excelPackage.Workbook.Worksheets.Add("Sheet1");
-                worksheet.Cells.LoadFromCollection(exportItems, true);
+
+                var timeslots = _unitOfWork.TimeSlotRepository
+                    .GetByCondition(item =>
+                        item.SemesterId == currentSemester?.Id
+                        && item.DepartmentHeadId == userId)
+                    .ToList();
+
+                worksheet.Column(1).Width = 20;
+                worksheet.Cells[1, 1].Value = "";
+                worksheet.Cells[1, 1].Style.Font.Color.SetColor(Color.White);
+                worksheet.Cells[1, 1].Style.Font.Bold = true;
+                worksheet.Cells[1, 1].Style.Font.Size = 11;
+                worksheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells[1, 1].Style.Fill.BackgroundColor.SetColor(Color.White);
+
+                for (int i = 2; i <= timeslots.Count + 1; i++)
+                {
+                    worksheet.Column(i).Width = 28;
+                    worksheet.Cells[1, i].Value = timeslots[i - 2].Name;
+                    worksheet.Cells[1, i].Style.Font.Color.SetColor(Color.White);
+                    worksheet.Cells[1, i].Style.Font.Bold = true;
+                    worksheet.Cells[1, i].Style.Font.Size = 11;
+                    worksheet.Cells[1, i].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    worksheet.Cells[1, i].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[1, i].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(60, 162, 255));
+                    worksheet.Cells[1, i].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                }
+                worksheet.Cells[1, timeslots.Count + 2].Value = "Total";
+                worksheet.Cells[1, timeslots.Count + 2].Style.Font.Color.SetColor(Color.White);
+                worksheet.Cells[1, timeslots.Count + 2].Style.Font.Bold = true;
+                worksheet.Cells[1, timeslots.Count + 2].Style.Font.Size = 11;
+                worksheet.Cells[1, timeslots.Count + 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[1, timeslots.Count + 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells[1, timeslots.Count + 2].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(60, 162, 255));
+                worksheet.Cells[1, timeslots.Count + 2].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+
+                for (int i = 2; i <= exportItems.Count; i++)
+                {
+                    worksheet.Cells[i, 1].Value = exportItems[i - 2].LecturerName;
+                    worksheet.Cells[i, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    worksheet.Cells[i, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[i, 1].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(247, 113, 147));
+                    worksheet.Cells[i, 1].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    worksheet.Cells[i, exportItems[0].TimeSlotInfos.Count() + 2].Value = exportItems?[i - 2].Total;
+                    worksheet.Cells[i, exportItems[0].TimeSlotInfos.Count() + 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    worksheet.Cells[i, exportItems[0].TimeSlotInfos.Count() + 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[i, exportItems[0].TimeSlotInfos.Count() + 2].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(247, 113, 147));
+                    worksheet.Cells[i, exportItems[0].TimeSlotInfos.Count() + 2].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    for (int j = 2; j <= exportItems[i - 2].TimeSlotInfos?.Count + 1; j++)
+                    {
+                        var timeSlotInfo = exportItems[i - 2].TimeSlotInfos?[j - 2];
+                        if (timeSlotInfo?.TaskId > 0)
+                        {
+                            worksheet.Cells[i, j].Value = timeSlotInfo?.ClassName + "." + timeSlotInfo?.SubjectCode + "." + timeSlotInfo?.RoomName;
+                            worksheet.Cells[i, j].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                            worksheet.Cells[i, j].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                            worksheet.Cells[i, j].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(252, 255, 181));
+                        }
+                        worksheet.Cells[i, j].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    }
+                }
+
+
                 excelPackage.Save();
                 var stream = new MemoryStream(excelPackage.GetAsByteArray());
                 return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -94,8 +157,9 @@ namespace Capstone_API.Service.Implement
                     worksheet.Cells[1, i].Style.Font.Color.SetColor(Color.White);
                     worksheet.Cells[1, i].Style.Font.Bold = true;
                     worksheet.Cells[1, i].Style.Font.Size = 11;
+                    var customColor = Color.FromArgb(60, 162, 255);
                     worksheet.Cells[1, i].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[1, i].Style.Fill.BackgroundColor.SetColor(Color.Blue);
+                    worksheet.Cells[1, i].Style.Fill.BackgroundColor.SetColor(customColor);
                 }
                 excelPackage.Save();
                 var stream = new MemoryStream(excelPackage.GetAsByteArray());
