@@ -144,11 +144,50 @@ namespace Capstone_API.Service.Implement
         }
 
         // Need implement
-        public ResponseResult CreateDefaultSlotPreferenceLevel()
+        public void CreateSlotPreferenceForNewLecturer(Lecturer lecturer)
+        {
+            List<SlotPreferenceLevel> slotPreferenceLevels = new();
+            var timeSlot = _unitOfWork.TimeSlotRepository.GetAll()
+                .Where(item => item.SemesterId == lecturer.SemesterId && item.DepartmentHeadId == lecturer.DepartmentHeadId);
+            foreach (var item in timeSlot)
+            {
+                slotPreferenceLevels.Add(new SlotPreferenceLevel()
+                {
+                    SlotId = item.Id,
+                    LecturerId = lecturer.Id,
+                    PreferenceLevel = 5,
+                    SemesterId = lecturer.SemesterId,
+                    DepartmentHeadId = lecturer.DepartmentHeadId
+                });
+            }
+            _unitOfWork.SlotPreferenceLevelRepository.AddRange(slotPreferenceLevels);
+            _unitOfWork.Complete();
+        }
+        public ResponseResult CreateDefaultSlotPreferenceLevel(GetAllRequest request)
         {
             try
             {
-                return new ResponseResult("Reuse data successfully", true);
+                var timeslots = _unitOfWork.TimeSlotRepository
+                    .GetAll()
+                    .Where(item => item.SemesterId == request.SemesterId && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
+                if (timeslots.Count == 0)
+                {
+                    return new ResponseResult("Must be create data of timeslots first");
+                }
+                var lecturers = _unitOfWork.LecturerRepository
+                    .GetAll()
+                    .Where(item => item.SemesterId == request.SemesterId && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
+                if (lecturers.Count == 0)
+                {
+                    return new ResponseResult("Must be create data of lecturers first");
+                }
+
+                foreach (var item in lecturers)
+                {
+                    CreateSlotPreferenceForNewLecturer(item);
+                }
+
+                return new ResponseResult("Create data successfully", true);
             }
             catch (Exception ex)
             {

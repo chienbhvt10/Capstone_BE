@@ -43,6 +43,13 @@ namespace Capstone_API.Controllers
         {
             return _slotPreferenceLevelService.ReUseDataFromASemester(request);
         }
+
+        [HttpPost("slot/create-default")]
+        public ResponseResult CreateDefaultSlotPreferenceLevel(GetAllRequest request)
+        {
+            return _slotPreferenceLevelService.CreateDefaultSlotPreferenceLevel(request);
+        }
+
         #endregion
 
         #region Subject PreferenceLevel Api
