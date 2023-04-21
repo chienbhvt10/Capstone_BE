@@ -253,9 +253,9 @@ namespace Capstone_API.Service.Implement
                         .GetByCondition(tss => tss.SlotId == item.TimeSlot?.Id && tss.Segment > 0)
                         .OrderBy(item => item.Segment);
                     var DaySlot1Id = Segments.Take(1).ToList().FirstOrDefault()?.DayOfWeek ?? 0;
-                    var DaySlot1Name = _unitOfWork.DayOfWeeksRepository.GetById(DaySlot1Id).Name;
+                    var DaySlot1Name = _unitOfWork.DayOfWeeksRepository.GetById(DaySlot1Id)?.Name ?? "";
                     var DaySlot2Id = Segments.Skip(1).Take(1).ToList().FirstOrDefault()?.DayOfWeek ?? 0;
-                    var DaySlot2Name = _unitOfWork.DayOfWeeksRepository.GetById(DaySlot2Id).Name;
+                    var DaySlot2Name = _unitOfWork.DayOfWeeksRepository.GetById(DaySlot2Id)?.Name ?? "";
 
                     listExport.Add(new ExportInImportFormatDTO()
                     {
@@ -306,7 +306,7 @@ namespace Capstone_API.Service.Implement
         {
             if (file == null || file.Length <= 0)
             {
-                return new ResponseResult("formfile is empty");
+                return new ResponseResult("Formfile is empty");
             }
 
             if (!Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))

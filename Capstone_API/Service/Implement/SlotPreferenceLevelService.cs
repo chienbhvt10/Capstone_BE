@@ -142,5 +142,18 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+
+        // Need implement
+        public ResponseResult CreateDefaultSlotPreferenceLevel()
+        {
+            try
+            {
+                return new ResponseResult("Reuse data successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
     }
 }

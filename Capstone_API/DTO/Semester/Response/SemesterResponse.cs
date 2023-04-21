@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public bool? IsNow { get; set; }
-        public string? Year { get; set; }
+        public int Year { get; set; }
         public string? Semester { get; set; }
     }
 }

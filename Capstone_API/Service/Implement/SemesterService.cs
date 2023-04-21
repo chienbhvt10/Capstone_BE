@@ -95,7 +95,10 @@ namespace Capstone_API.Service.Implement
                     }
                     return new ResponseResult("Update successfully", true);
                 }
-                var semester = _mapper.Map<SemesterInfo>(request);
+                var semester = _unitOfWork.SemesterInfoRepository.GetById(request.Id);
+                semester.IsNow = request.IsNow;
+                semester.Semester = request.Semester;
+                semester.Year = request.Year;
                 _unitOfWork.SemesterInfoRepository.Update(semester);
                 _unitOfWork.Complete();
                 return new ResponseResult("Update successfully", true);
