@@ -18,7 +18,6 @@ namespace Capstone_API.Models
         public int? SemesterId { get; set; }
 
         public virtual User? DepartmentHead { get; set; }
-        public virtual SemesterInfo? Semester { get; set; }
         public virtual ICollection<Distance> DistanceBuilding1s { get; set; }
         public virtual ICollection<Distance> DistanceBuilding2s { get; set; }
     }

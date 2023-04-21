@@ -72,14 +72,17 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public ResponseResult UpdateSemester(SemesterResponse request)
+        // fix get all by user hiện tại
+        public ResponseResult UpdateSemester(UpdateSemesterRequest request)
         {
             try
             {
                 if (request.IsNow == true)
                 {
 
-                    var semesters = _unitOfWork.SemesterInfoRepository.GetAll().ToList();
+                    var semesters = _unitOfWork.SemesterInfoRepository
+                        .GetByCondition(item => item.DepartmentHeadId == request.DepartmentHeadId)
+                        .ToList();
                     foreach (var item in semesters)
                     {
                         if (item.Id == request.Id)

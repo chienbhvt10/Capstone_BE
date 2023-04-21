@@ -10,7 +10,7 @@ namespace Capstone_API.Service.Interface
         GenericResult<List<SemesterResponse>> GetAll(GetAllRequest request);
         GenericResult<SemesterResponse> GetOneSemester(int Id);
         GenericResult<SemesterResponse> CreateSemester(SemesterRequest request);
-        ResponseResult UpdateSemester(SemesterResponse request);
+        ResponseResult UpdateSemester(UpdateSemesterRequest request);
         ResponseResult DeleteSemester(int id);
     }
 }

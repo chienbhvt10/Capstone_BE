@@ -38,7 +38,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPut]
-        public ResponseResult Put([FromBody] SemesterResponse request)
+        public ResponseResult Put([FromBody] UpdateSemesterRequest request)
         {
             return _semesterService.UpdateSemester(request);
 

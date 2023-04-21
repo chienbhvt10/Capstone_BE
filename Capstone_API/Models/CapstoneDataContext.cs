@@ -76,11 +76,6 @@ namespace Capstone_API.Models
                     .WithMany(p => p.Buildings)
                     .HasForeignKey(d => d.DepartmentHeadId)
                     .HasConstraintName("FK_Building_User");
-
-                entity.HasOne(d => d.Semester)
-                    .WithMany(p => p.Buildings)
-                    .HasForeignKey(d => d.SemesterId)
-                    .HasConstraintName("FK_Building_SemesterInfo");
             });
 
             modelBuilder.Entity<Class>(entity =>
@@ -186,12 +181,6 @@ namespace Capstone_API.Models
                     .HasForeignKey(d => d.LecturerId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(d => d.Semester)
-                    .WithMany(p => p.SlotPreferenceLevels)
-                    .HasForeignKey(d => d.SemesterId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_SlotPreferenceLevel_Semester_SemesterId");
-
                 entity.HasOne(d => d.Slot)
                     .WithMany(p => p.SlotPreferenceLevels)
                     .HasForeignKey(d => d.SlotId)
@@ -203,11 +192,6 @@ namespace Capstone_API.Models
                 entity.Property(e => e.Code).HasMaxLength(50);
 
                 entity.Property(e => e.Name).HasMaxLength(50);
-
-                entity.HasOne(d => d.Semester)
-                    .WithMany(p => p.Subjects)
-                    .HasForeignKey(d => d.SemesterId)
-                    .HasConstraintName("FK_Subjects_Semester");
             });
 
             modelBuilder.Entity<SubjectPreferenceLevel>(entity =>
@@ -224,12 +208,6 @@ namespace Capstone_API.Models
                     .WithMany(p => p.SubjectPreferenceLevels)
                     .HasForeignKey(d => d.LecturerId)
                     .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(d => d.Semester)
-                    .WithMany(p => p.SubjectPreferenceLevels)
-                    .HasForeignKey(d => d.SemesterId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_SubjectPreferenceLevel_Semester_SemesterId");
 
                 entity.HasOne(d => d.Subject)
                     .WithMany(p => p.SubjectPreferenceLevels)
@@ -260,11 +238,6 @@ namespace Capstone_API.Models
                     .WithMany(p => p.TaskAssigns)
                     .HasForeignKey(d => d.Room1Id)
                     .HasConstraintName("FK_TaskAssign_Room");
-
-                entity.HasOne(d => d.Semester)
-                    .WithMany(p => p.TaskAssigns)
-                    .HasForeignKey(d => d.SemesterId)
-                    .HasConstraintName("FK_TaskAssign_Semester");
 
                 entity.HasOne(d => d.Subject)
                     .WithMany(p => p.TaskAssigns)
