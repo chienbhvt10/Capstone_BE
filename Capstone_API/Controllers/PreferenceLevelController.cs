@@ -60,6 +60,11 @@ namespace Capstone_API.Controllers
             return _subjectPreferenceLevelService.GetAll(request);
         }
 
+        [HttpPost("subject/create-default")]
+        public ResponseResult CreateDefaultSubjectPreferenceLevel(GetAllRequest request)
+        {
+            return _subjectPreferenceLevelService.CreateDefaultSubjectPreferenceLevel(request);
+        }
 
         [HttpPut("subject")]
         public ResponseResult UpdateSubjectPreferenceLevels([FromBody] UpdateSubjectPreferenceLevelDTO request)

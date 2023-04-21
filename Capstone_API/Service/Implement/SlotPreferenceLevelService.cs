@@ -143,7 +143,7 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        // Need implement
+
         public void CreateSlotPreferenceForNewLecturer(Lecturer lecturer)
         {
             List<SlotPreferenceLevel> slotPreferenceLevels = new();
@@ -163,6 +163,7 @@ namespace Capstone_API.Service.Implement
             _unitOfWork.SlotPreferenceLevelRepository.AddRange(slotPreferenceLevels);
             _unitOfWork.Complete();
         }
+
         public ResponseResult CreateDefaultSlotPreferenceLevel(GetAllRequest request)
         {
             try
