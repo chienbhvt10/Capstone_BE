@@ -72,7 +72,6 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        // fix get all by user hiện tại
         public ResponseResult UpdateSemester(UpdateSemesterRequest request)
         {
             try

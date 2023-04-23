@@ -99,7 +99,6 @@ namespace Capstone_API.Controllers
             return _excelService.ExportInImportFormat(userId, _httpContextAccessor);
         }
 
-        // need import with who user
         [HttpPost("import-time-table")]
         public async Task<ResponseResult> ImportTimeTable([FromForm] IFormFile file, [FromForm] int semesterId, [FromForm] int departmentHeadId, CancellationToken cancellationToken)
         {

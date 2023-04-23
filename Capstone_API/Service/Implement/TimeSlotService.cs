@@ -352,7 +352,6 @@ namespace Capstone_API.Service.Implement
 
         #endregion
 
-        // delete delete areaslotweight, timeslotconflict, timeslot preference level first
         public ResponseResult DeleteTimeSlot(int id)
         {
             try

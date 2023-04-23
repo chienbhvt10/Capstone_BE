@@ -34,12 +34,6 @@ namespace Capstone_API.Controllers
             return _timeSlotService.GetAll(request);
         }
 
-        [HttpGet("{id}")]
-        public string GetTimeSlot()
-        {
-            return "value";
-        }
-
         [HttpPost]
         public ResponseResult CreateTimeSlot([FromBody] CreateTimeSlotDTO request)
         {
