@@ -51,7 +51,6 @@
         public int Strategy { get; set; }
         public List<int>? ObjectiveOption { get; set; }
         public List<int>? ObjectiveWeight { get; set; }
-
     }
 
     public class TaskFetchRequest

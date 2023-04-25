@@ -41,7 +41,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("search-tasks")]
-        public GenericResult<SearchDTO> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
+        public GenericResult<SearchDTO> SearchTask([FromBody] GetAllTaskAssignRequest request)
         {
             return _taskService.SearchTask(request);
         }
