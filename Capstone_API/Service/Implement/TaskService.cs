@@ -426,6 +426,37 @@ namespace Capstone_API.Service.Implement
         #endregion
 
         #region GetTasksNotAssigned
+        public List<GetTaskReponseBySubjectIsKey> GetTaskResponseBySubjectIsKey(GetAllRequest request)
+        {
+            List<GetTaskReponseBySubjectIsKey> result = new();
+            var data = _unitOfWork.TaskRepository.MappingTaskData()
+                    .Where(item => item.SemesterId == request.SemesterId
+                                    && item.DepartmentHeadId == request.DepartmentHeadId)
+                    .OrderBy(item => item.SubjectId)
+                    .GroupBy(item => item.SubjectId);
+            result = data.Select(gr => new GetTaskReponseBySubjectIsKey()
+            {
+                SubjectId = gr.Key ?? 0,
+                SubjectCode = gr.First()?.Subject?.Code ?? "",
+                Total = gr.Count(),
+                TimeSlotInfos = gr.OrderBy(item => item.TimeSlotId).Select(data =>
+                        new TimeSlotInfo2
+                        {
+                            TaskId = data.Id,
+                            TimeSlotId = data.TimeSlotId ?? 0,
+                            TimeSlotName = data.TimeSlot?.Name ?? "",
+                            ClassId = data.ClassId ?? 0,
+                            ClassName = data.Class?.Name ?? "",
+                            RoomId = data.Room1Id ?? 0,
+                            RoomName = data.Room1?.Name ?? "",
+                        }).ToList(),
+            }).ToList();
+
+
+
+            return result;
+        }
+
         public List<List<TimeSlotInfo>> GetTasksNotAssign(GetAllRequest request)
         {
             var data = _unitOfWork.TaskRepository.MappingTaskData()
@@ -440,9 +471,9 @@ namespace Capstone_API.Service.Implement
                     item.SemesterId == request.SemesterId
                     && item.DepartmentHeadId == request.DepartmentHeadId)
                 .ToList();
+
             foreach (var item in currentTimeSlots)
             {
-
                 List<TimeSlotInfo> currentTimeSlot = new();
                 foreach (var subItem in data)
                 {

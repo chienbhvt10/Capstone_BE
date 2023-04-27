@@ -92,6 +92,17 @@ namespace Capstone_API.Controllers
 
         #region Excel Api
 
+        [HttpPost("import-time-table-result")]
+        public async Task<ResponseResult> ImportTimeTableResult([FromForm] IFormFile file, [FromForm] int semesterId, [FromForm] int departmentHeadId, CancellationToken cancellationToken)
+        {
+            var request = new GetAllRequest()
+            {
+                DepartmentHeadId = departmentHeadId,
+                SemesterId = semesterId
+            };
+            return await _excelService.ImportTimetableResult(request, file, cancellationToken);
+        }
+
 
         [HttpGet("export-in-import-format/{userId}")]
         public FileStreamResult ExportInImportFormat(int userId)
