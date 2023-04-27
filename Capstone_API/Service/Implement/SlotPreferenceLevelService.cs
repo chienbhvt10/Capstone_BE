@@ -28,10 +28,15 @@ namespace Capstone_API.Service.Implement
                     DepartmentHeadId = request?.GetAllRequest?.DepartmentHeadId ?? 0,
                     SemesterId = request?.GetAllRequest?.SemesterId ?? 0
                 };
-                var query = SlotPreferenceLevelByLecturerIsKey(getAllRequest)
-                    .Skip((request.Pagination.PageNumber - 1) * request.Pagination.PageSize)
-                    .Take(request.Pagination.PageSize);
+                var query = SlotPreferenceLevelByLecturerIsKey(getAllRequest);
 
+
+                if (request?.Lecturer != null)
+                {
+                    query = query.Where(item => item.LecturerName.Contains(request.Lecturer));
+                }
+                query = query.Skip((request.Pagination.PageNumber - 1) * request.Pagination.PageSize)
+                    .Take(request.Pagination.PageSize);
                 var slotViewModel = _mapper.Map<IEnumerable<GetSlotPreferenceLevelDTO>>(query).ToList();
                 var response = new GetSlotPreferenceLevelResponse()
                 {

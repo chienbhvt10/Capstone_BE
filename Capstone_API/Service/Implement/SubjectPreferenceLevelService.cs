@@ -29,8 +29,15 @@ namespace Capstone_API.Service.Implement
                     SemesterId = request?.GetAllRequest?.SemesterId ?? 0
                 };
 
-                var query = SubjectPreferenceLevelByLecturerIsKey(getAllRequest)
-                    .Skip((request.Pagination.PageNumber - 1) * request.Pagination.PageSize)
+                var query = SubjectPreferenceLevelByLecturerIsKey(getAllRequest);
+
+
+                if (request?.Lecturer != null)
+                {
+                    query = query.Where(item => item.LecturerName.Contains(request.Lecturer));
+                }
+
+                query = query.Skip((request.Pagination.PageNumber - 1) * request.Pagination.PageSize)
                     .Take(request.Pagination.PageSize);
 
                 var subjectsViewModel = _mapper.Map<IEnumerable<GetSubjectPreferenceLevelDTO>>(query).ToList();
