@@ -27,7 +27,7 @@ namespace Capstone_API.Controllers
         #region Slot PreferenceLevel Api
 
         [HttpPost("slot")]
-        public GenericResult<List<GetSlotPreferenceLevelDTO>> GetAllSlotPreferenceLevel([FromBody] GetAllRequest request)
+        public GenericResult<GetSlotPreferenceLevelResponse> GetAllSlotPreferenceLevel([FromBody] GetSlotPreferenceRequest request)
         {
             return _slotPreferenceLevelService.GetAll(request);
         }
@@ -55,7 +55,7 @@ namespace Capstone_API.Controllers
         #region Subject PreferenceLevel Api
 
         [HttpPost("subject")]
-        public GenericResult<List<GetSubjectPreferenceLevelDTO>> GetAllSubjectPreferenceLevel([FromBody] GetAllRequest request)
+        public GenericResult<GetSubjectPreferenceLevelResponse> GetAllSubjectPreferenceLevel([FromBody] GetSubjectPreferenceLevelrequest request)
         {
             return _subjectPreferenceLevelService.GetAll(request);
         }

@@ -19,19 +19,33 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
         }
 
-        public GenericResult<List<GetSubjectPreferenceLevelDTO>> GetAll(GetAllRequest request)
+        public GenericResult<GetSubjectPreferenceLevelResponse> GetAll(GetSubjectPreferenceLevelrequest request)
         {
             try
             {
-                var query = SubjectPreferenceLevelByLecturerIsKey(request);
-                var subjectsViewModel = _mapper.Map<IEnumerable<GetSubjectPreferenceLevelDTO>>(query).ToList();
+                var getAllRequest = new GetAllRequest()
+                {
+                    DepartmentHeadId = request?.GetAllRequest?.DepartmentHeadId ?? 0,
+                    SemesterId = request?.GetAllRequest?.SemesterId ?? 0
+                };
 
-                return new GenericResult<List<GetSubjectPreferenceLevelDTO>>(subjectsViewModel, true);
+                var query = SubjectPreferenceLevelByLecturerIsKey(getAllRequest)
+                    .Skip((request.Pagination.PageNumber - 1) * request.Pagination.PageSize)
+                    .Take(request.Pagination.PageSize);
+
+                var subjectsViewModel = _mapper.Map<IEnumerable<GetSubjectPreferenceLevelDTO>>(query).ToList();
+                var response = new GetSubjectPreferenceLevelResponse()
+                {
+                    SubjectPreferenceLevels = subjectsViewModel,
+                    Total = SubjectPreferenceLevelByLecturerIsKey(getAllRequest).Count(),
+                };
+
+                return new GenericResult<GetSubjectPreferenceLevelResponse>(response, true);
 
             }
             catch (Exception ex)
             {
-                return new GenericResult<List<GetSubjectPreferenceLevelDTO>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<GetSubjectPreferenceLevelResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
         public IEnumerable<GetSubjectPreferenceLevelDTO> SubjectPreferenceLevelByLecturerIsKey(GetAllRequest request)

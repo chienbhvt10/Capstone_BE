@@ -19,19 +19,30 @@ namespace Capstone_API.Service.Implement
             _mapper = mapper;
         }
 
-        public GenericResult<List<GetSlotPreferenceLevelDTO>> GetAll(GetAllRequest request)
+        public GenericResult<GetSlotPreferenceLevelResponse> GetAll(GetSlotPreferenceRequest request)
         {
             try
             {
-                var query = SlotPreferenceLevelByLecturerIsKey(request);
+                var getAllRequest = new GetAllRequest()
+                {
+                    DepartmentHeadId = request?.GetAllRequest?.DepartmentHeadId ?? 0,
+                    SemesterId = request?.GetAllRequest?.SemesterId ?? 0
+                };
+                var query = SlotPreferenceLevelByLecturerIsKey(getAllRequest)
+                    .Skip((request.Pagination.PageNumber - 1) * request.Pagination.PageSize)
+                    .Take(request.Pagination.PageSize);
+
                 var slotViewModel = _mapper.Map<IEnumerable<GetSlotPreferenceLevelDTO>>(query).ToList();
-
-                return new GenericResult<List<GetSlotPreferenceLevelDTO>>(slotViewModel, true);
-
+                var response = new GetSlotPreferenceLevelResponse()
+                {
+                    SlotPreferenceLevels = slotViewModel,
+                    Total = SlotPreferenceLevelByLecturerIsKey(getAllRequest).Count(),
+                };
+                return new GenericResult<GetSlotPreferenceLevelResponse>(response, true);
             }
             catch (Exception ex)
             {
-                return new GenericResult<List<GetSlotPreferenceLevelDTO>>($"{ex.Message}: {ex.InnerException?.Message}");
+                return new GenericResult<GetSlotPreferenceLevelResponse>($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
         public IEnumerable<GetSlotPreferenceLevelDTO> SlotPreferenceLevelByLecturerIsKey(GetAllRequest request)

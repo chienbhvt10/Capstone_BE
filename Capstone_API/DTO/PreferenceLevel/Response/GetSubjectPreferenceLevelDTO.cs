@@ -15,4 +15,10 @@
         public int PreferenceLevel { get; set; }
         public int SubjectId { get; set; }
     }
+
+    public class GetSubjectPreferenceLevelResponse
+    {
+        public List<GetSubjectPreferenceLevelDTO>? SubjectPreferenceLevels { get; set; }
+        public int Total { get; set; }
+    }
 }

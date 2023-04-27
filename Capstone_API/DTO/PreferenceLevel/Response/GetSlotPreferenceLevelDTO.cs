@@ -15,4 +15,9 @@
         public int PreferenceLevel { get; set; }
         public int TimeSlotId { get; set; }
     }
+    public class GetSlotPreferenceLevelResponse
+    {
+        public List<GetSlotPreferenceLevelDTO>? SlotPreferenceLevels { get; set; }
+        public int Total { get; set; }
+    }
 }

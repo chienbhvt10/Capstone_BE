@@ -7,7 +7,7 @@ namespace Capstone_API.Service.Interface
 {
     public interface ISlotPreferenceLevelService
     {
-        GenericResult<List<GetSlotPreferenceLevelDTO>> GetAll(GetAllRequest request);
+        GenericResult<GetSlotPreferenceLevelResponse> GetAll(GetSlotPreferenceRequest request);
         ResponseResult UpdateSlotPreferenceLevel(UpdateSlotPreferenceLevelDTO request);
         ResponseResult ReUseDataFromASemester(ReUseRequest request);
         ResponseResult CreateDefaultSlotPreferenceLevel(GetAllRequest request);
