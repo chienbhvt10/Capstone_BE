@@ -250,7 +250,7 @@ namespace Capstone_API.Service.Implement
                 worksheet.Cells[exportLecturerStatisticItems.Count + 5, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 worksheet.Cells[exportLecturerStatisticItems.Count + 5, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 worksheet.Cells[exportLecturerStatisticItems.Count + 5, 1].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(252, 255, 181));
-
+                worksheet.Cells[exportLecturerStatisticItems.Count + 5, 1].Style.Border.BorderAround(ExcelBorderStyle.Thin);
                 for (int i = 2; i <= timeslots.Count + 1; i++)
                 {
                     worksheet.Column(i).Width = 28;
