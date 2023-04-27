@@ -174,7 +174,13 @@ namespace Capstone_API.Service.Implement
         {
             try
             {
-                var building = _mapper.Map<Building>(request);
+                var building = _unitOfWork.BuildingRepository.GetById(request.Id);
+                if (building == null)
+                {
+                    return new ResponseResult("Cannot find this building");
+                }
+                building.Name = request.Name;
+                building.ShortName = request.ShortName;
                 _unitOfWork.BuildingRepository.Update(building);
                 _unitOfWork.Complete();
                 return new ResponseResult("Update successfully", true);

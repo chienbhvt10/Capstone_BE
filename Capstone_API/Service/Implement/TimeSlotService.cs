@@ -352,7 +352,6 @@ namespace Capstone_API.Service.Implement
 
         #endregion
 
-        // delete delete areaslotweight, timeslotconflict, timeslot preference level first
         public ResponseResult DeleteTimeSlot(int id)
         {
             try
@@ -360,12 +359,12 @@ namespace Capstone_API.Service.Implement
                 _unitOfWork.TimeSlotConflictRepository.DeleteByCondition(item => item.SlotId == id || item.ConflictSlotId == id, true);
                 _unitOfWork.AreaSlotWeightRepository.DeleteByCondition(item => item.SlotId == id || item.AreaSlotId == id, true);
                 _unitOfWork.SlotPreferenceLevelRepository.DeleteByCondition(item => item.SlotId == id, true);
-                _unitOfWork.TimeSlotSegmentRepository.DeleteByCondition(item => item.SlotId != id, true);
+                _unitOfWork.TimeSlotSegmentRepository.DeleteByCondition(item => item.SlotId == id, true);
                 var taskContainThisDeleteTimeSlot = _unitOfWork.TaskRepository.GetAll().Where(item => item.TimeSlotId == id).ToList();
 
                 foreach (var item in taskContainThisDeleteTimeSlot)
                 {
-                    item.TimeSlotId = 0;
+                    item.TimeSlotId = null;
                 }
 
                 _unitOfWork.TaskRepository.UpdateRange(taskContainThisDeleteTimeSlot);
@@ -387,12 +386,13 @@ namespace Capstone_API.Service.Implement
             try
             {
                 var timeSlot = _unitOfWork.TimeSlotRepository.GetById(request.Id);
-                if (timeSlot != null)
+                if (timeSlot == null)
                 {
-                    timeSlot.AmorPm = request.AmorPm;
-                    _unitOfWork.TimeSlotRepository.Update(timeSlot);
-                    _unitOfWork.Complete();
+                    return new ResponseResult("Cannot find this timeslot");
                 }
+                timeSlot.AmorPm = request.AmorPm;
+                _unitOfWork.TimeSlotRepository.Update(timeSlot);
+                _unitOfWork.Complete();
                 return new ResponseResult("Update successfully", true);
             }
             catch (Exception ex)

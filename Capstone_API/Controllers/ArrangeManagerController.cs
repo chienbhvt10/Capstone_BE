@@ -41,7 +41,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("search-tasks")]
-        public GenericResult<SearchDTO> GetTaskAssign([FromBody] GetAllTaskAssignRequest request)
+        public GenericResult<SearchDTO> SearchTask([FromBody] GetAllTaskAssignRequest request)
         {
             return _taskService.SearchTask(request);
         }
@@ -92,6 +92,17 @@ namespace Capstone_API.Controllers
 
         #region Excel Api
 
+        [HttpPost("import-time-table-result")]
+        public async Task<ResponseResult> ImportTimeTableResult([FromForm] IFormFile file, [FromForm] int semesterId, [FromForm] int departmentHeadId, CancellationToken cancellationToken)
+        {
+            var request = new GetAllRequest()
+            {
+                DepartmentHeadId = departmentHeadId,
+                SemesterId = semesterId
+            };
+            return await _excelService.ImportTimetableResult(request, file, cancellationToken);
+        }
+
 
         [HttpGet("export-in-import-format/{userId}")]
         public FileStreamResult ExportInImportFormat(int userId)
@@ -99,7 +110,6 @@ namespace Capstone_API.Controllers
             return _excelService.ExportInImportFormat(userId, _httpContextAccessor);
         }
 
-        // need import with who user
         [HttpPost("import-time-table")]
         public async Task<ResponseResult> ImportTimeTable([FromForm] IFormFile file, [FromForm] int semesterId, [FromForm] int departmentHeadId, CancellationToken cancellationToken)
         {

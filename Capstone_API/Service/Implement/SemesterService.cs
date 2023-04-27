@@ -72,14 +72,16 @@ namespace Capstone_API.Service.Implement
             }
         }
 
-        public ResponseResult UpdateSemester(SemesterResponse request)
+        public ResponseResult UpdateSemester(UpdateSemesterRequest request)
         {
             try
             {
                 if (request.IsNow == true)
                 {
 
-                    var semesters = _unitOfWork.SemesterInfoRepository.GetAll().ToList();
+                    var semesters = _unitOfWork.SemesterInfoRepository
+                        .GetByCondition(item => item.DepartmentHeadId == request.DepartmentHeadId)
+                        .ToList();
                     foreach (var item in semesters)
                     {
                         if (item.Id == request.Id)
@@ -95,7 +97,10 @@ namespace Capstone_API.Service.Implement
                     }
                     return new ResponseResult("Update successfully", true);
                 }
-                var semester = _mapper.Map<SemesterInfo>(request);
+                var semester = _unitOfWork.SemesterInfoRepository.GetById(request.Id);
+                semester.IsNow = request.IsNow;
+                semester.Semester = request.Semester;
+                semester.Year = request.Year;
                 _unitOfWork.SemesterInfoRepository.Update(semester);
                 _unitOfWork.Complete();
                 return new ResponseResult("Update successfully", true);

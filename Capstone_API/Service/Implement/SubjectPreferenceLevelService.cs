@@ -140,5 +140,59 @@ namespace Capstone_API.Service.Implement
                 return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
             }
         }
+
+        public void CreateSubjectPreferenceForNewLecturer(Lecturer lecturer)
+        {
+            List<SubjectPreferenceLevel> subjectPreferenceLevel = new();
+            var subjects = _unitOfWork.SubjectRepository.GetAll()
+                .Where(item => item.SemesterId == lecturer.SemesterId && item.DepartmentHeadId == lecturer.DepartmentHeadId);
+            foreach (var item in subjects)
+            {
+                subjectPreferenceLevel.Add(new SubjectPreferenceLevel()
+                {
+                    SubjectId = item.Id,
+                    LecturerId = lecturer.Id,
+                    PreferenceLevel = 0,
+                    SemesterId = lecturer.SemesterId,
+                    DepartmentHeadId = lecturer.DepartmentHeadId
+                });
+            }
+            _unitOfWork.SubjectPreferenceLevelRepository.AddRange(subjectPreferenceLevel);
+            _unitOfWork.Complete();
+        }
+
+        public ResponseResult CreateDefaultSubjectPreferenceLevel(GetAllRequest request)
+        {
+            try
+            {
+                var subjects = _unitOfWork.SubjectRepository
+                    .GetAll()
+                    .Where(item => item.SemesterId == request.SemesterId && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
+                if (subjects.Count == 0)
+                {
+                    return new ResponseResult("Must be create data of subjects first");
+                }
+
+                var lecturers = _unitOfWork.LecturerRepository
+                    .GetAll()
+                    .Where(item => item.SemesterId == request.SemesterId && item.DepartmentHeadId == request.DepartmentHeadId).ToList();
+
+                if (lecturers.Count == 0)
+                {
+                    return new ResponseResult("Must be create data of lecturers first");
+                }
+
+                foreach (var item in lecturers)
+                {
+                    CreateSubjectPreferenceForNewLecturer(item);
+                }
+
+                return new ResponseResult("Create data successfully", true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
     }
 }

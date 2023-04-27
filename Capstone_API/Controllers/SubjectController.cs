@@ -20,32 +20,32 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("get")]
-        public GenericResult<List<SubjectResponse>> Get([FromBody] GetSubjectRequest request)
+        public GenericResult<List<SubjectResponse>> GetAll([FromBody] GetSubjectRequest request)
         {
             return _subjectService.GetAll(request);
         }
 
         [HttpGet("{id}")]
-        public GenericResult<SubjectResponse> Get(int id)
+        public GenericResult<SubjectResponse> GetOneSubject(int id)
         {
             return _subjectService.GetOneSubject(id);
         }
 
         [HttpPost]
-        public GenericResult<SubjectResponse> Post([FromBody] SubjectRequest request)
+        public GenericResult<SubjectResponse> CreateSubject([FromBody] SubjectRequest request)
         {
             return _subjectService.CreateSubject(request);
         }
 
         [HttpPut]
-        public ResponseResult Put([FromBody] SubjectResponse request)
+        public ResponseResult UpdateSubject([FromBody] SubjectResponse request)
         {
             return _subjectService.UpdateSubject(request);
 
         }
 
         [HttpDelete("{id}")]
-        public ResponseResult Delete(int id)
+        public ResponseResult DeleteSubject(int id)
         {
             return _subjectService.DeleteSubject(id);
 

@@ -19,7 +19,7 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost]
-        public GenericResult<IEnumerable<ClassResponse>> Get([FromBody] GetAllRequest request)
+        public GenericResult<IEnumerable<ClassResponse>> GetAll([FromBody] GetAllRequest request)
         {
             return _classService.GetAll(request);
         }
