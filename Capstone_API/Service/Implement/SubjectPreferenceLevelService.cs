@@ -29,16 +29,16 @@ namespace Capstone_API.Service.Implement
                     SemesterId = request?.GetAllRequest?.SemesterId ?? 0
                 };
 
-                var query = SubjectPreferenceLevelByLecturerIsKey(getAllRequest);
+                var query = SubjectPreferenceLevelByLecturerIsKey(getAllRequest).OrderBy(item => item.LecturerName).ToList();
 
 
                 if (request?.Lecturer != null)
                 {
-                    query = query.Where(item => item.LecturerName.Contains(request.Lecturer));
+                    query = query.Where(item => item.LecturerName.Contains(request.Lecturer)).ToList();
                 }
 
                 query = query.Skip((request.Pagination.PageNumber - 1) * request.Pagination.PageSize)
-                    .Take(request.Pagination.PageSize);
+                    .Take(request.Pagination.PageSize).ToList();
 
                 var subjectsViewModel = _mapper.Map<IEnumerable<GetSubjectPreferenceLevelDTO>>(query).ToList();
                 var response = new GetSubjectPreferenceLevelResponse()

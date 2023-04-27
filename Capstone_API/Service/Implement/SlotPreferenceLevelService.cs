@@ -28,19 +28,18 @@ namespace Capstone_API.Service.Implement
                     DepartmentHeadId = request?.GetAllRequest?.DepartmentHeadId ?? 0,
                     SemesterId = request?.GetAllRequest?.SemesterId ?? 0
                 };
-                var query = SlotPreferenceLevelByLecturerIsKey(getAllRequest);
-
+                var query = SlotPreferenceLevelByLecturerIsKey(getAllRequest).OrderBy(item => item.LecturerName).ToList();
 
                 if (request?.Lecturer != null)
                 {
-                    query = query.Where(item => item.LecturerName.Contains(request.Lecturer));
+                    query = query.Where(item => item.LecturerName.Contains(request.Lecturer)).ToList();
                 }
                 query = query.Skip((request.Pagination.PageNumber - 1) * request.Pagination.PageSize)
-                    .Take(request.Pagination.PageSize);
+                    .Take(request.Pagination.PageSize).ToList();
                 var slotViewModel = _mapper.Map<IEnumerable<GetSlotPreferenceLevelDTO>>(query).ToList();
                 var response = new GetSlotPreferenceLevelResponse()
                 {
-                    SlotPreferenceLevels = slotViewModel,
+                    SlotPreferenceLevels = slotViewModel.ToList(),
                     Total = SlotPreferenceLevelByLecturerIsKey(getAllRequest).Count(),
                 };
                 return new GenericResult<GetSlotPreferenceLevelResponse>(response, true);
