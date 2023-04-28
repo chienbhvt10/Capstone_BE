@@ -174,7 +174,6 @@ namespace Capstone_API.Service.Implement
 
         #region TimeTable Modify - Swap
 
-        // check neu assign task moi cho giang vien thi giang vien k dc co task trong slot do
         public ResponseResult TimeTableModify(TaskModifyDTO request)
         {
             try
@@ -183,6 +182,18 @@ namespace Capstone_API.Service.Implement
                 if (taskFind == null)
                 {
                     return new ResponseResult("Cannot find task");
+                }
+                var checkLecturerWithTimeSlotExist = _unitOfWork.TaskRepository
+                    .GetByCondition(item =>
+                        item.LecturerId == request.LecturerId
+                        && item.TimeSlotId == request.TimeSlotId
+                        && item.SemesterId == request.SemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId)
+                    .FirstOrDefault();
+                if (checkLecturerWithTimeSlotExist != null)
+                {
+                    return new ResponseResult("Cannot assign task for lecturer have task in this slot");
+
                 }
                 taskFind.LecturerId = request.LecturerId;
                 _unitOfWork.TaskRepository.Update(taskFind);
@@ -275,6 +286,55 @@ namespace Capstone_API.Service.Implement
         }
 
         #region LockTask
+
+        public ResponseResult LockAllTaskForLecturer(LockAllTaskOfALecturerRequest request)
+        {
+            try
+            {
+                var taskFinds = _unitOfWork.TaskRepository.GetByCondition(item =>
+                        item.LecturerId == request.LecturerId
+                        && item.SemesterId == request.SemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId)
+                    .ToList();
+
+                foreach (var item in taskFinds)
+                {
+                    item.PreAssign = true;
+                    _unitOfWork.TaskRepository.Update(item);
+                    _unitOfWork.Complete();
+                }
+                return new ResponseResult();
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
+        public ResponseResult UnLockAllTaskForLecturer(LockAllTaskOfALecturerRequest request)
+        {
+            try
+            {
+                var taskFinds = _unitOfWork.TaskRepository.GetByCondition(item =>
+                        item.LecturerId == request.LecturerId
+                        && item.SemesterId == request.SemesterId
+                        && item.DepartmentHeadId == request.DepartmentHeadId)
+                    .ToList();
+
+                foreach (var item in taskFinds)
+                {
+                    item.PreAssign = false;
+                    _unitOfWork.TaskRepository.Update(item);
+                    _unitOfWork.Complete();
+                }
+                return new ResponseResult();
+            }
+            catch (Exception ex)
+            {
+                return new ResponseResult($"{ex.Message}: {ex.InnerException?.Message}");
+            }
+        }
+
         public ResponseResult LockAndUnLockTask(LockAndUnLockTaskDTO request)
         {
             try

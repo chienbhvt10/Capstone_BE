@@ -88,6 +88,19 @@ namespace Capstone_API.Controllers
             return _taskService.SwapRoom(request);
         }
 
+        [HttpPut("lock-all-task-lecturer")]
+        public ResponseResult LockAllTaskForLecturer(LockAllTaskOfALecturerRequest request)
+        {
+            return _taskService.LockAllTaskForLecturer(request);
+        }
+
+        [HttpPut("unlock-all-task-lecturer")]
+        public ResponseResult UnLockAllTaskForLecturer(LockAllTaskOfALecturerRequest request)
+        {
+            return _taskService.UnLockAllTaskForLecturer(request);
+        }
+
+
         #endregion
 
         #region Excel Api

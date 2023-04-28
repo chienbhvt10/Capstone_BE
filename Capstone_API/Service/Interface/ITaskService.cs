@@ -18,5 +18,7 @@ namespace Capstone_API.Service.Interface
         List<GetTaskReponseBySubjectIsKey> GetTaskResponseBySubjectIsKey(GetAllRequest request);
         ResponseResult SwapLecturer(SwapLecturerDTO request);
         ResponseResult SwapRoom(SwapRoomDTO request);
+        ResponseResult LockAllTaskForLecturer(LockAllTaskOfALecturerRequest request);
+        ResponseResult UnLockAllTaskForLecturer(LockAllTaskOfALecturerRequest request);
     }
 }
