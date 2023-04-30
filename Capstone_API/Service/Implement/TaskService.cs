@@ -499,20 +499,20 @@ namespace Capstone_API.Service.Implement
                 SubjectId = gr.Key ?? 0,
                 SubjectCode = gr.First()?.Subject?.Code ?? "",
                 Total = gr.Count(),
-                TimeSlotInfos = gr.OrderBy(item => item.TimeSlotId).Select(data =>
+                TimeSlotInfos = gr.OrderBy(item => item.TimeSlotId)
+                .GroupBy(item => item.TimeSlotId)
+                .Select(data => data.Select(subData =>
                         new TimeSlotInfo2
                         {
-                            TaskId = data.Id,
-                            TimeSlotId = data.TimeSlotId ?? 0,
-                            TimeSlotName = data.TimeSlot?.Name ?? "",
-                            ClassId = data.ClassId ?? 0,
-                            ClassName = data.Class?.Name ?? "",
-                            RoomId = data.Room1Id ?? 0,
-                            RoomName = data.Room1?.Name ?? "",
-                        }).ToList(),
+                            TaskId = subData.Id,
+                            TimeSlotId = subData.TimeSlotId ?? 0,
+                            TimeSlotName = subData.TimeSlot?.Name ?? "",
+                            ClassId = subData.ClassId ?? 0,
+                            ClassName = subData.Class?.Name ?? "",
+                            RoomId = subData.Room1Id ?? 0,
+                            RoomName = subData.Room1?.Name ?? "",
+                        }).ToList()).ToList(),
             }).ToList();
-
-
 
             return result;
         }

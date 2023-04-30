@@ -5,7 +5,7 @@
         public int SubjectId { get; set; }
         public string? SubjectCode { get; set; }
         public int Total { get; set; }
-        public List<TimeSlotInfo2>? TimeSlotInfos { get; set; }
+        public List<List<TimeSlotInfo2>>? TimeSlotInfos { get; set; }
     }
 
     public class TimeSlotInfo2
