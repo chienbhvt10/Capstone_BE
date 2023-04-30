@@ -500,21 +500,59 @@ namespace Capstone_API.Service.Implement
                 SubjectCode = gr.First()?.Subject?.Code ?? "",
                 Total = gr.Count(),
                 TimeSlotInfos = gr.OrderBy(item => item.TimeSlotId)
-                .GroupBy(item => item.TimeSlotId)
-                .Select(data => data.Select(subData =>
+                .Select(data =>
                         new TimeSlotInfo2
                         {
-                            TaskId = subData.Id,
-                            TimeSlotId = subData.TimeSlotId ?? 0,
-                            TimeSlotName = subData.TimeSlot?.Name ?? "",
-                            ClassId = subData.ClassId ?? 0,
-                            ClassName = subData.Class?.Name ?? "",
-                            RoomId = subData.Room1Id ?? 0,
-                            RoomName = subData.Room1?.Name ?? "",
-                        }).ToList()).ToList(),
+                            TaskId = data.Id,
+                            TimeSlotId = data.TimeSlotId ?? 0,
+                            TimeSlotName = data.TimeSlot?.Name ?? "",
+                            ClassId = data.ClassId ?? 0,
+                            ClassName = data.Class?.Name ?? "",
+                            RoomId = data.Room1Id ?? 0,
+                            RoomName = data.Room1?.Name ?? "",
+                        }).ToList(),
             }).ToList();
 
-            return result;
+            List<GetTaskReponseBySubjectIsKey> response = new();
+            foreach (var item in result)
+            {
+                var aa = item.TimeSlotInfos?.OrderBy(item => item.TimeSlotId).GroupBy(item => item.TimeSlotId).Max(item => item.Count());
+                List<GetTaskReponseBySubjectIsKey> subList = new(aa ?? 0);
+                for (int i = 0; i < aa; i++)
+                {
+                    var subItem = new GetTaskReponseBySubjectIsKey() { SubjectCode = item.SubjectCode, SubjectId = item.SubjectId, TimeSlotInfos = new List<TimeSlotInfo2>() };
+                    subList.Add(subItem);
+                }
+
+                foreach (var item2 in item.TimeSlotInfos)
+                {
+                    for (int i = 0; i < aa; i++)
+                    {
+                        if (!(subList.Any(item => (bool)(item.TimeSlotInfos?.Any(t => t.TaskId == item2.TaskId)))))
+                        {
+                            if (!(subList[i].TimeSlotInfos.Any(t => t.TimeSlotId == item2.TimeSlotId)))
+                            {
+                                subList[i].TimeSlotInfos?.Add(item2);
+                            }
+
+                        }
+                    }
+                }
+
+                foreach (var item3 in subList)
+                {
+                    var subItem = new GetTaskReponseBySubjectIsKey()
+                    {
+                        SubjectCode = item3.SubjectCode,
+                        SubjectId = item3.SubjectId,
+                        TimeSlotInfos = item3.TimeSlotInfos,
+                        Total = item3.TimeSlotInfos?.Count ?? 0
+                    };
+                    response.Add(subItem);
+                }
+            }
+
+            return response;
         }
 
         public List<List<TimeSlotInfo>> GetTasksNotAssign(GetAllRequest request)
