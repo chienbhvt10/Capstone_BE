@@ -35,22 +35,35 @@ namespace Capstone_API.Service.Implement
                     && item.DepartmentHeadId == item.DepartmentHeadId
                     && item.LecturerId == null).ToList();
 
-            var countGroupByTimeslot = currentAssignedTask
-                .OrderBy(item => item.TimeSlotId)
-                .GroupBy(item => item.TimeSlotId).Select(gr => gr.Count()).ToList();
+            List<int> countGroupByTimeslot = new();
 
             var allTask = _unitOfWork.TaskRepository
                 .GetByCondition(item =>
                     item.SemesterId == request.SemesterId
                     && item.DepartmentHeadId == item.DepartmentHeadId).ToList();
 
-            var countAllGroupByTimeslot = allTask
-                .OrderBy(item => item.TimeSlotId)
-                .GroupBy(item => item.TimeSlotId).Select(gr => gr.Count()).ToList();
+            List<int> countAllGroupByTimeslot = new();
 
-            var countAllGroupBySubject = allTask
-                .OrderBy(item => item.SubjectId)
-                .GroupBy(item => item.SubjectId).Select(gr => gr.Count()).ToList();
+            var timeslots = _unitOfWork.TimeSlotRepository
+                    .GetByCondition(item => item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId)
+                    .ToList();
+
+            foreach (var timeslot in timeslots)
+            {
+                countAllGroupByTimeslot.Add(allTask.Where(item => item.TimeSlotId == timeslot.Id).ToList().Count);
+                countGroupByTimeslot.Add(currentAssignedTask.Where(item => item.TimeSlotId == timeslot.Id).ToList().Count);
+            }
+
+            List<int> countAllGroupBySubject = new();
+            var subjects = _unitOfWork.SubjectRepository
+                    .GetByCondition(item => item.SemesterId == request.SemesterId
+                    && item.DepartmentHeadId == request.DepartmentHeadId)
+                    .ToList();
+            foreach (var subject in subjects)
+            {
+                countAllGroupBySubject.Add(allTask.Where(item => item.SubjectId == subject.Id).ToList().Count);
+            }
 
             return new Statistic()
             {
@@ -140,8 +153,9 @@ namespace Capstone_API.Service.Implement
 
                     #region Data Row
 
-                    for (int i = 2; i <= exportSubjectsStatisticItems?.Count; i++)
+                    for (int i = 2; i <= exportSubjectsStatisticItems?.Count + 1; i++)
                     {
+                        var a = i;
                         // subject column
                         worksheet.Cells[i, 1].Value = exportSubjectsStatisticItems[i - 2].SubjectCode;
                         worksheet.Cells[i, 1].Style.Font.Color.SetColor(Color.Black);
@@ -186,7 +200,7 @@ namespace Capstone_API.Service.Implement
                     #region total group row
                     var groupSubject = exportSubjectsStatisticItems?.OrderBy(item => item.SubjectId).GroupBy(item => item.SubjectId).ToList();
                     var totalGroupCount = 0;
-                    for (int i = 2; i < groupSubject?.Count() + 1; i++)
+                    for (int i = 2; i <= groupSubject?.Count() + 1; i++)
                     {
                         if (groupSubject?[i - 2].Count() > 1)
                         {
@@ -212,42 +226,42 @@ namespace Capstone_API.Service.Implement
                     #region Total Row
                     for (int i = 2; i <= timeslots.Count + 1; i++)
                     {
-                        worksheet.Cells[exportSubjectsStatisticItems.Count + 1, i].Value = statistic.CountAllGroupByTimeSlot?[i - 2];
-                        worksheet.Cells[exportSubjectsStatisticItems.Count + 1, i].Style.Font.Color.SetColor(Color.Black);
-                        worksheet.Cells[exportSubjectsStatisticItems.Count + 1, i].Style.Font.Bold = true;
-                        worksheet.Cells[exportSubjectsStatisticItems.Count + 1, i].Style.Font.Size = 11;
-                        worksheet.Cells[exportSubjectsStatisticItems.Count + 1, i].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                        worksheet.Cells[exportSubjectsStatisticItems.Count + 1, i].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                        worksheet.Cells[exportSubjectsStatisticItems.Count + 1, i].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(60, 162, 255));
-                        worksheet.Cells[exportSubjectsStatisticItems.Count + 1, i].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                        worksheet.Cells[exportSubjectsStatisticItems.Count + 2, i].Value = statistic.CountAllGroupByTimeSlot?[i - 2];
+                        worksheet.Cells[exportSubjectsStatisticItems.Count + 2, i].Style.Font.Color.SetColor(Color.Black);
+                        worksheet.Cells[exportSubjectsStatisticItems.Count + 2, i].Style.Font.Bold = true;
+                        worksheet.Cells[exportSubjectsStatisticItems.Count + 2, i].Style.Font.Size = 11;
+                        worksheet.Cells[exportSubjectsStatisticItems.Count + 2, i].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[exportSubjectsStatisticItems.Count + 2, i].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        worksheet.Cells[exportSubjectsStatisticItems.Count + 2, i].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(60, 162, 255));
+                        worksheet.Cells[exportSubjectsStatisticItems.Count + 2, i].Style.Border.BorderAround(ExcelBorderStyle.Thin);
                     }
 
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, 1].Value = "Total Task";
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, 1].Style.Font.Color.SetColor(Color.Black);
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, 1].Style.Font.Bold = true;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, 1].Style.Font.Size = 11;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, 1].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(252, 255, 181));
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, 1].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, 1].Value = "Total Task";
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, 1].Style.Font.Color.SetColor(Color.Black);
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, 1].Style.Font.Bold = true;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, 1].Style.Font.Size = 11;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, 1].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(252, 255, 181));
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, 1].Style.Border.BorderAround(ExcelBorderStyle.Thin);
 
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 2].Value = statistic.TotalTask;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 2].Style.Font.Color.SetColor(Color.Black);
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 2].Style.Font.Bold = true;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 2].Style.Font.Size = 11;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 2].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(252, 255, 181));
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 2].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 2].Value = statistic.TotalTask;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 2].Style.Font.Color.SetColor(Color.Black);
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 2].Style.Font.Bold = true;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 2].Style.Font.Size = 11;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 2].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(252, 255, 181));
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 2].Style.Border.BorderAround(ExcelBorderStyle.Thin);
 
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 3].Value = statistic.TotalTask;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 3].Style.Font.Color.SetColor(Color.Black);
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 3].Style.Font.Bold = true;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 3].Style.Font.Size = 11;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 3].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 3].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(252, 255, 181));
-                    worksheet.Cells[exportSubjectsStatisticItems.Count + 1, timeslots.Count + 3].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 3].Value = statistic.TotalTask;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 3].Style.Font.Color.SetColor(Color.Black);
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 3].Style.Font.Bold = true;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 3].Style.Font.Size = 11;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 3].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 3].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(252, 255, 181));
+                    worksheet.Cells[exportSubjectsStatisticItems.Count + 2, timeslots.Count + 3].Style.Border.BorderAround(ExcelBorderStyle.Thin);
                     #endregion
 
                     #endregion
