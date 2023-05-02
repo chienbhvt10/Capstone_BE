@@ -250,7 +250,7 @@ namespace Capstone_API.Service.Implement
                 Slots = Slots,
                 Instructors = Instructors,
                 Tasks = Tasks,
-                PreAssign = PreAssign,
+                PreAssigns = PreAssign,
                 SlotDay = Slotday,
                 InstructorMinQuota = InstructorMinQuota,
                 PatternCost = PatternCost,

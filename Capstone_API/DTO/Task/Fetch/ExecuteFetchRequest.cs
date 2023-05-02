@@ -29,7 +29,7 @@
         public List<int>? InstructorQuota { get; set; }
         public List<List<int?>>? AreaDistance { get; set; }
         public List<List<int?>>? AreaSlotCoefficient { get; set; }
-        public List<TaskPreAssignFetchRequest>? PreAssign { get; set; }
+        public List<TaskPreAssignFetchRequest>? PreAssigns { get; set; }
     }
 
     public class SlotFetchRequest
