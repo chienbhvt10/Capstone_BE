@@ -55,15 +55,9 @@ namespace Capstone_API.Service.Implement
                 countGroupByTimeslot.Add(currentAssignedTask.Where(item => item.TimeSlotId == timeslot.Id).ToList().Count);
             }
 
-            List<int> countAllGroupBySubject = new();
-            var subjects = _unitOfWork.SubjectRepository
-                    .GetByCondition(item => item.SemesterId == request.SemesterId
-                    && item.DepartmentHeadId == request.DepartmentHeadId)
-                    .ToList();
-            foreach (var subject in subjects)
-            {
-                countAllGroupBySubject.Add(allTask.Where(item => item.SubjectId == subject.Id).ToList().Count);
-            }
+            var countAllGroupBySubject = allTask
+                 .OrderBy(item => item.SubjectId)
+                 .GroupBy(item => item.SubjectId).Select(gr => gr.Count()).ToList();
 
             return new Statistic()
             {
